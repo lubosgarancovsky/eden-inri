@@ -107,3 +107,7 @@ func (s *InvoiceService) SaveAttachments(c *gin.Context, userID uuid.UUID, invoi
 
 	return nil
 }
+
+func (s *InvoiceService) ListAttachments(userID uuid.UUID, invoiceID uuid.UUID) ([]*model.Attachment, error) {
+	return s.attachmentService.FindByModelID(userID, s.ModelName, invoiceID)
+}

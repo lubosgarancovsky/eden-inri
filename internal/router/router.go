@@ -69,6 +69,7 @@ func SetupRouter(r *gin.Engine, cfg *config.Config, db *gorm.DB) *gin.Engine {
 		invoices.PUT("/:invoiceId", invHandler.Update)
 		invoices.DELETE("/:invoiceId", invHandler.Delete)
 		invoices.POST("/:invoiceId/attachments", invHandler.UploadAttachments)
+		invoices.GET("/:invoiceId/attachments", invHandler.ListAttachments)
 	}
 
 	// Projects

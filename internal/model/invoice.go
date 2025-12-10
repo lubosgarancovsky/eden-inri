@@ -12,7 +12,8 @@ type Invoice struct {
 	Note          string     `json:"note"`
 	ExternalID    string     `json:"externalId"`
 	UserID        uuid.UUID  `json:"-"`
-	ClientID      uuid.UUID  `json:"clientId"`
+	ClientID      uuid.UUID  `json:"-"`
+	Client        Client     `json:"client"`
 	Total         float64    `json:"total"`
 	BillableHours float64    `json:"billableHours"`
 	IssuedAt      time.Time  `json:"issuedAt"`

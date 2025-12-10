@@ -239,3 +239,32 @@ func (h *InvoiceHandler) UploadAttachments(c *gin.Context) {
 	}
 	c.Status(204)
 }
+
+// ListAttachments @Summary      List invoice attachments
+// @Description  Returns a list of attachments by invoice ID
+// @Tags         Invoices
+// @Accept       json
+// @Produce      json
+// @Success      200  {object}   []model.Attachment
+// @Router       /v1/inri/invoices/{invoiceId}/attachments [get]
+func (h *InvoiceHandler) ListAttachments(c *gin.Context) {
+	invoiceID, err := helpers.ExtractID(c, "invoiceId")
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	user, err := helpers.GetUserContext(c)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	result, err := h.s.ListAttachments(user.ID, invoiceID)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	c.JSON(200, result)
+}

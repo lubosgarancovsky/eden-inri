@@ -239,7 +239,11 @@ definitions:
         type: boolean
       issuedAt:
         type: string
-      payedAt:
+      name:
+        type: string
+      note:
+        type: string
+      paidAt:
         type: string
       total:
         type: number
@@ -264,7 +268,11 @@ definitions:
         type: boolean
       issuedAt:
         type: string
-      payedAt:
+      name:
+        type: string
+      note:
+        type: string
+      paidAt:
         type: string
       total:
         type: number
@@ -778,6 +786,21 @@ paths:
       tags:
       - Invoices
   /v1/inri/invoices/{invoiceId}/attachments:
+    get:
+      consumes:
+      - application/json
+      description: Returns a list of attachments by invoice ID
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Attachment'
+            type: array
+      tags:
+      - Invoices
     post:
       consumes:
       - multipart/form-data

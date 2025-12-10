@@ -691,6 +691,29 @@ const docTemplate = `{
             }
         },
         "/v1/inri/invoices/{invoiceId}/attachments": {
+            "get": {
+                "description": "Returns a list of attachments by invoice ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Invoices"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.Attachment"
+                            }
+                        }
+                    }
+                }
+            },
             "post": {
                 "description": "Upload multiple files as attachments for the given invoice",
                 "consumes": [
@@ -1490,7 +1513,13 @@ const docTemplate = `{
                 "issuedAt": {
                     "type": "string"
                 },
-                "payedAt": {
+                "name": {
+                    "type": "string"
+                },
+                "note": {
+                    "type": "string"
+                },
+                "paidAt": {
                     "type": "string"
                 },
                 "total": {
@@ -1528,7 +1557,13 @@ const docTemplate = `{
                 "issuedAt": {
                     "type": "string"
                 },
-                "payedAt": {
+                "name": {
+                    "type": "string"
+                },
+                "note": {
+                    "type": "string"
+                },
+                "paidAt": {
                     "type": "string"
                 },
                 "total": {

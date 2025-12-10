@@ -3,6 +3,7 @@ package service
 import (
 	"mime/multipart"
 	"net/http"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -79,6 +80,10 @@ func (s *AttachmentService) FindByID(userID uuid.UUID, attachmentID uuid.UUID) (
 	return result, nil
 }
 
+func (s *AttachmentService) FindByModelID(userID uuid.UUID, modelName string, modelID uuid.UUID) ([]*model.Attachment, error) {
+	return s.r.FindByModelID(userID, modelName, modelID)
+}
+
 func (s *AttachmentService) Insert(attachment *model.Attachment) (*model.Attachment, error) {
 	return s.r.Insert(attachment)
 }
@@ -89,8 +94,11 @@ func (s *AttachmentService) Delete(userID uuid.UUID, attachmentID uuid.UUID) (*m
 		return nil, err
 	}
 
-	// TODO: Delete also from disk
-	return att, s.r.Delete(attachmentID)
+	if err := s.r.Delete(attachmentID); err != nil {
+		return nil, err
+	}
+
+	return att, s.DeleteFromDisk(att)
 }
 
 func (s *AttachmentService) GetFilePath(attachment *model.Attachment) string {
@@ -106,9 +114,19 @@ func (s *AttachmentService) GetMimeType(fileHeader *multipart.FileHeader) (strin
 	if err != nil {
 		return "", err
 	}
-	defer file.Close()
+	defer func(file multipart.File) {
+		err := file.Close()
+		if err != nil {
+
+		}
+	}(file)
 
 	buf := make([]byte, 512)
 	n, _ := file.Read(buf)
 	return http.DetectContentType(buf[:n]), nil
+}
+
+func (s *AttachmentService) DeleteFromDisk(attachment *model.Attachment) error {
+	path := s.GetFilePath(attachment)
+	return os.Remove(path)
 }

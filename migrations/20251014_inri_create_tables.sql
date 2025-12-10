@@ -54,7 +54,7 @@ CREATE TABLE IF NOT EXISTS inri_attachments (
     model TEXT,
     model_id TEXT,
     original_name TEXT,
-    mimeType TEXT,
+    mime_type TEXT,
     size INT,
     server_name TEXT,
     created_at TIMESTAMPTZ DEFAULT now(),

@@ -42,6 +42,19 @@ func (r *AttachmentRepository) FindByID(attachmentID uuid.UUID) (*model.Attachme
 	return &result, nil
 }
 
+func (r *AttachmentRepository) FindByModelID(userID uuid.UUID, modelName string, modelID uuid.UUID) ([]*model.Attachment, error) {
+	query := r.db.Model(&model.Attachment{}).Where("user_id = ?", userID)
+	query = query.Where("model = ? AND model_id = ?", modelName, modelID)
+
+	items := make([]*model.Attachment, 0)
+	err := query.Find(&items).Error
+	if err != nil {
+		return items, err
+	}
+
+	return items, nil
+}
+
 func (r *AttachmentRepository) Insert(att *model.Attachment) (*model.Attachment, error) {
 	if err := r.db.Clauses(clause.Returning{}).Create(att).Error; err != nil {
 		return nil, err

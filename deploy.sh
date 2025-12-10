@@ -19,7 +19,7 @@ HOST_PORT=9092
 CONTAINER_PORT=9092
 NETWORK=lubos-pi
 
-UPLOADS_HOST_PATH=/home/lubos/containers/eden/uploads
+UPLOADS_HOST_PATH=/home/lubos/containers/eden/data/uploads/inri
 UPLOADS_CONTAINER_PATH=/app/uploads
 
 # ======================
@@ -52,6 +52,8 @@ cd $REMOTE_PATH
 
 unzip -oq build.zip
 rm build.zip
+
+mkdir -p $UPLOADS_HOST_PATH
 
 cp -r ../certs .
 
