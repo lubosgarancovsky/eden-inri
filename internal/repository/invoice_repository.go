@@ -21,7 +21,7 @@ func NewInvoiceRepository(db *gorm.DB) *InvoiceRepository {
 }
 
 func (r *InvoiceRepository) FindAll(userID uuid.UUID, lq *list.ListingQuery) ([]model.Invoice, int64, error) {
-	query := r.db.Model(&model.Invoice{}).Where("user_id = ?", userID)
+	query := r.db.Model(&model.Invoice{}).Preload("Client").Where("user_id = ?", userID)
 	if lq.Filter != nil {
 		query = query.Where(lq.Filter.Query, lq.Filter.Args...)
 	}
@@ -35,7 +35,7 @@ func (r *InvoiceRepository) FindAll(userID uuid.UUID, lq *list.ListingQuery) ([]
 
 func (r *InvoiceRepository) FindByID(id uuid.UUID) (*model.Invoice, error) {
 	var result model.Invoice
-	if err := r.db.Model(&model.Invoice{}).Where("id = ?", id).First(&result).Error; err != nil {
+	if err := r.db.Model(&model.Invoice{}).Preload("Client").Where("id = ?", id).First(&result).Error; err != nil {
 		return nil, err
 	}
 	return &result, nil
