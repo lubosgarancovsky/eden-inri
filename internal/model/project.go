@@ -31,7 +31,8 @@ type ProjectRequest struct {
 
 type ProjectUser struct {
 	ProjectID uuid.UUID   `json:"projectId"`
-	UserID    uuid.UUID   `json:"userId"`
+	UserID    uuid.UUID   `json:"-"`
+	User      User        `json:"user"`
 	Role      ProjectRole `json:"role"`
 	JoinedAt  time.Time   `json:"joinedAt"`
 }
