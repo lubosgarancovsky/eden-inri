@@ -37,6 +37,10 @@ type ProjectUser struct {
 	JoinedAt  time.Time   `json:"joinedAt"`
 }
 
+type UpdateProjectUserRequest struct {
+	Role ProjectRole `json:"role"`
+}
+
 type ProjectRole string
 
 const (
