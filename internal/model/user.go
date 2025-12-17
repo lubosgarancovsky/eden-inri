@@ -10,3 +10,7 @@ type User struct {
 	FirstName string    `json:"firstName"`
 	LastName  string    `json:"lastName"`
 }
+
+func (User) TableName() string {
+	return "iam_users"
+}

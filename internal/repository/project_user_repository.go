@@ -41,6 +41,7 @@ func (r *ProjectUserRepository) FindAll(
 
 	// Step 2: build query for members with preloaded User
 	query := r.db.
+		Model(&model.ProjectUser{}).
 		Preload("User").
 		Where("project_id = ?", projectID)
 
