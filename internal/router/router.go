@@ -166,12 +166,25 @@ func SetupRouter(r *gin.Engine, cfg *config.Config, db *gorm.DB) *gin.Engine {
 	storyService := service.NewStoryService(storyRepo, projectService, projectUserService, kanbanService)
 	storyHandler := handler.NewStoryHandler(parser, storyService)
 
+	stories := kanban.Group("/:kanbanId/stories")
+
 	{
 		kanban.GET("/:kanbanId/columns/:columnId/stories", storyHandler.FindAll)
 		kanban.GET("/:kanbanId/stories/:storyId", storyHandler.FindByID)
-		kanban.POST("/:kanbanId/stories", storyHandler.Insert)
-		kanban.PUT("/:kanbanId/stories/:storyId", storyHandler.Update)
-		kanban.DELETE("/:kanbanId/stories/:storyId", storyHandler.Delete)
+		stories.POST("", storyHandler.Insert)
+		stories.PUT("/:storyId", storyHandler.Update)
+		stories.DELETE("/:storyId", storyHandler.Delete)
+	}
+
+	// Story activity
+	storyActivityRepo := repository.NewStoryActivityRepository(db)
+	storyActivityService := service.NewStoryActivityService(storyActivityRepo, projectUserService, kanbanService)
+	storyActivityHandler := handler.NewStoryActivityHandler(parser, storyActivityService)
+
+	{
+		stories.GET("/:storyId/activities", storyActivityHandler.ListActivities)
+		stories.POST("/:storyId/activities", storyActivityHandler.InsertActivity)
+
 	}
 
 	// Story labels
@@ -179,7 +192,7 @@ func SetupRouter(r *gin.Engine, cfg *config.Config, db *gorm.DB) *gin.Engine {
 	storyLabelService := service.NewStoryLabelService(storyLabelRepo, projectUserService, kanbanService)
 	storyLabelHandler := handler.NewStoryLabelHandler(storyLabelService)
 
-	storyLabels := kanban.Group("/:kanbanId/stories/:storyId}/labels")
+	storyLabels := kanban.Group("/:kanbanId/stories/:storyId/labels")
 	{
 		storyLabels.GET("", storyLabelHandler.ListLabels)
 		storyLabels.GET("/:labelId", storyLabelHandler.AssignLabel)
