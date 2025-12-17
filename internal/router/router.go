@@ -72,22 +72,42 @@ func SetupRouter(r *gin.Engine, cfg *config.Config, db *gorm.DB) *gin.Engine {
 		invoices.GET("/:invoiceId/attachments", invHandler.ListAttachments)
 	}
 
-	// Projects
-	projectRepo := repository.NewProjectRepository(db)
-	projectService := service.NewProjectService(projectRepo, attachmentService)
-	projectHandler := handler.NewProjectHandler(parser, projectService)
+	// Project users
+	projectUserRepo := repository.NewProjectUserRepository(db)
+	projectUserService := service.NewProjectUserService(projectUserRepo)
+	projectUserHandler := handler.NewProjectUserHandler(parser, projectUserService)
 
 	projects := protected.Group("/projects")
+	{
+		projects.GET("/:projectId/members", projectUserHandler.FindAll)
+		projects.DELETE("/:projectId/members/:memberId", projectUserHandler.Delete)
+	}
+
+	// Projects
+	projectRepo := repository.NewProjectRepository(db)
+	projectService := service.NewProjectService(projectRepo, attachmentService, projectUserService)
+	projectHandler := handler.NewProjectHandler(parser, projectService)
+
 	{
 		projects.GET("", projectHandler.FindAll)
 		projects.GET("/:projectId", projectHandler.FindByID)
 		projects.POST("", projectHandler.Create)
 		projects.PUT("/:projectId", projectHandler.Update)
 		projects.DELETE("/:projectId", projectHandler.Delete)
-		projects.GET("/:projectId/members", projectHandler.ListMembers)
-		projects.DELETE("/:projectId/members/:memberId", projectHandler.RemoveMember)
 		projects.POST("/:projectId/attachments", projectHandler.UploadAttachments)
 		projects.GET("/:projectId/attachments", projectHandler.ListAttachments)
+	}
+
+	// Kanban boards
+	kanbanRepo := repository.NewKanbanBoardRepository(db)
+	kanbanService := service.NewKanbanBoardService(kanbanRepo, projectUserService)
+	kanbanHandler := handler.NewKanbanBoardHandler(kanbanService)
+
+	{
+		projects.GET("/:projectId/boards", kanbanHandler.FindAll)
+		projects.POST("/:projectId/boards", projectHandler.Create)
+		projects.GET("/:projectId/boards/:boardId", kanbanHandler.FindByID)
+		projects.DELETE("/:projectId/boards/:boardId", kanbanHandler.Delete)
 	}
 
 	// Project Documents

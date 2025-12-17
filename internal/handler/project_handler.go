@@ -24,13 +24,6 @@ type ProjectPage struct {
 	TotalCount int64
 }
 
-type MemberPage struct {
-	Items      []model.ProjectUser
-	Page       int
-	PageSize   int
-	TotalCount int64
-}
-
 func NewProjectHandler(parser *rsql.Parser, s *service.ProjectService) *ProjectHandler {
 	return &ProjectHandler{s, parser}
 }
@@ -274,80 +267,4 @@ func (h *ProjectHandler) ListAttachments(c *gin.Context) {
 	}
 
 	c.JSON(200, result)
-}
-
-// ListMembers @Summary      List project members
-// @Description  Returns a paginated list of all project members
-// @Tags         Projects
-// @Accept       json
-// @Produce      json
-// @Param        projectId   path      string  true  "Project ID"
-// @Param        page      query     int     false  "Page number"     default(1)
-// @Param        pageSize  query     int     false  "Items per page"  default(10)
-// @Param        filter      query     string     false  "RSQL filter query"
-// @Param        sort  query     string     false  "Sort query"
-// @Success      200  {object}   MemberPage
-// @Router       /v1/inri/projects/{projectId}/members [get]
-func (h *ProjectHandler) ListMembers(c *gin.Context) {
-	projectID, err := helpers.ExtractID(c, "projectId")
-	if err != nil {
-		c.Error(err)
-		return
-	}
-
-	user, err := helpers.GetUserContext(c)
-	if err != nil {
-		c.Error(err)
-		return
-	}
-
-	lq, apiErr := helpers.CreateListingQuery(c, h.parser, listing.ProjectUserFilter, listing.ProjectUserSort)
-	if apiErr != nil {
-		c.Error(apiErr)
-		return
-	}
-
-	page, err := h.s.ListProjectMembers(user.ID, projectID, lq)
-	if err != nil {
-		c.Error(err)
-		return
-	}
-
-	c.JSON(200, page)
-}
-
-// RemoveMember @Summary      Remove a project member
-// @Description  Removes a member from a project
-// @Tags         Projects
-// @Accept       json
-// @Produce      json
-// @Param        projectId   path      string  true  "Project ID"
-// @Param        memberId    path      string  true  "Member User ID"
-// @Success      204  {string}  string  "No Content"
-// @Router       /v1/inri/projects/{projectId}/members/{memberId} [delete]
-func (h *ProjectHandler) RemoveMember(c *gin.Context) {
-	projectID, err := helpers.ExtractID(c, "projectId")
-	if err != nil {
-		c.Error(err)
-		return
-	}
-
-	memberID, err := helpers.ExtractID(c, "memberId")
-	if err != nil {
-		c.Error(err)
-		return
-	}
-
-	user, err := helpers.GetUserContext(c)
-	if err != nil {
-		c.Error(err)
-		return
-	}
-
-	if err := h.s.RemoveProjectMember(user.ID, memberID, projectID); err != nil {
-		c.Error(err)
-		return
-	}
-
-	c.Status(204)
 }

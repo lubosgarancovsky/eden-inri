@@ -8,18 +8,18 @@ import (
 	"github.com/google/uuid"
 	"github.com/lubosgarancovsky/eden-inri/internal/model"
 	"github.com/lubosgarancovsky/eden-inri/internal/repository"
-	"github.com/lubosgarancovsky/go-kit/api_err"
 	"github.com/lubosgarancovsky/go-kit/list"
 )
 
 type ProjectService struct {
-	r                 *repository.ProjectRepository
-	attachmentService *AttachmentService
-	ModelName         string
+	r                  *repository.ProjectRepository
+	attachmentService  *AttachmentService
+	projectUserService *ProjectUserService
+	ModelName          string
 }
 
-func NewProjectService(r *repository.ProjectRepository, attachmentService *AttachmentService) *ProjectService {
-	return &ProjectService{r: r, attachmentService: attachmentService, ModelName: "project"}
+func NewProjectService(r *repository.ProjectRepository, attachmentService *AttachmentService, projectUserService *ProjectUserService) *ProjectService {
+	return &ProjectService{r: r, attachmentService: attachmentService, projectUserService: projectUserService, ModelName: "project"}
 }
 
 func (s *ProjectService) FindAll(userID uuid.UUID, lq *list.ListingQuery) (*list.Page[model.Project], error) {
@@ -57,13 +57,13 @@ func (s *ProjectService) Create(userID uuid.UUID, input *model.ProjectRequest) (
 }
 
 func (s *ProjectService) Update(userID, id uuid.UUID, input *model.ProjectRequest) (*model.Project, error) {
-	role, err := s.GetUserRole(id, userID)
+	role, err := s.projectUserService.GetUserRole(id, userID)
 	if err != nil {
 		return nil, err
 	}
 
 	// Only owner or admin
-	if err := s.RequireRole(role, model.Owner, model.Admin); err != nil {
+	if err := s.projectUserService.RequireRole(role, model.Owner, model.Admin); err != nil {
 		return nil, err
 	}
 
@@ -86,13 +86,13 @@ func (s *ProjectService) Update(userID, id uuid.UUID, input *model.ProjectReques
 }
 
 func (s *ProjectService) Delete(userID, id uuid.UUID) (*model.Project, error) {
-	role, err := s.GetUserRole(id, userID)
+	role, err := s.projectUserService.GetUserRole(id, userID)
 	if err != nil {
 		return nil, err
 	}
 
 	// Only owner
-	if err := s.RequireRole(role, model.Owner); err != nil {
+	if err := s.projectUserService.RequireRole(role, model.Owner); err != nil {
 		return nil, err
 	}
 
@@ -118,65 +118,4 @@ func (s *ProjectService) ListAttachments(userID, projectID uuid.UUID) ([]*model.
 		return nil, err
 	}
 	return s.attachmentService.FindByModelID(userID, s.ModelName, projectID)
-}
-
-func (s *ProjectService) ListProjectMembers(userID, projectID uuid.UUID, lq *list.ListingQuery) (*list.Page[model.ProjectUser], error) {
-	items, totalCount, err := s.r.ListProjectMembers(userID, projectID, lq)
-	if err != nil {
-		return nil, err
-	}
-	return &list.Page[model.ProjectUser]{
-		Items:      items,
-		Page:       lq.Page,
-		PageSize:   lq.Limit,
-		TotalCount: totalCount,
-	}, nil
-}
-
-func (s *ProjectService) AddProjectMember(userID, projectID uuid.UUID, role model.ProjectRole) error {
-	role, err := s.GetUserRole(projectID, userID)
-	if err != nil {
-		return err
-	}
-
-	if err := s.RequireRole(role, model.Admin, model.Owner); err != nil {
-		return err
-	}
-
-	return s.AddProjectMember(userID, projectID, role)
-}
-
-func (s *ProjectService) RemoveProjectMember(userID, memberID, projectID uuid.UUID) error {
-	role, err := s.GetUserRole(projectID, userID)
-	if err != nil {
-		return err
-	}
-
-	if err := s.RequireRole(role, model.Admin, model.Owner); err != nil {
-		return err
-	}
-
-	memberRole, err := s.GetUserRole(projectID, memberID)
-	if err != nil {
-		return err
-	}
-
-	if memberRole == model.Owner {
-		return api_err.ErrForbidden
-	}
-
-	return s.r.RemoveMember(userID, projectID)
-}
-
-func (s *ProjectService) GetUserRole(projectID, userID uuid.UUID) (model.ProjectRole, error) {
-	return s.r.GetUserRole(projectID, userID)
-}
-
-func (s *ProjectService) RequireRole(actual model.ProjectRole, allowed ...model.ProjectRole) error {
-	for _, r := range allowed {
-		if actual == r {
-			return nil
-		}
-	}
-	return api_err.ErrForbidden
 }

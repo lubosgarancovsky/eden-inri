@@ -19,7 +19,7 @@ func NewProjectDocumentService(r *repository.ProjectDocumentRepository, projectR
 
 func (s *ProjectDocumentService) FindAll(userID uuid.UUID, projectID uuid.UUID, lq *list.ListingQuery) (*list.Page[model.ProjectDocument], error) {
 	// ensure user has access to the project
-	prj, err := s.projectRep.FindByID(projectID)
+	prj, err := s.projectRep.FindByID(projectID, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -52,7 +52,7 @@ func (s *ProjectDocumentService) FindByID(userID uuid.UUID, projectID uuid.UUID,
 
 func (s *ProjectDocumentService) Create(userID uuid.UUID, projectID uuid.UUID, input *model.ProjectDocumentRequest) (*model.ProjectDocument, error) {
 	// ensure project belongs to user
-	prj, err := s.projectRep.FindByID(projectID)
+	prj, err := s.projectRep.FindByID(projectID, userID)
 	if err != nil {
 		return nil, err
 	}

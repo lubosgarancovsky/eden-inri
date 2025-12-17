@@ -223,3 +223,29 @@ func (r *ProjectRepository) GetUserRole(projectID, userID uuid.UUID) (model.Proj
 
 	return role, nil
 }
+
+// UpdateMemberRole updates the role of a member in a project
+func (r *ProjectRepository) UpdateMemberRole(
+	projectID, memberID uuid.UUID,
+	newRole model.ProjectRole,
+) (*model.ProjectUser, error) {
+
+	// Only update role for non-owner members
+	pu := &model.ProjectUser{}
+	err := r.db.
+		Where("project_id = ? AND user_id = ? AND role != ?", projectID, memberID, model.Owner).
+		First(pu).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, api_err.ErrForbidden.WithMessage("cannot change role of owner or non-existent member")
+		}
+		return nil, err
+	}
+
+	pu.Role = newRole
+	if err := r.db.Save(pu).Error; err != nil {
+		return nil, err
+	}
+
+	return pu, nil
+}
