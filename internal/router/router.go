@@ -84,6 +84,8 @@ func SetupRouter(r *gin.Engine, cfg *config.Config, db *gorm.DB) *gin.Engine {
 		projects.POST("", projectHandler.Create)
 		projects.PUT("/:projectId", projectHandler.Update)
 		projects.DELETE("/:projectId", projectHandler.Delete)
+		projects.GET("/:projectId/members", projectHandler.ListMembers)
+		projects.DELETE("/:projectId/members/:memberId", projectHandler.RemoveMember)
 		projects.POST("/:projectId/attachments", projectHandler.UploadAttachments)
 		projects.GET("/:projectId/attachments", projectHandler.ListAttachments)
 	}
