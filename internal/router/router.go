@@ -174,7 +174,19 @@ func SetupRouter(r *gin.Engine, cfg *config.Config, db *gorm.DB) *gin.Engine {
 		kanban.DELETE("/:kanbanId/stories/:storyId", storyHandler.Delete)
 	}
 
-	// Labels
+	// Story labels
+	storyLabelRepo := repository.NewStoryLabelRepository(db)
+	storyLabelService := service.NewStoryLabelService(storyLabelRepo, projectUserService, kanbanService)
+	storyLabelHandler := handler.NewStoryLabelHandler(storyLabelService)
+
+	storyLabels := kanban.Group("/:kanbanId/stories/:storyId}/labels")
+	{
+		storyLabels.GET("", storyLabelHandler.ListLabels)
+		storyLabels.GET("/:labelId", storyLabelHandler.AssignLabel)
+		storyLabels.POST("/:labelId", storyLabelHandler.UnassignLabel)
+
+	}
+
 	// Story activities
 	// Story time tracking
 
