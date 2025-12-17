@@ -1,6 +1,8 @@
 package service
 
 import (
+	"time"
+
 	"github.com/google/uuid"
 	"github.com/lubosgarancovsky/eden-inri/internal/model"
 	"github.com/lubosgarancovsky/eden-inri/internal/repository"
@@ -48,6 +50,7 @@ func (s *ProjectService) Create(userID uuid.UUID, input *model.ProjectRequest) (
 		Status:      input.Status,
 		Tags:        input.Tags,
 		Slug:        input.Slug,
+		IsStarred:   false,
 	}
 	return s.r.Insert(prj)
 }
@@ -58,13 +61,15 @@ func (s *ProjectService) Update(userID uuid.UUID, id uuid.UUID, input *model.Pro
 		return nil, err
 	}
 	prj := &model.Project{
-		ID:          id,
-		UserID:      userID,
-		Name:        input.Name,
-		Description: input.Description,
-		Status:      input.Status,
-		Tags:        input.Tags,
-		Slug:        input.Slug,
+		ID:             id,
+		UserID:         userID,
+		Name:           input.Name,
+		Description:    input.Description,
+		Status:         input.Status,
+		Tags:           input.Tags,
+		Slug:           input.Slug,
+		UpdatedAt:      time.Now(),
+		LastActivityAt: time.Now(),
 	}
 	return s.r.Update(prj)
 }

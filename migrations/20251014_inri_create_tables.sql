@@ -70,8 +70,10 @@ CREATE TABLE IF NOT EXISTS inri_projects (
     status TEXT,
     tags TEXT[],
     slug TEXT,
-    created_at TIMESTAMPTZ DEFAULT now(),
-    updated_at TIMESTAMPTZ DEFAULT now()
+    is_starred BOOLEAN DEFAULT false NOT NULL,
+    last_activity_at TIMESTAMPTZ DEFAULT now() NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
+    updated_at TIMESTAMPTZ DEFAULT now() NOT NULL
 );
 
 -- Project Documents

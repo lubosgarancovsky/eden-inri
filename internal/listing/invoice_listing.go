@@ -8,7 +8,8 @@ var InvoiceFilter = map[string]string{
 	"total":         "total",
 	"issuedAt":      "issued_at",
 	"dueAt":         "due_at",
-	"payedAt":       "payed_at",
+	"paidAt":        "paid_at",
+	"name":          "name",
 }
 
 var InvoiceSort = map[string]string{
@@ -17,5 +18,6 @@ var InvoiceSort = map[string]string{
 	"createdAt":     "created_at",
 	"billableHours": "billable_hours",
 	"total":         "total",
-	"payedAt":       "payed_at",
+	"paidAt":        "paid_at",
+	"name":          "name",
 }

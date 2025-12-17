@@ -90,7 +90,7 @@ func (h *AttachmentHandler) FindByID(c *gin.Context) {
 }
 
 // Delete @Summary      Delete an attachment
-// @Description  Deletes the attachment (database). File deletion may be added later.
+// @Description  Deletes the attachment.
 // @Tags         Attachments
 // @Accept       json
 // @Produce      json
@@ -110,8 +110,7 @@ func (h *AttachmentHandler) Delete(c *gin.Context) {
 		return
 	}
 
-	_, err = h.s.Delete(user.ID, UID)
-	if err != nil {
+	if _, err := h.s.Delete(user.ID, UID); err != nil {
 		c.Error(err)
 		return
 	}

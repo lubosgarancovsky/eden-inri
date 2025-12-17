@@ -74,7 +74,7 @@ func (r *AttachmentRepository) Update(att *model.Attachment) (*model.Attachment,
 }
 
 func (r *AttachmentRepository) Delete(attachmentID uuid.UUID) error {
-	result := r.db.Clauses(clause.Returning{}).Where("id = ?", attachmentID).Delete(model.Attachment{})
+	result := r.db.Clauses(clause.Returning{}).Where("id = ?", attachmentID).Delete(&model.Attachment{})
 	if result.Error != nil {
 		return api_err.Wrap(api_err.ErrInternalServer, result.Error)
 	}
