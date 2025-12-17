@@ -118,10 +118,10 @@ func SetupRouter(r *gin.Engine, cfg *config.Config, db *gorm.DB) *gin.Engine {
 	kanbanHandler := handler.NewKanbanBoardHandler(kanbanService)
 
 	{
-		projects.GET("/:projectId/boards", kanbanHandler.FindAll)
-		projects.POST("/:projectId/boards", projectHandler.Create)
-		projects.GET("/:projectId/boards/:boardId", kanbanHandler.FindByID)
-		projects.DELETE("/:projectId/boards/:boardId", kanbanHandler.Delete)
+		projects.GET("/:projectId/kanban", kanbanHandler.FindAll)
+		projects.POST("/:projectId/kanban", projectHandler.Create)
+		projects.GET("/:projectId/kanban/:kanbanId", kanbanHandler.FindByID)
+		projects.DELETE("/:projectId/kanban/:kanbanId", kanbanHandler.Delete)
 	}
 
 	// Project Documents

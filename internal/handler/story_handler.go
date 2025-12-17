@@ -33,7 +33,10 @@ func NewStoryHandler(p *rsql.Parser, s *service.StoryService) *StoryHandler {
 // @Produce      json
 // @Param        kanbanId   path      string  true  "Kanban board ID"
 // @Param        columnId   path      string  true  "Column ID"
-// @Param        projectId  path      string  true  "Project ID"
+// @Param        page      query     int     false  "Page number"     default(1)
+// @Param        pageSize  query     int     false  "Items per page"  default(10)
+// @Param        filter      query     string     false  "RSQL filter query"
+// @Param        sort  query     string     false  "Sort query"
 // @Success      200  {array}  StoryPage
 // @Router       /v1/inri/kanban/{kanbanId}/columns/{columnId}/stories [get]
 func (h *StoryHandler) FindAll(c *gin.Context) {
@@ -74,7 +77,6 @@ func (h *StoryHandler) FindAll(c *gin.Context) {
 // @Accept       json
 // @Produce      json
 // @Param        storyId    path      string  true  "Story ID"
-// @Param        projectId  path      string  true  "Project ID"
 // @Success      200  {object}  model.Story
 // @Router       /v1/inri/kanban/{kanbanId}/stories/{storyId} [get]
 func (h *StoryHandler) FindByID(c *gin.Context) {
@@ -110,7 +112,6 @@ func (h *StoryHandler) FindByID(c *gin.Context) {
 // @Produce      json
 // @Param        kanbanId   path      string  true  "Kanban board ID"
 // @Param        columnId   path      string  true  "Column ID"
-// @Param        projectId  path      string  true  "Project ID"
 // @Param        body       body      model.StoryRequest true "Story data"
 // @Success      201  {object}  model.Story
 // @Router       /v1/inri/kanban/{kanbanId}/stories [post]
@@ -147,7 +148,6 @@ func (h *StoryHandler) Insert(c *gin.Context) {
 // @Accept       json
 // @Produce      json
 // @Param        storyId    path      string  true  "Story ID"
-// @Param        projectId  path      string  true  "Project ID"
 // @Param        body       body      model.StoryRequest true "Updated story data"
 // @Success      200  {object}  model.Story
 // @Router       /v1/inri/kanban/{kanbanId}/stories [put]
@@ -189,7 +189,6 @@ func (h *StoryHandler) Update(c *gin.Context) {
 // @Accept       json
 // @Produce      json
 // @Param        storyId    path      string  true  "Story ID"
-// @Param        projectId  path      string  true  "Project ID"
 // @Success      204  {string} string "No Content"
 // @Router       /v1/inri/kanban/{kanbanId}/stories/{storyId} [delete]
 func (h *StoryHandler) Delete(c *gin.Context) {

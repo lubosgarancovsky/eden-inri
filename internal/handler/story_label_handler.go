@@ -19,7 +19,7 @@ func NewStoryLabelHandler(s *service.StoryLabelService) *StoryLabelHandler {
 // @Tags         Kanban Story Labels
 // @Accept       json
 // @Produce      json
-// @Param        projectId  path  string  true "Project ID"
+// @Param        kanbanId  path  string  true "Kanban ID"
 // @Param        storyId    path  string  true "Story ID"
 // @Param        labelId    path  string  true "Label ID"
 // @Success      204  {string} string "No Content"
@@ -58,7 +58,7 @@ func (h *StoryLabelHandler) AssignLabel(c *gin.Context) {
 // @Tags         Kanban Story Labels
 // @Accept       json
 // @Produce      json
-// @Param        projectId  path  string  true "Project ID"
+// @Param        kanbanId  path  string  true "Kanban ID"
 // @Param        storyId    path  string  true "Story ID"
 // @Param        labelId    path  string  true "Label ID"
 // @Success      204  {string} string "No Content"
@@ -97,9 +97,9 @@ func (h *StoryLabelHandler) UnassignLabel(c *gin.Context) {
 // @Tags         Kanban Story Labels
 // @Accept       json
 // @Produce      json
-// @Param        projectId  path  string  true "Project ID"
+// @Param        kanbanId  path  string  true "Kanban ID"
 // @Param        storyId    path  string  true "Story ID"
-// @Success      200  {array}  model.KanbanLabel
+// @Success      200  {array}  model.Label
 // @Router       /v1/inri/kanban/{kanbanId}stories/{storyId}/labels [get]
 func (h *StoryLabelHandler) ListLabels(c *gin.Context) {
 	storyID, err := helpers.ExtractID(c, "storyId")

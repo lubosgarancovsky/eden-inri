@@ -25,7 +25,6 @@ type KanbanColumn struct {
 }
 
 type KanbanColumnRequest struct {
-	BoardID  uuid.UUID  `json:"boardId"`
 	Key      string     `json:"key"`
 	Name     string     `json:"name"`
 	Position int        `json:"position"`

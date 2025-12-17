@@ -73,7 +73,7 @@ func (h *ProjectUserHandler) FindAll(c *gin.Context) {
 // @Produce      json
 // @Param        projectId   path      string  true  "Project ID"
 // @Param        memberId    path      string  true  "Member User ID"
-// @Param        body        body      UpdateProjectUserRequest true "New role"
+// @Param        body        body      model.UpdateProjectUserRequest true "New role"
 // @Success      200  {object}  model.ProjectUser
 // @Router       /v1/inri/projects/{projectId}/members/{memberId} [put]
 func (h *ProjectUserHandler) Update(c *gin.Context) {

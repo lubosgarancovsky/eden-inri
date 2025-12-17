@@ -1,4 +1,18 @@
 definitions:
+  handler.ActivitiesPage:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/model.StoryActivity'
+        type: array
+      page:
+        type: integer
+      pageSize:
+        type: integer
+      totalCount:
+        format: int64
+        type: integer
+    type: object
   handler.AttachmentPage:
     properties:
       items:
@@ -55,6 +69,20 @@ definitions:
         format: int64
         type: integer
     type: object
+  handler.MemberPage:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/model.ProjectUser'
+        type: array
+      page:
+        type: integer
+      pageSize:
+        type: integer
+      totalCount:
+        format: int64
+        type: integer
+    type: object
   handler.ProjectDocumentPage:
     properties:
       items:
@@ -83,6 +111,36 @@ definitions:
         format: int64
         type: integer
     type: object
+  handler.StoryPage:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/model.Story'
+        type: array
+      page:
+        type: integer
+      pageSize:
+        type: integer
+      totalCount:
+        format: int64
+        type: integer
+    type: object
+  model.ActivityType:
+    enum:
+    - comment
+    - change_column
+    - add_label
+    - remove_label
+    - estimate_change
+    - change_assignee
+    type: string
+    x-enum-varnames:
+    - ActivityComment
+    - ActivityChangeColumn
+    - ActivityAddLabel
+    - ActivityRemoveLabel
+    - ActivityEstimateChange
+    - ActivityChangeAssignee
   model.Attachment:
     properties:
       createdAt:
@@ -189,6 +247,16 @@ definitions:
       taxNumber:
         type: string
     type: object
+  model.ColumnType:
+    enum:
+    - normal
+    - done
+    - blocked
+    type: string
+    x-enum-varnames:
+    - ColumnNormal
+    - ColumnDone
+    - ColumnBlocked
   model.ContactPerson:
     properties:
       clientId:
@@ -221,8 +289,8 @@ definitions:
     properties:
       billableHours:
         type: number
-      clientId:
-        type: string
+      client:
+        $ref: '#/definitions/model.Client'
       createdAt:
         type: string
       deliveredAt:
@@ -277,8 +345,47 @@ definitions:
       total:
         type: number
     type: object
-  model.Project:
+  model.KanbanBoard:
     properties:
+      createdAt:
+        type: string
+      id:
+        type: string
+      projectId:
+        type: string
+    type: object
+  model.KanbanColumn:
+    properties:
+      boardId:
+        type: string
+      createdAt:
+        type: string
+      id:
+        type: string
+      key:
+        type: string
+      name:
+        type: string
+      position:
+        type: integer
+      type:
+        $ref: '#/definitions/model.ColumnType'
+    type: object
+  model.KanbanColumnRequest:
+    properties:
+      key:
+        type: string
+      name:
+        type: string
+      position:
+        type: integer
+      type:
+        $ref: '#/definitions/model.ColumnType'
+    type: object
+  model.Label:
+    properties:
+      color:
+        type: string
       createdAt:
         type: string
       description:
@@ -287,10 +394,40 @@ definitions:
         type: string
       name:
         type: string
+      projectId:
+        type: string
+    type: object
+  model.LabelRequest:
+    properties:
+      color:
+        type: string
+      description:
+        type: string
+      name:
+        type: string
+      projectId:
+        type: string
+    type: object
+  model.Project:
+    properties:
+      createdAt:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      isStarred:
+        type: boolean
+      lastActivityAt:
+        type: string
+      name:
+        type: string
       slug:
         type: string
       status:
         type: string
+      storySequence:
+        type: integer
       tags:
         items:
           type: string
@@ -341,6 +478,140 @@ definitions:
           type: string
         type: array
     type: object
+  model.ProjectRole:
+    enum:
+    - owner
+    - admin
+    - developer
+    - guest
+    type: string
+    x-enum-varnames:
+    - Owner
+    - Admin
+    - Developer
+    - Guest
+  model.ProjectUser:
+    properties:
+      joinedAt:
+        type: string
+      projectId:
+        type: string
+      role:
+        $ref: '#/definitions/model.ProjectRole'
+      user:
+        $ref: '#/definitions/model.User'
+    type: object
+  model.Story:
+    properties:
+      assigneeId:
+        type: string
+      boardId:
+        type: string
+      columnId:
+        type: string
+      createdAt:
+        type: string
+      description:
+        type: string
+      endDate:
+        type: string
+      estimate:
+        type: integer
+      id:
+        type: string
+      kind:
+        $ref: '#/definitions/model.StoryKind'
+      position:
+        type: integer
+      priority:
+        type: integer
+      projectId:
+        type: string
+      size:
+        type: integer
+      slug:
+        type: string
+      startDate:
+        type: string
+      title:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  model.StoryActivity:
+    properties:
+      actorId:
+        type: string
+      createdAt:
+        type: string
+      id:
+        type: string
+      payload:
+        type: object
+      storyId:
+        type: string
+      type:
+        $ref: '#/definitions/model.ActivityType'
+    type: object
+  model.StoryKind:
+    enum:
+    - bug
+    - feature
+    - doc
+    - task
+    - design
+    - planning
+    type: string
+    x-enum-varnames:
+    - StoryBug
+    - StoryFeature
+    - StoryDoc
+    - StoryTask
+    - StoryDesign
+    - StoryPlanning
+  model.StoryRequest:
+    properties:
+      assigneeId:
+        type: string
+      boardId:
+        type: string
+      columnId:
+        type: string
+      description:
+        type: string
+      endDate:
+        type: string
+      estimate:
+        type: integer
+      kind:
+        $ref: '#/definitions/model.StoryKind'
+      position:
+        type: integer
+      priority:
+        type: integer
+      size:
+        type: integer
+      startDate:
+        type: string
+      title:
+        type: string
+    type: object
+  model.UpdateProjectUserRequest:
+    properties:
+      role:
+        $ref: '#/definitions/model.ProjectRole'
+    type: object
+  model.User:
+    properties:
+      firstName:
+        type: string
+      id:
+        type: string
+      lastName:
+        type: string
+      username:
+        type: string
+    type: object
 info:
   contact: {}
 paths:
@@ -381,7 +652,7 @@ paths:
     delete:
       consumes:
       - application/json
-      description: Deletes the attachment (database). File deletion may be added later.
+      description: Deletes the attachment.
       parameters:
       - description: Attachment ID
         in: path
@@ -828,6 +1099,434 @@ paths:
             type: string
       tags:
       - Invoices
+  /v1/inri/kanban/{kanbanId}/columns:
+    get:
+      consumes:
+      - application/json
+      description: Returns all columns for a given kanban board
+      parameters:
+      - description: Kanban board ID
+        in: path
+        name: kanbanId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.KanbanColumn'
+            type: array
+      tags:
+      - Kanban Columns
+    post:
+      consumes:
+      - application/json
+      description: Creates a new column in the kanban board
+      parameters:
+      - description: Kanban board ID
+        in: path
+        name: kanbanId
+        required: true
+        type: string
+      - description: Column data
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.KanbanColumnRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.KanbanColumn'
+      tags:
+      - Kanban Columns
+  /v1/inri/kanban/{kanbanId}/columns/{columnId}:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes a column from the kanban board
+      parameters:
+      - description: Kanban board ID
+        in: path
+        name: kanbanId
+        required: true
+        type: string
+      - description: Column ID
+        in: path
+        name: columnId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            type: string
+      tags:
+      - Kanban Columns
+    get:
+      consumes:
+      - application/json
+      description: Returns a specific column by ID
+      parameters:
+      - description: Kanban board ID
+        in: path
+        name: kanbanId
+        required: true
+        type: string
+      - description: Column ID
+        in: path
+        name: columnId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.KanbanColumn'
+      tags:
+      - Kanban Columns
+    put:
+      consumes:
+      - application/json
+      description: Updates an existing column
+      parameters:
+      - description: Kanban board ID
+        in: path
+        name: kanbanId
+        required: true
+        type: string
+      - description: Column ID
+        in: path
+        name: columnId
+        required: true
+        type: string
+      - description: Updated column data
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.KanbanColumnRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.KanbanColumn'
+      tags:
+      - Kanban Columns
+  /v1/inri/kanban/{kanbanId}/columns/{columnId}/stories:
+    get:
+      consumes:
+      - application/json
+      description: Returns all stories for a column
+      parameters:
+      - description: Kanban board ID
+        in: path
+        name: kanbanId
+        required: true
+        type: string
+      - description: Column ID
+        in: path
+        name: columnId
+        required: true
+        type: string
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Items per page
+        in: query
+        name: pageSize
+        type: integer
+      - description: RSQL filter query
+        in: query
+        name: filter
+        type: string
+      - description: Sort query
+        in: query
+        name: sort
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/handler.StoryPage'
+            type: array
+      tags:
+      - Kanban Stories
+  /v1/inri/kanban/{kanbanId}/stories:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new story in a column
+      parameters:
+      - description: Kanban board ID
+        in: path
+        name: kanbanId
+        required: true
+        type: string
+      - description: Column ID
+        in: path
+        name: columnId
+        required: true
+        type: string
+      - description: Story data
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.StoryRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.Story'
+      tags:
+      - Kanban Stories
+    put:
+      consumes:
+      - application/json
+      description: Updates an existing story
+      parameters:
+      - description: Story ID
+        in: path
+        name: storyId
+        required: true
+        type: string
+      - description: Updated story data
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.StoryRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Story'
+      tags:
+      - Kanban Stories
+  /v1/inri/kanban/{kanbanId}/stories/{storyId}:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes a story
+      parameters:
+      - description: Story ID
+        in: path
+        name: storyId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            type: string
+      tags:
+      - Kanban Stories
+    get:
+      consumes:
+      - application/json
+      description: Returns a specific story by ID
+      parameters:
+      - description: Story ID
+        in: path
+        name: storyId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Story'
+      tags:
+      - Kanban Stories
+  /v1/inri/kanban/{kanbanId}/stories/{storyId}/activities:
+    get:
+      consumes:
+      - application/json
+      description: Returns all activity events for a story (paginated)
+      parameters:
+      - description: Kanban ID
+        in: path
+        name: kanbanId
+        required: true
+        type: string
+      - description: Story ID
+        in: path
+        name: storyId
+        required: true
+        type: string
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Items per page
+        in: query
+        name: pageSize
+        type: integer
+      - description: RSQL filter query
+        in: query
+        name: filter
+        type: string
+      - description: Sort query
+        in: query
+        name: sort
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.ActivitiesPage'
+      tags:
+      - Story Activities
+    post:
+      consumes:
+      - application/json
+      description: Records a new activity for a story (e.g., label added, state changed,
+        comment added)
+      parameters:
+      - description: Kanban ID
+        in: path
+        name: kanbanId
+        required: true
+        type: string
+      - description: Story ID
+        in: path
+        name: storyId
+        required: true
+        type: string
+      - description: Activity payload including eventType and optional data
+        in: body
+        name: body
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.StoryActivity'
+      tags:
+      - Story Activities
+  /v1/inri/kanban/{kanbanId}/stories/{storyId}/labels/{labelId}:
+    post:
+      consumes:
+      - application/json
+      description: Assigns a label to a story
+      parameters:
+      - description: Kanban ID
+        in: path
+        name: kanbanId
+        required: true
+        type: string
+      - description: Story ID
+        in: path
+        name: storyId
+        required: true
+        type: string
+      - description: Label ID
+        in: path
+        name: labelId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            type: string
+      tags:
+      - Kanban Story Labels
+  /v1/inri/kanban/{kanbanId}stories/{storyId}/labels:
+    get:
+      consumes:
+      - application/json
+      description: Returns all labels assigned to a story
+      parameters:
+      - description: Kanban ID
+        in: path
+        name: kanbanId
+        required: true
+        type: string
+      - description: Story ID
+        in: path
+        name: storyId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Label'
+            type: array
+      tags:
+      - Kanban Story Labels
+  /v1/inri/kanban/{kanbanId}stories/{storyId}/labels/{labelId}:
+    delete:
+      consumes:
+      - application/json
+      description: Removes a label from a story
+      parameters:
+      - description: Kanban ID
+        in: path
+        name: kanbanId
+        required: true
+        type: string
+      - description: Story ID
+        in: path
+        name: storyId
+        required: true
+        type: string
+      - description: Label ID
+        in: path
+        name: labelId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            type: string
+      tags:
+      - Kanban Story Labels
   /v1/inri/projects:
     get:
       consumes:
@@ -943,6 +1642,49 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/model.Project'
+      tags:
+      - Projects
+  /v1/inri/projects/{projectId}/attachments:
+    get:
+      consumes:
+      - application/json
+      description: Returns a list of attachments by project ID
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Attachment'
+            type: array
+      tags:
+      - Projects
+    post:
+      consumes:
+      - multipart/form-data
+      description: Upload multiple files as attachments for the given project
+      parameters:
+      - description: Project ID
+        in: path
+        name: projectId
+        required: true
+        type: string
+      - collectionFormat: csv
+        description: Files to upload
+        in: formData
+        items:
+          type: file
+        name: files
+        required: true
+        type: array
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            type: string
       tags:
       - Projects
   /v1/inri/projects/{projectId}/documents:
@@ -1087,4 +1829,319 @@ paths:
             $ref: '#/definitions/model.ProjectDocument'
       tags:
       - ProjectDocuments
+  /v1/inri/projects/{projectId}/kanban:
+    get:
+      consumes:
+      - application/json
+      description: Returns all boards of a project
+      parameters:
+      - description: Project ID
+        in: path
+        name: projectId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.KanbanBoard'
+            type: array
+      tags:
+      - Kanban boards
+    post:
+      consumes:
+      - application/json
+      description: Creates a new Kanban board for a project
+      parameters:
+      - description: Project ID
+        in: path
+        name: projectId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.KanbanBoard'
+      tags:
+      - Kanban boards
+  /v1/inri/projects/{projectId}/kanban/{kanbanId}:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes a Kanban board
+      parameters:
+      - description: Project ID
+        in: path
+        name: projectId
+        required: true
+        type: string
+      - description: Board ID
+        in: path
+        name: boardId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            type: string
+      tags:
+      - Kanban boards
+    get:
+      consumes:
+      - application/json
+      description: Returns a single Kanban board
+      parameters:
+      - description: Project ID
+        in: path
+        name: projectId
+        required: true
+        type: string
+      - description: Board ID
+        in: path
+        name: boardId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.KanbanBoard'
+      tags:
+      - Kanban boards
+  /v1/inri/projects/{projectId}/labels:
+    get:
+      consumes:
+      - application/json
+      description: Returns all labels for a project/board
+      parameters:
+      - description: Project ID
+        in: path
+        name: projectId
+        required: true
+        type: string
+      - description: Board ID
+        in: path
+        name: boardId
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              items:
+                $ref: '#/definitions/model.Label'
+              type: array
+            type: array
+      tags:
+      - Labels
+    post:
+      consumes:
+      - application/json
+      description: Creates a new label
+      parameters:
+      - description: Project ID
+        in: path
+        name: projectId
+        required: true
+        type: string
+      - description: Label data
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.LabelRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.Label'
+      tags:
+      - Labels
+  /v1/inri/projects/{projectId}/labels/{labelId}:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes a label
+      parameters:
+      - description: Project ID
+        in: path
+        name: projectId
+        required: true
+        type: string
+      - description: Label ID
+        in: path
+        name: labelId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            type: string
+      tags:
+      - Labels
+    get:
+      consumes:
+      - application/json
+      description: Returns a label by ID
+      parameters:
+      - description: Project ID
+        in: path
+        name: projectId
+        required: true
+        type: string
+      - description: Label ID
+        in: path
+        name: labelId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Label'
+      tags:
+      - Labels
+    put:
+      consumes:
+      - application/json
+      description: Updates a label
+      parameters:
+      - description: Project ID
+        in: path
+        name: projectId
+        required: true
+        type: string
+      - description: Label ID
+        in: path
+        name: labelId
+        required: true
+        type: string
+      - description: Updated label data
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.LabelRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Label'
+      tags:
+      - Labels
+  /v1/inri/projects/{projectId}/members:
+    get:
+      consumes:
+      - application/json
+      description: Returns a paginated list of all project members
+      parameters:
+      - description: Project ID
+        in: path
+        name: projectId
+        required: true
+        type: string
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Items per page
+        in: query
+        name: pageSize
+        type: integer
+      - description: RSQL filter query
+        in: query
+        name: filter
+        type: string
+      - description: Sort query
+        in: query
+        name: sort
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.MemberPage'
+      tags:
+      - Projects
+  /v1/inri/projects/{projectId}/members/{memberId}:
+    delete:
+      consumes:
+      - application/json
+      description: Removes a member from a project
+      parameters:
+      - description: Project ID
+        in: path
+        name: projectId
+        required: true
+        type: string
+      - description: Member User ID
+        in: path
+        name: memberId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            type: string
+      tags:
+      - Projects
+    put:
+      consumes:
+      - application/json
+      description: Updates the role of a project member
+      parameters:
+      - description: Project ID
+        in: path
+        name: projectId
+        required: true
+        type: string
+      - description: Member User ID
+        in: path
+        name: memberId
+        required: true
+        type: string
+      - description: New role
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.UpdateProjectUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.ProjectUser'
+      tags:
+      - Projects
 swagger: "2.0"

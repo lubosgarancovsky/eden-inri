@@ -96,7 +96,7 @@ const docTemplate = `{
                 }
             },
             "delete": {
-                "description": "Deletes the attachment (database). File deletion may be added later.",
+                "description": "Deletes the attachment.",
                 "consumes": [
                     "application/json"
                 ],
@@ -755,6 +755,650 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/inri/kanban/{kanbanId}/columns": {
+            "get": {
+                "description": "Returns all columns for a given kanban board",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Kanban Columns"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Kanban board ID",
+                        "name": "kanbanId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.KanbanColumn"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Creates a new column in the kanban board",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Kanban Columns"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Kanban board ID",
+                        "name": "kanbanId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Column data",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.KanbanColumnRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/model.KanbanColumn"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/inri/kanban/{kanbanId}/columns/{columnId}": {
+            "get": {
+                "description": "Returns a specific column by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Kanban Columns"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Kanban board ID",
+                        "name": "kanbanId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Column ID",
+                        "name": "columnId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.KanbanColumn"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Updates an existing column",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Kanban Columns"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Kanban board ID",
+                        "name": "kanbanId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Column ID",
+                        "name": "columnId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Updated column data",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.KanbanColumnRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.KanbanColumn"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Deletes a column from the kanban board",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Kanban Columns"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Kanban board ID",
+                        "name": "kanbanId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Column ID",
+                        "name": "columnId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/inri/kanban/{kanbanId}/columns/{columnId}/stories": {
+            "get": {
+                "description": "Returns all stories for a column",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Kanban Stories"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Kanban board ID",
+                        "name": "kanbanId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Column ID",
+                        "name": "columnId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Items per page",
+                        "name": "pageSize",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "RSQL filter query",
+                        "name": "filter",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort query",
+                        "name": "sort",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/handler.StoryPage"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/inri/kanban/{kanbanId}/stories": {
+            "put": {
+                "description": "Updates an existing story",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Kanban Stories"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Story ID",
+                        "name": "storyId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Updated story data",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.StoryRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Story"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Creates a new story in a column",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Kanban Stories"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Kanban board ID",
+                        "name": "kanbanId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Column ID",
+                        "name": "columnId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Story data",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.StoryRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/model.Story"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/inri/kanban/{kanbanId}/stories/{storyId}": {
+            "get": {
+                "description": "Returns a specific story by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Kanban Stories"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Story ID",
+                        "name": "storyId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Story"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Deletes a story",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Kanban Stories"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Story ID",
+                        "name": "storyId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/inri/kanban/{kanbanId}/stories/{storyId}/activities": {
+            "get": {
+                "description": "Returns all activity events for a story (paginated)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Story Activities"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Kanban ID",
+                        "name": "kanbanId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Story ID",
+                        "name": "storyId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Items per page",
+                        "name": "pageSize",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "RSQL filter query",
+                        "name": "filter",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort query",
+                        "name": "sort",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ActivitiesPage"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Records a new activity for a story (e.g., label added, state changed, comment added)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Story Activities"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Kanban ID",
+                        "name": "kanbanId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Story ID",
+                        "name": "storyId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Activity payload including eventType and optional data",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/model.StoryActivity"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/inri/kanban/{kanbanId}/stories/{storyId}/labels/{labelId}": {
+            "post": {
+                "description": "Assigns a label to a story",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Kanban Story Labels"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Kanban ID",
+                        "name": "kanbanId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Story ID",
+                        "name": "storyId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Label ID",
+                        "name": "labelId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/inri/kanban/{kanbanId}stories/{storyId}/labels": {
+            "get": {
+                "description": "Returns all labels assigned to a story",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Kanban Story Labels"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Kanban ID",
+                        "name": "kanbanId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Story ID",
+                        "name": "storyId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.Label"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/inri/kanban/{kanbanId}stories/{storyId}/labels/{labelId}": {
+            "delete": {
+                "description": "Removes a label from a story",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Kanban Story Labels"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Kanban ID",
+                        "name": "kanbanId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Story ID",
+                        "name": "storyId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Label ID",
+                        "name": "labelId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/inri/projects": {
             "get": {
                 "description": "Returns a paginated list of all projects",
@@ -921,6 +1565,71 @@ const docTemplate = `{
                         "description": "Project ID",
                         "name": "projectId",
                         "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/inri/projects/{projectId}/attachments": {
+            "get": {
+                "description": "Returns a list of attachments by project ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Projects"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.Attachment"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Upload multiple files as attachments for the given project",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Projects"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project ID",
+                        "name": "projectId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "file"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "Files to upload",
+                        "name": "files",
+                        "in": "formData",
                         "required": true
                     }
                 ],
@@ -1147,9 +1856,507 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/v1/inri/projects/{projectId}/kanban": {
+            "get": {
+                "description": "Returns all boards of a project",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Kanban boards"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project ID",
+                        "name": "projectId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.KanbanBoard"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Creates a new Kanban board for a project",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Kanban boards"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project ID",
+                        "name": "projectId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/model.KanbanBoard"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/inri/projects/{projectId}/kanban/{kanbanId}": {
+            "get": {
+                "description": "Returns a single Kanban board",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Kanban boards"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project ID",
+                        "name": "projectId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Board ID",
+                        "name": "boardId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.KanbanBoard"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Deletes a Kanban board",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Kanban boards"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project ID",
+                        "name": "projectId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Board ID",
+                        "name": "boardId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/inri/projects/{projectId}/labels": {
+            "get": {
+                "description": "Returns all labels for a project/board",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Labels"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project ID",
+                        "name": "projectId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Board ID",
+                        "name": "boardId",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/definitions/model.Label"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Creates a new label",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Labels"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project ID",
+                        "name": "projectId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Label data",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.LabelRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/model.Label"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/inri/projects/{projectId}/labels/{labelId}": {
+            "get": {
+                "description": "Returns a label by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Labels"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project ID",
+                        "name": "projectId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Label ID",
+                        "name": "labelId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Label"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Updates a label",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Labels"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project ID",
+                        "name": "projectId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Label ID",
+                        "name": "labelId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Updated label data",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.LabelRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Label"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Deletes a label",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Labels"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project ID",
+                        "name": "projectId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Label ID",
+                        "name": "labelId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/inri/projects/{projectId}/members": {
+            "get": {
+                "description": "Returns a paginated list of all project members",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Projects"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project ID",
+                        "name": "projectId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Items per page",
+                        "name": "pageSize",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "RSQL filter query",
+                        "name": "filter",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort query",
+                        "name": "sort",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.MemberPage"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/inri/projects/{projectId}/members/{memberId}": {
+            "put": {
+                "description": "Updates the role of a project member",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Projects"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project ID",
+                        "name": "projectId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Member User ID",
+                        "name": "memberId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "New role",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.UpdateProjectUserRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.ProjectUser"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Removes a member from a project",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Projects"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project ID",
+                        "name": "projectId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Member User ID",
+                        "name": "memberId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "handler.ActivitiesPage": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.StoryActivity"
+                    }
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "type": "integer"
+                },
+                "totalCount": {
+                    "type": "integer",
+                    "format": "int64"
+                }
+            }
+        },
         "handler.AttachmentPage": {
             "type": "object",
             "properties": {
@@ -1234,6 +2441,27 @@ const docTemplate = `{
                 }
             }
         },
+        "handler.MemberPage": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.ProjectUser"
+                    }
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "type": "integer"
+                },
+                "totalCount": {
+                    "type": "integer",
+                    "format": "int64"
+                }
+            }
+        },
         "handler.ProjectDocumentPage": {
             "type": "object",
             "properties": {
@@ -1275,6 +2503,46 @@ const docTemplate = `{
                     "format": "int64"
                 }
             }
+        },
+        "handler.StoryPage": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Story"
+                    }
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "type": "integer"
+                },
+                "totalCount": {
+                    "type": "integer",
+                    "format": "int64"
+                }
+            }
+        },
+        "model.ActivityType": {
+            "type": "string",
+            "enum": [
+                "comment",
+                "change_column",
+                "add_label",
+                "remove_label",
+                "estimate_change",
+                "change_assignee"
+            ],
+            "x-enum-varnames": [
+                "ActivityComment",
+                "ActivityChangeColumn",
+                "ActivityAddLabel",
+                "ActivityRemoveLabel",
+                "ActivityEstimateChange",
+                "ActivityChangeAssignee"
+            ]
         },
         "model.Attachment": {
             "type": "object",
@@ -1437,6 +2705,19 @@ const docTemplate = `{
                 }
             }
         },
+        "model.ColumnType": {
+            "type": "string",
+            "enum": [
+                "normal",
+                "done",
+                "blocked"
+            ],
+            "x-enum-varnames": [
+                "ColumnNormal",
+                "ColumnDone",
+                "ColumnBlocked"
+            ]
+        },
         "model.ContactPerson": {
             "type": "object",
             "properties": {
@@ -1486,8 +2767,8 @@ const docTemplate = `{
                 "billableHours": {
                     "type": "number"
                 },
-                "clientId": {
-                    "type": "string"
+                "client": {
+                    "$ref": "#/definitions/model.Client"
                 },
                 "createdAt": {
                     "type": "string"
@@ -1571,9 +2852,69 @@ const docTemplate = `{
                 }
             }
         },
-        "model.Project": {
+        "model.KanbanBoard": {
             "type": "object",
             "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "projectId": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.KanbanColumn": {
+            "type": "object",
+            "properties": {
+                "boardId": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "key": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "position": {
+                    "type": "integer"
+                },
+                "type": {
+                    "$ref": "#/definitions/model.ColumnType"
+                }
+            }
+        },
+        "model.KanbanColumnRequest": {
+            "type": "object",
+            "properties": {
+                "key": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "position": {
+                    "type": "integer"
+                },
+                "type": {
+                    "$ref": "#/definitions/model.ColumnType"
+                }
+            }
+        },
+        "model.Label": {
+            "type": "object",
+            "properties": {
+                "color": {
+                    "type": "string"
+                },
                 "createdAt": {
                     "type": "string"
                 },
@@ -1586,11 +2927,57 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
+                "projectId": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.LabelRequest": {
+            "type": "object",
+            "properties": {
+                "color": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "projectId": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.Project": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "isStarred": {
+                    "type": "boolean"
+                },
+                "lastActivityAt": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
                 "slug": {
                     "type": "string"
                 },
                 "status": {
                     "type": "string"
+                },
+                "storySequence": {
+                    "type": "integer"
                 },
                 "tags": {
                     "type": "array",
@@ -1666,6 +3053,202 @@ const docTemplate = `{
                     "items": {
                         "type": "string"
                     }
+                }
+            }
+        },
+        "model.ProjectRole": {
+            "type": "string",
+            "enum": [
+                "owner",
+                "admin",
+                "developer",
+                "guest"
+            ],
+            "x-enum-varnames": [
+                "Owner",
+                "Admin",
+                "Developer",
+                "Guest"
+            ]
+        },
+        "model.ProjectUser": {
+            "type": "object",
+            "properties": {
+                "joinedAt": {
+                    "type": "string"
+                },
+                "projectId": {
+                    "type": "string"
+                },
+                "role": {
+                    "$ref": "#/definitions/model.ProjectRole"
+                },
+                "user": {
+                    "$ref": "#/definitions/model.User"
+                }
+            }
+        },
+        "model.Story": {
+            "type": "object",
+            "properties": {
+                "assigneeId": {
+                    "type": "string"
+                },
+                "boardId": {
+                    "type": "string"
+                },
+                "columnId": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "endDate": {
+                    "type": "string"
+                },
+                "estimate": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "kind": {
+                    "$ref": "#/definitions/model.StoryKind"
+                },
+                "position": {
+                    "type": "integer"
+                },
+                "priority": {
+                    "type": "integer"
+                },
+                "projectId": {
+                    "type": "string"
+                },
+                "size": {
+                    "type": "integer"
+                },
+                "slug": {
+                    "type": "string"
+                },
+                "startDate": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.StoryActivity": {
+            "type": "object",
+            "properties": {
+                "actorId": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "payload": {
+                    "type": "object"
+                },
+                "storyId": {
+                    "type": "string"
+                },
+                "type": {
+                    "$ref": "#/definitions/model.ActivityType"
+                }
+            }
+        },
+        "model.StoryKind": {
+            "type": "string",
+            "enum": [
+                "bug",
+                "feature",
+                "doc",
+                "task",
+                "design",
+                "planning"
+            ],
+            "x-enum-varnames": [
+                "StoryBug",
+                "StoryFeature",
+                "StoryDoc",
+                "StoryTask",
+                "StoryDesign",
+                "StoryPlanning"
+            ]
+        },
+        "model.StoryRequest": {
+            "type": "object",
+            "properties": {
+                "assigneeId": {
+                    "type": "string"
+                },
+                "boardId": {
+                    "type": "string"
+                },
+                "columnId": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "endDate": {
+                    "type": "string"
+                },
+                "estimate": {
+                    "type": "integer"
+                },
+                "kind": {
+                    "$ref": "#/definitions/model.StoryKind"
+                },
+                "position": {
+                    "type": "integer"
+                },
+                "priority": {
+                    "type": "integer"
+                },
+                "size": {
+                    "type": "integer"
+                },
+                "startDate": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.UpdateProjectUserRequest": {
+            "type": "object",
+            "properties": {
+                "role": {
+                    "$ref": "#/definitions/model.ProjectRole"
+                }
+            }
+        },
+        "model.User": {
+            "type": "object",
+            "properties": {
+                "firstName": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "lastName": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
                 }
             }
         }
