@@ -58,3 +58,7 @@ func (s *KanbanBoardService) Delete(userID, projectID, boardID uuid.UUID) error 
 
 	return s.repo.Delete(boardID, projectID)
 }
+
+func (s *KanbanBoardService) GetProjectIDByBoardID(boardID uuid.UUID) (uuid.UUID, error) {
+	return s.repo.GetProjectIDByBoardID(boardID)
+}

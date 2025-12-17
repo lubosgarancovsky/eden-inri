@@ -9,7 +9,6 @@ import (
 type Label struct {
 	ID          uuid.UUID  `gorm:"primary_key;type:uuid;default:uuid_generate_v4()" json:"id"`
 	ProjectID   *uuid.UUID `json:"projectId"`
-	BoardID     *uuid.UUID `json:"boardId"`
 	Name        string     `json:"name"`
 	Description string     `json:"description"`
 	Color       string     `json:"color"`
@@ -18,7 +17,6 @@ type Label struct {
 
 type LabelRequest struct {
 	ProjectID   *uuid.UUID `json:"projectId"`
-	BoardID     *uuid.UUID `json:"boardId"`
 	Name        string     `json:"name"`
 	Description string     `json:"description"`
 	Color       string     `json:"color"`

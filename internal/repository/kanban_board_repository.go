@@ -60,3 +60,13 @@ func (r *KanbanBoardRepository) Delete(boardID, projectID uuid.UUID) error {
 	}
 	return nil
 }
+
+// GetProjectIDByBoardID Returns ID of a project the kanban board belongs to
+func (r *KanbanBoardRepository) GetProjectIDByBoardID(boardID uuid.UUID) (uuid.UUID, error) {
+	var projectID uuid.UUID
+	err := r.db.Where("id = ?", boardID).Select("project_id").First(&projectID).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return uuid.Nil, api_err.ErrNotFound
+	}
+	return projectID, err
+}
