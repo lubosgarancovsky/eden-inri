@@ -6,7 +6,9 @@ import (
 	"github.com/lubosgarancovsky/eden-inri/internal/model"
 	"github.com/lubosgarancovsky/eden-inri/internal/service"
 	"github.com/lubosgarancovsky/eden-inri/pkg/helpers"
+	"github.com/lubosgarancovsky/go-kit/api_err"
 	"github.com/lubosgarancovsky/go-kit/rsql"
+	"mime/multipart"
 )
 
 type ProjectHandler struct {
@@ -183,4 +185,85 @@ func (h *ProjectHandler) Delete(c *gin.Context) {
 	}
 
 	c.Status(204)
+}
+
+// UploadAttachments @Summary Upload attachments to a project
+// @Description Upload multiple files as attachments for the given project
+// @Tags         Projects
+// @Accept       mpfd
+// @Produce      json
+// @Param        projectId   path      string  true  "Project ID"
+// @Param files formData []file true "Files to upload"
+// @Success      204  {string}  string  "No Content"
+// @Router       /v1/inri/projects/{projectId}/attachments [post]
+func (h *ProjectHandler) UploadAttachments(c *gin.Context) {
+	projectID, err := helpers.ExtractID(c, "projectId")
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	user, err := helpers.GetUserContext(c)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	if err := c.Request.ParseMultipartForm(32 << 20); err != nil { // 32MB default limit
+		c.Error(err)
+		return
+	}
+	form := c.Request.MultipartForm
+	var files []multipart.FileHeader
+	if fhs, ok := form.File["files"]; ok {
+		for _, fh := range fhs {
+			files = append(files, *fh)
+		}
+	}
+	if len(files) == 0 {
+		// also support single file key "file"
+		if f, err2 := c.FormFile("file"); err2 == nil && f != nil {
+			files = append(files, *f)
+		}
+	}
+
+	if len(files) == 0 {
+		c.Error(api_err.ErrBadRequest.WithMessage("no files provided"))
+		return
+	}
+
+	if err := h.s.SaveAttachments(c, user.ID, projectID, files); err != nil {
+		c.Error(err)
+		return
+	}
+	c.Status(204)
+}
+
+// ListAttachments @Summary      List project attachments
+// @Description  Returns a list of attachments by project ID
+// @Tags         Projects
+// @Accept       json
+// @Produce      json
+// @Success      200  {object}   []model.Attachment
+// @Router       /v1/inri/projects/{projectId}/attachments [get]
+func (h *ProjectHandler) ListAttachments(c *gin.Context) {
+	projectID, err := helpers.ExtractID(c, "projectId")
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	user, err := helpers.GetUserContext(c)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	result, err := h.s.ListAttachments(user.ID, projectID)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	c.JSON(200, result)
 }

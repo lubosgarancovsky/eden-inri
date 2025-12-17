@@ -1,8 +1,10 @@
 package service
 
 import (
+	"mime/multipart"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/lubosgarancovsky/eden-inri/internal/model"
 	"github.com/lubosgarancovsky/eden-inri/internal/repository"
@@ -11,11 +13,13 @@ import (
 )
 
 type ProjectService struct {
-	r *repository.ProjectRepository
+	r                 *repository.ProjectRepository
+	attachmentService *AttachmentService
+	ModelName         string
 }
 
-func NewProjectService(r *repository.ProjectRepository) *ProjectService {
-	return &ProjectService{r: r}
+func NewProjectService(r *repository.ProjectRepository, attachmentService *AttachmentService) *ProjectService {
+	return &ProjectService{r: r, attachmentService: attachmentService, ModelName: "project"}
 }
 
 func (s *ProjectService) FindAll(userID uuid.UUID, lq *list.ListingQuery) (*list.Page[model.Project], error) {
@@ -80,4 +84,21 @@ func (s *ProjectService) Delete(userID uuid.UUID, id uuid.UUID) (*model.Project,
 		return nil, err
 	}
 	return prj, s.r.Delete(id)
+}
+
+func (s *ProjectService) SaveAttachments(c *gin.Context, userID uuid.UUID, projectID uuid.UUID, files []multipart.FileHeader) error {
+	for _, file := range files {
+		if _, err := s.attachmentService.SaveAttachment(c, userID, s.ModelName, projectID.String(), file); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (s *ProjectService) ListAttachments(userID uuid.UUID, projectID uuid.UUID) ([]*model.Attachment, error) {
+	// ensure user has access
+	if _, err := s.FindByID(userID, projectID); err != nil {
+		return nil, err
+	}
+	return s.attachmentService.FindByModelID(userID, s.ModelName, projectID)
 }

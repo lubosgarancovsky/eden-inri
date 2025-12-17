@@ -74,7 +74,7 @@ func SetupRouter(r *gin.Engine, cfg *config.Config, db *gorm.DB) *gin.Engine {
 
 	// Projects
 	projectRepo := repository.NewProjectRepository(db)
-	projectService := service.NewProjectService(projectRepo)
+	projectService := service.NewProjectService(projectRepo, attachmentService)
 	projectHandler := handler.NewProjectHandler(parser, projectService)
 
 	projects := protected.Group("/projects")
@@ -84,6 +84,8 @@ func SetupRouter(r *gin.Engine, cfg *config.Config, db *gorm.DB) *gin.Engine {
 		projects.POST("", projectHandler.Create)
 		projects.PUT("/:projectId", projectHandler.Update)
 		projects.DELETE("/:projectId", projectHandler.Delete)
+		projects.POST("/:projectId/attachments", projectHandler.UploadAttachments)
+		projects.GET("/:projectId/attachments", projectHandler.ListAttachments)
 	}
 
 	// Project Documents
