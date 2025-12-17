@@ -29,7 +29,7 @@ type Story struct {
 	AssigneeID  *uuid.UUID     `json:"assigneeId"`
 	Priority    int            `json:"priority"`
 	Size        *int           `json:"size"`
-	Estimate    *time.Duration `json:"estimate"`
+	Estimate    *time.Duration `json:"estimate" swaggertype:"integer"`
 	StartDate   *time.Time     `json:"startDate"`
 	EndDate     *time.Time     `json:"endDate"`
 	Position    int            `json:"position"`
@@ -46,7 +46,7 @@ type StoryRequest struct {
 	AssigneeID  *uuid.UUID     `json:"assigneeId"`
 	Priority    int            `json:"priority"`
 	Size        *int           `json:"size"`
-	Estimate    *time.Duration `json:"estimate"`
+	Estimate    *time.Duration `json:"estimate" swaggertype:"integer"`
 	StartDate   *time.Time     `json:"startDate"`
 	EndDate     *time.Time     `json:"endDate"`
 	Position    int            `json:"position"`

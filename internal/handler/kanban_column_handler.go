@@ -22,7 +22,6 @@ func NewKanbanColumnHandler(s *service.KanbanColumnService) *KanbanColumnHandler
 // @Accept       json
 // @Produce      json
 // @Param        kanbanId   path      string  true  "Kanban board ID"
-// @Param        projectId  path      string  true  "Project ID"
 // @Success      200  {array}  model.KanbanColumn
 // @Router       /v1/inri/kanban/{kanbanId}/columns [get]
 func (h *KanbanColumnHandler) FindAll(c *gin.Context) {
@@ -53,7 +52,6 @@ func (h *KanbanColumnHandler) FindAll(c *gin.Context) {
 // @Accept       json
 // @Produce      json
 // @Param        kanbanId   path      string  true  "Kanban board ID"
-// @Param        projectId  path      string  true  "Project ID"
 // @Param        columnId   path      string  true  "Column ID"
 // @Success      200  {object}  model.KanbanColumn
 // @Router       /v1/inri/kanban/{kanbanId}/columns/{columnId} [get]
@@ -91,7 +89,6 @@ func (h *KanbanColumnHandler) FindByID(c *gin.Context) {
 // @Accept       json
 // @Produce      json
 // @Param        kanbanId   path      string  true  "Kanban board ID"
-// @Param        projectId  path      string  true  "Project ID"
 // @Param        body      body      model.KanbanColumnRequest true "Column data"
 // @Success      201  {object}  model.KanbanColumn
 // @Router       /v1/inri/kanban/{kanbanId}/columns [post]
@@ -129,7 +126,6 @@ func (h *KanbanColumnHandler) Insert(c *gin.Context) {
 // @Accept       json
 // @Produce      json
 // @Param        kanbanId   path      string  true  "Kanban board ID"
-// @Param        projectId  path      string  true  "Project ID"
 // @Param        columnId   path      string  true  "Column ID"
 // @Param        body      body      model.KanbanColumnRequest true "Updated column data"
 // @Success      200  {object}  model.KanbanColumn
@@ -173,7 +169,6 @@ func (h *KanbanColumnHandler) Update(c *gin.Context) {
 // @Accept       json
 // @Produce      json
 // @Param        kanbanId   path      string  true  "Kanban board ID"
-// @Param        projectId  path      string  true  "Project ID"
 // @Param        columnId   path      string  true  "Column ID"
 // @Success      204  {string}  string "No Content"
 // @Router       /v1/inri/kanban/{kanbanId}/columns/{columnId} [delete]

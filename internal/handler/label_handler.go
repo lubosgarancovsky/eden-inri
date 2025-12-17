@@ -18,12 +18,12 @@ func NewLabelHandler(s *service.LabelService) *LabelHandler {
 
 // FindAll @Summary      List labels
 // @Description  Returns all labels for a project/board
-// @Tags         Kanban Labels
+// @Tags         Labels
 // @Accept       json
 // @Produce      json
 // @Param        projectId  path      string  true  "Project ID"
 // @Param        boardId    path      string  false "Board ID"
-// @Success      200  {array}  []model.KanbanLabel
+// @Success      200  {array}  []model.Label
 // @Router       /v1/inri/projects/{projectId}/labels [get]
 func (h *LabelHandler) FindAll(c *gin.Context) {
 	projectID, err := helpers.ExtractID(c, "projectId")
@@ -46,12 +46,12 @@ func (h *LabelHandler) FindAll(c *gin.Context) {
 
 // FindByID @Summary      Get a label
 // @Description  Returns a label by ID
-// @Tags         Kanban Labels
+// @Tags         Labels
 // @Accept       json
 // @Produce      json
 // @Param        projectId  path      string  true  "Project ID"
 // @Param        labelId    path      string  true  "Label ID"
-// @Success      200  {object}  model.KanbanLabel
+// @Success      200  {object}  model.Label
 // @Router       /v1/inri/projects/{projectId}/labels/{labelId} [get]
 func (h *LabelHandler) FindByID(c *gin.Context) {
 	labelID, err := helpers.ExtractID(c, "labelId")
@@ -79,12 +79,12 @@ func (h *LabelHandler) FindByID(c *gin.Context) {
 
 // Insert @Summary      Create a label
 // @Description  Creates a new label
-// @Tags         Kanban Labels
+// @Tags         Labels
 // @Accept       json
 // @Produce      json
 // @Param        projectId  path      string  true  "Project ID"
-// @Param        body       body      model.KanbanLabelRequest true "Label data"
-// @Success      201  {object}  model.KanbanLabel
+// @Param        body       body      model.LabelRequest true "Label data"
+// @Success      201  {object}  model.Label
 // @Router       /v1/inri/projects/{projectId}/labels [post]
 func (h *LabelHandler) Insert(c *gin.Context) {
 	projectID, err := helpers.ExtractID(c, "projectId")
@@ -112,13 +112,13 @@ func (h *LabelHandler) Insert(c *gin.Context) {
 
 // Update @Summary      Update a label
 // @Description  Updates a label
-// @Tags         Kanban Labels
+// @Tags         Labels
 // @Accept       json
 // @Produce      json
 // @Param        projectId  path      string  true  "Project ID"
 // @Param        labelId    path      string  true  "Label ID"
-// @Param        body       body      model.KanbanLabelRequest true "Updated label data"
-// @Success      200  {object}  model.KanbanLabel
+// @Param        body       body      model.LabelRequest true "Updated label data"
+// @Success      200  {object}  model.Label
 // @Router       /v1/inri/projects/{projectId}/labels/{labelId} [put]
 func (h *LabelHandler) Update(c *gin.Context) {
 	labelID, err := helpers.ExtractID(c, "labelId")
@@ -151,7 +151,7 @@ func (h *LabelHandler) Update(c *gin.Context) {
 
 // Delete @Summary      Delete a label
 // @Description  Deletes a label
-// @Tags         Kanban Labels
+// @Tags         Labels
 // @Accept       json
 // @Produce      json
 // @Param        projectId  path      string  true  "Project ID"

@@ -16,12 +16,12 @@ func NewKanbanBoardHandler(s *service.KanbanBoardService) *KanbanBoardHandler {
 
 // FindAll @Summary      List project boards
 // @Description  Returns all boards of a project
-// @Tags         Boards
+// @Tags         Kanban boards
 // @Accept       json
 // @Produce      json
 // @Param        projectId   path      string  true  "Project ID"
 // @Success      200  {array}  model.KanbanBoard
-// @Router       /v1/inri/projects/{projectId}/boards [get]
+// @Router       /v1/inri/projects/{projectId}/kanban [get]
 func (h *KanbanBoardHandler) FindAll(c *gin.Context) {
 	projectID, err := helpers.ExtractID(c, "projectId")
 	if err != nil {
@@ -46,13 +46,13 @@ func (h *KanbanBoardHandler) FindAll(c *gin.Context) {
 
 // FindByID @Summary      Get board detail
 // @Description  Returns a single Kanban board
-// @Tags         Boards
+// @Tags         Kanban boards
 // @Accept       json
 // @Produce      json
 // @Param        projectId   path      string  true  "Project ID"
 // @Param        boardId     path      string  true  "Board ID"
 // @Success      200  {object}  model.KanbanBoard
-// @Router       /v1/inri/projects/{projectId}/boards/{boardId} [get]
+// @Router       /v1/inri/projects/{projectId}/kanban/{kanbanId} [get]
 func (h *KanbanBoardHandler) FindByID(c *gin.Context) {
 	projectID, err := helpers.ExtractID(c, "projectId")
 	if err != nil {
@@ -60,7 +60,7 @@ func (h *KanbanBoardHandler) FindByID(c *gin.Context) {
 		return
 	}
 
-	boardID, err := helpers.ExtractID(c, "boardId")
+	boardID, err := helpers.ExtractID(c, "kanbanId")
 	if err != nil {
 		c.Error(err)
 		return
@@ -83,12 +83,12 @@ func (h *KanbanBoardHandler) FindByID(c *gin.Context) {
 
 // Insert @Summary      Create a Kanban board
 // @Description  Creates a new Kanban board for a project
-// @Tags         Boards
+// @Tags         Kanban boards
 // @Accept       json
 // @Produce      json
 // @Param        projectId   path      string  true  "Project ID"
 // @Success      201  {object}  model.KanbanBoard
-// @Router       /v1/inri/projects/{projectId}/boards [post]
+// @Router       /v1/inri/projects/{projectId}/kanban [post]
 func (h *KanbanBoardHandler) Insert(c *gin.Context) {
 	projectID, err := helpers.ExtractID(c, "projectId")
 	if err != nil {
@@ -113,13 +113,13 @@ func (h *KanbanBoardHandler) Insert(c *gin.Context) {
 
 // Delete @Summary      Delete a board
 // @Description  Deletes a Kanban board
-// @Tags         Boards
+// @Tags         Kanban boards
 // @Accept       json
 // @Produce      json
 // @Param        projectId   path      string  true  "Project ID"
 // @Param        boardId     path      string  true  "Board ID"
 // @Success      204  {string}  string  "No Content"
-// @Router       /v1/inri/projects/{projectId}/boards/{boardId} [delete]
+// @Router       /v1/inri/projects/{projectId}/kanban/{kanbanId} [delete]
 func (h *KanbanBoardHandler) Delete(c *gin.Context) {
 	projectID, err := helpers.ExtractID(c, "projectId")
 	if err != nil {
@@ -127,7 +127,7 @@ func (h *KanbanBoardHandler) Delete(c *gin.Context) {
 		return
 	}
 
-	boardID, err := helpers.ExtractID(c, "boardId")
+	boardID, err := helpers.ExtractID(c, "kanbanId")
 	if err != nil {
 		c.Error(err)
 		return

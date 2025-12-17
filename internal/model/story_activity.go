@@ -23,7 +23,7 @@ type StoryActivity struct {
 	StoryID   uuid.UUID       `json:"storyId"`
 	ActorID   uuid.UUID       `json:"actorId"`
 	Type      ActivityType    `json:"type"`
-	Payload   json.RawMessage `json:"payload"`
+	Payload   json.RawMessage `json:"payload" swaggertype:"object"`
 	CreatedAt time.Time       `json:"createdAt"`
 }
 
