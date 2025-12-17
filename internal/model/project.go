@@ -29,6 +29,26 @@ type ProjectRequest struct {
 	Slug        string   `json:"slug"`
 }
 
+type ProjectUser struct {
+	ProjectID uuid.UUID   `json:"projectId"`
+	UserID    uuid.UUID   `json:"userId"`
+	Role      ProjectRole `json:"role"`
+	JoinedAt  time.Time   `json:"joinedAt"`
+}
+
+type ProjectRole string
+
+const (
+	Owner     ProjectRole = "owner"
+	Admin     ProjectRole = "admin"
+	Developer ProjectRole = "developer"
+	Guest     ProjectRole = "guest"
+)
+
 func (p *Project) TableName() string {
 	return "inri_projects"
+}
+
+func (ProjectUser) TableName() string {
+	return "inri_project_users"
 }
