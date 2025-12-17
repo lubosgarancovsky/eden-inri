@@ -49,18 +49,26 @@ func (r *InvoiceRepository) Insert(inv *model.Invoice) (*model.Invoice, error) {
 }
 
 func (r *InvoiceRepository) Update(inv *model.Invoice) (*model.Invoice, error) {
-	result := r.db.Clauses(clause.Returning{}).Where("id = ?", inv.ID).Updates(&inv)
+	result := r.db.
+		Model(&model.Invoice{}).
+		Clauses(clause.Returning{}).
+		Where("id = ?", inv.ID).
+		Select("*").
+		Updates(inv)
+
 	if result.Error != nil {
 		return nil, api_err.Wrap(api_err.ErrInternalServer, result.Error)
 	}
 	if result.RowsAffected == 0 {
-		return nil, api_err.Wrap(api_err.ErrNotFound, result.Error).WithMessage(fmt.Sprintf("Invoice with id %s does not exist", inv.ID))
+		return nil, api_err.Wrap(api_err.ErrNotFound, result.Error).
+			WithMessage(fmt.Sprintf("Invoice with id %s does not exist", inv.ID))
 	}
+
 	return inv, nil
 }
 
 func (r *InvoiceRepository) Delete(id uuid.UUID) error {
-	result := r.db.Clauses(clause.Returning{}).Where("id = ?", id).Delete(model.Invoice{})
+	result := r.db.Clauses(clause.Returning{}).Where("id = ?", id).Delete(&model.Invoice{})
 	if result.Error != nil {
 		return api_err.Wrap(api_err.ErrInternalServer, result.Error)
 	}
