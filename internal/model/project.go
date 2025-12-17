@@ -19,6 +19,7 @@ type Project struct {
 	CreatedAt      time.Time      `json:"createdAt"`
 	UpdatedAt      time.Time      `json:"updatedAt"`
 	LastActivityAt time.Time      `json:"lastActivityAt"`
+	StorySequence  int            `json:"storySequence"`
 }
 
 type ProjectRequest struct {

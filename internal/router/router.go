@@ -98,6 +98,20 @@ func SetupRouter(r *gin.Engine, cfg *config.Config, db *gorm.DB) *gin.Engine {
 		projects.GET("/:projectId/attachments", projectHandler.ListAttachments)
 	}
 
+	// Labels
+	labelRepo := repository.NewLabelRepository(db)
+	labelService := service.NewLabelService(labelRepo, projectUserService)
+	labelHandelr := handler.NewLabelHandler(labelService)
+
+	labels := protected.Group("/:projectId/labels")
+	{
+		labels.GET("", labelHandelr.FindAll)
+		labels.GET("/:labelId", labelHandelr.FindByID)
+		labels.POST("", labelHandelr.Insert)
+		labels.PUT("/:labelId", labelHandelr.Update)
+		labels.DELETE("/:labelId", labelHandelr.Delete)
+	}
+
 	// Kanban boards
 	kanbanRepo := repository.NewKanbanBoardRepository(db)
 	kanbanService := service.NewKanbanBoardService(kanbanRepo, projectUserService)
@@ -132,6 +146,37 @@ func SetupRouter(r *gin.Engine, cfg *config.Config, db *gorm.DB) *gin.Engine {
 		attachments.DELETE("/:attachmentId", attachmentHandler.Delete)
 		attachments.GET("/:attachmentId/download", attachmentHandler.Download)
 	}
+
+	// Kanban columns
+	kanbanColumnsRepo := repository.NewKanbanColumnRepository(db)
+	kanbanColumnsService := service.NewKanbanColumnService(kanbanColumnsRepo, projectUserService, kanbanService)
+	kanbanColumnsHandler := handler.NewKanbanColumnHandler(kanbanColumnsService)
+
+	kanban := r.Group("/kanban")
+	{
+		kanban.GET("/:kanbanId/columns", kanbanColumnsHandler.FindAll)
+		kanban.GET("/:kanbanId/columns/:columnId", kanbanColumnsHandler.FindByID)
+		kanban.POST("/:kanbanId/columns", kanbanColumnsHandler.Insert)
+		kanban.PUT("/:kanbanId/columns/:columnId", kanbanColumnsHandler.Update)
+		kanban.DELETE("/:kanbanId/columns/:columnId", kanbanColumnsHandler.Delete)
+	}
+
+	// Stories
+	storyRepo := repository.NewStoryRepository(db)
+	storyService := service.NewStoryService(storyRepo, projectService, projectUserService, kanbanService)
+	storyHandler := handler.NewStoryHandler(parser, storyService)
+
+	{
+		kanban.GET("/:kanbanId/columns/:columnId/stories", storyHandler.FindAll)
+		kanban.GET("/:kanbanId/stories/:storyId", storyHandler.FindByID)
+		kanban.POST("/:kanbanId/stories", storyHandler.Insert)
+		kanban.PUT("/:kanbanId/stories/:storyId", storyHandler.Update)
+		kanban.DELETE("/:kanbanId/stories/:storyId", storyHandler.Delete)
+	}
+
+	// Labels
+	// Story activities
+	// Story time tracking
 
 	return r
 }

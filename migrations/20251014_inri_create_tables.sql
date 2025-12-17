@@ -70,6 +70,7 @@ CREATE TABLE IF NOT EXISTS inri_projects (
     status TEXT,
     tags TEXT[],
     slug TEXT,
+    story_sequence integer DEFAULT 0,
     is_starred BOOLEAN DEFAULT false NOT NULL,
     last_activity_at TIMESTAMPTZ DEFAULT now() NOT NULL,
     created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
