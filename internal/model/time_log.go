@@ -6,7 +6,7 @@ import (
 	"github.com/google/uuid"
 )
 
-type StoryTimeLog struct {
+type TimeLog struct {
 	ID          uuid.UUID     `json:"id"`
 	StoryID     uuid.UUID     `json:"storyId"`
 	UserID      uuid.UUID     `json:"userId"`
@@ -16,11 +16,11 @@ type StoryTimeLog struct {
 	UpdatedAt   time.Time     `json:"updatedAt"`
 }
 
-type StoryTimeLogRequest struct {
+type TimeLogRequest struct {
 	Duration    time.Duration `json:"duration"`
 	Description *string       `json:"description"`
 }
 
-func (StoryTimeLog) TableName() string {
+func (TimeLog) TableName() string {
 	return "inri_story_time_logs"
 }

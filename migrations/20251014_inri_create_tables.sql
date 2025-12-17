@@ -91,7 +91,7 @@ CREATE TABLE IF NOT EXISTS inri_project_documents (
 
 
 -- N:M Project-User relation
-CREATE TYPE  IF NOT EXISTS inri_project_role AS ENUM ('owner', 'admin', 'developer', 'guest');
+CREATE TYPE inri_project_role AS ENUM ('owner', 'admin', 'developer', 'guest');
 
 CREATE TABLE inri_project_users (
     project_id UUID NOT NULL REFERENCES inri_projects(id) ON DELETE CASCADE,
@@ -109,7 +109,7 @@ CREATE TABLE inri_kanban_boards (
 );
 
 -- Kanban Board Columns
-CREATE TYPE IF NOT EXISTS inri_column_type AS ENUM ('normal', 'done', 'blocked');
+CREATE TYPE inri_column_type AS ENUM ('normal', 'done', 'blocked');
 
 CREATE TABLE inri_kanban_columns (
     id        UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -124,7 +124,7 @@ CREATE TABLE inri_kanban_columns (
 );
 
 -- Kanban Stories
-CREATE TYPE IF NOT EXISTS inri_story_kind AS ENUM (
+CREATE TYPE inri_story_kind AS ENUM (
   'bug', 'feature', 'doc', 'task', 'design', 'plan'
 );
 
@@ -165,7 +165,7 @@ CREATE TABLE inri_story_labels (
 );
 
 -- Kanban Stories
-CREATE TYPE IF NOT EXISTS inri_activity_type AS ENUM (
+CREATE TYPE inri_activity_type AS ENUM (
   'comment', 'change_column', 'add_label', 'remove_label',
   'estimate_change', 'change_assignee'
 );
@@ -208,8 +208,8 @@ DROP TABLE IF EXISTS inri_attachments;
 DROP TABLE IF EXISTS inri_invoice;
 DROP TABLE IF EXISTS inri_contact_person;
 DROP TABLE IF EXISTS inri_clients;
-DROP TYPE IF EXISTS inri_project_role;
-DROP TYPE IF EXISTS inri_column_type;
-DROP TYPE IF EXISTS inri_story_kind;
-DROP TYPE IF EXISTS inri_activity_type;
+DROP TYPE inri_project_role;
+DROP TYPE inri_column_type;
+DROP TYPE inri_story_kind;
+DROP TYPE inri_activity_type;
 -- +goose StatementEnd
