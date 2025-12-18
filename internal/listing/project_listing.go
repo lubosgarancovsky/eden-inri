@@ -6,6 +6,7 @@ var ProjectFilter = map[string]string{
 	"slug":           "slug",
 	"lastActivityAt": "last_activity_at",
 	"isStarred":      "is_starred",
+	"role":           "pu.role",
 }
 
 var ProjectSort = map[string]string{

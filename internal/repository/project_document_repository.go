@@ -20,8 +20,8 @@ func NewProjectDocumentRepository(db *gorm.DB) *ProjectDocumentRepository {
 	return &ProjectDocumentRepository{db: db}
 }
 
-func (r *ProjectDocumentRepository) FindAll(userID uuid.UUID, projectID uuid.UUID, lq *list.ListingQuery) ([]model.ProjectDocument, int64, error) {
-	query := r.db.Model(&model.Project{}).Where("user_id = ? AND project_id = ?", userID, projectID)
+func (r *ProjectDocumentRepository) FindAll(projectID uuid.UUID, lq *list.ListingQuery) ([]model.ProjectDocument, int64, error) {
+	query := r.db.Model(&model.ProjectDocument{}).Where("project_id = ?", projectID)
 	if lq.Filter != nil {
 		query = query.Where(lq.Filter.Query, lq.Filter.Args...)
 	}

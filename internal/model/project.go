@@ -9,7 +9,6 @@ import (
 
 type Project struct {
 	ID             uuid.UUID      `gorm:"primary_key;type:uuid;default:uuid_generate_v4()" json:"id"`
-	UserID         uuid.UUID      `json:"-"`
 	Name           string         `json:"name"`
 	Description    string         `json:"description"`
 	Status         string         `json:"status"`
@@ -20,11 +19,13 @@ type Project struct {
 	UpdatedAt      time.Time      `json:"updatedAt"`
 	LastActivityAt time.Time      `json:"lastActivityAt"`
 	StorySequence  int            `json:"storySequence"`
+	Role           ProjectRole    `json:"role"`
 }
 
 type ProjectRequest struct {
 	Name        string   `json:"name"`
 	Description string   `json:"description"`
+	IsStarred   bool     `json:"isStarred"`
 	Status      string   `json:"status"`
 	Tags        []string `json:"tags"`
 	Slug        string   `json:"slug"`
