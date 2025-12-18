@@ -1480,6 +1480,28 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/inri/projects/:projectId/favourite": {
+            "post": {
+                "description": "Toggles the is_starred flag in a project for current user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Projects"
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/model.Project"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/inri/projects/{projectId}": {
             "get": {
                 "description": "Returns a project by its ID",
@@ -2962,6 +2984,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "isStarred": {
+                    "description": "From ProjectUser",
                     "type": "boolean"
                 },
                 "lastActivityAt": {
@@ -2969,6 +2992,14 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
+                },
+                "role": {
+                    "description": "From ProjectUser",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/model.ProjectRole"
+                        }
+                    ]
                 },
                 "slug": {
                     "type": "string"
@@ -3074,6 +3105,9 @@ const docTemplate = `{
         "model.ProjectUser": {
             "type": "object",
             "properties": {
+                "isStarred": {
+                    "type": "boolean"
+                },
                 "joinedAt": {
                     "type": "string"
                 },

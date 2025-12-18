@@ -29,7 +29,7 @@ func (r *ProjectRepository) FindAll(
 
 	query := r.db.
 		Table("inri_projects p").
-		Select("p.*, pu.role").
+		Select("p.*, pu.role, pu.is_starred").
 		Joins(`
 			JOIN inri_project_users pu
 			  ON pu.project_id = p.id
@@ -56,7 +56,7 @@ func (r *ProjectRepository) FindByID(
 
 	err := r.db.
 		Table("inri_projects p").
-		Select("p.*, pu.role").
+		Select("p.*, pu.role, pu.is_starred").
 		Joins(`
 			JOIN inri_project_users pu
 			  ON pu.project_id = p.id
@@ -81,6 +81,7 @@ func (r *ProjectRepository) Insert(
 		// 1. Insert project
 		if err := tx.
 			Clauses(clause.Returning{}).
+			Select("p.*, pu.role, pu.is_starred").
 			Create(prj).
 			Error; err != nil {
 			return err
@@ -108,7 +109,7 @@ func (r *ProjectRepository) Insert(
 }
 
 func (r *ProjectRepository) Update(prj *model.Project) (*model.Project, error) {
-	result := r.db.Clauses(clause.Returning{}).Where("id = ?", prj.ID).Select("*").Updates(&prj)
+	result := r.db.Clauses(clause.Returning{}).Select("p.*, pu.role", "pu.is_starred").Where("id = ?", prj.ID).Select("*").Updates(&prj)
 	if result.Error != nil {
 		return nil, api_err.Wrap(api_err.ErrInternalServer, result.Error)
 	}

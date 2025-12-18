@@ -50,7 +50,6 @@ func (s *ProjectService) Create(userID uuid.UUID, input *model.ProjectRequest) (
 		Status:      input.Status,
 		Tags:        input.Tags,
 		Slug:        input.Slug,
-		IsStarred:   input.IsStarred,
 	}
 	return s.r.Insert(userID, prj)
 }
@@ -70,7 +69,6 @@ func (s *ProjectService) Update(userID, id uuid.UUID, input *model.ProjectReques
 		ID:             id,
 		Name:           input.Name,
 		Description:    input.Description,
-		IsStarred:      input.IsStarred,
 		Status:         input.Status,
 		Tags:           input.Tags,
 		Slug:           input.Slug,
@@ -109,4 +107,19 @@ func (s *ProjectService) ListAttachments(userID, projectID uuid.UUID) ([]*model.
 		return nil, err
 	}
 	return s.attachmentService.FindByModelID(userID, s.ModelName, projectID)
+}
+
+func (s *ProjectService) Favourite(userID, projectID uuid.UUID) (*model.Project, error) {
+	prj, err := s.r.FindByID(userID, projectID)
+	if err != nil {
+		return nil, err
+	}
+
+	projectUser, err := s.projectUserService.Favourite(userID, projectID)
+	if err != nil {
+		return nil, err
+	}
+
+	prj.IsStarred = projectUser.IsStarred
+	return prj, nil
 }

@@ -97,6 +97,16 @@ func (s *ProjectUserService) Delete(userID, memberID, projectID uuid.UUID) error
 	return s.r.Delete(userID, projectID)
 }
 
+func (s *ProjectUserService) Favourite(userID, projectID uuid.UUID) (*model.ProjectUser, error) {
+	memberPU, err := s.r.GetProjectUserIfMember(projectID, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	newIsStarred := !memberPU.IsStarred
+	return s.r.Favourite(userID, projectID, newIsStarred)
+}
+
 func (s *ProjectUserService) GetProjectUserIfMember(projectID, userID uuid.UUID) (*model.ProjectUser, error) {
 	return s.r.GetProjectUserIfMember(projectID, userID)
 }

@@ -70,7 +70,6 @@ CREATE TABLE IF NOT EXISTS inri_projects (
     tags TEXT[],
     slug TEXT,
     story_sequence integer DEFAULT 0,
-    is_starred BOOLEAN DEFAULT false NOT NULL,
     last_activity_at TIMESTAMPTZ DEFAULT now() NOT NULL,
     created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
     updated_at TIMESTAMPTZ DEFAULT now() NOT NULL
@@ -95,6 +94,7 @@ CREATE TABLE inri_project_users (
     project_id UUID NOT NULL REFERENCES inri_projects(id) ON DELETE CASCADE,
     user_id    UUID NOT NULL REFERENCES iam_users(id) ON DELETE CASCADE,
     role       inri_project_role NOT NULL DEFAULT 'guest',
+    is_starred BOOLEAN DEFAULT false NOT NULL,
     joined_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
     PRIMARY KEY (project_id, user_id)
 );
