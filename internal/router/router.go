@@ -96,7 +96,7 @@ func SetupRouter(r *gin.Engine, cfg *config.Config, db *gorm.DB) *gin.Engine {
 		projects.DELETE("/:projectId", projectHandler.Delete)
 		projects.POST("/:projectId/attachments", projectHandler.UploadAttachments)
 		projects.GET("/:projectId/attachments", projectHandler.ListAttachments)
-		projects.GET("/:projectId/favourite", projectHandler.Favourite)
+		projects.POST("/:projectId/favourite", projectHandler.Favourite)
 	}
 
 	// Labels
