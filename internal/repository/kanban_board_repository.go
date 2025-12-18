@@ -2,10 +2,10 @@ package repository
 
 import (
 	"errors"
-	"time"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 
 	"github.com/lubosgarancovsky/eden-inri/internal/model"
 	"github.com/lubosgarancovsky/go-kit/api_err"
@@ -30,10 +30,7 @@ func (r *KanbanBoardRepository) FindAll(projectID uuid.UUID) ([]model.KanbanBoar
 
 // Create a new Kanban board
 func (r *KanbanBoardRepository) Create(board *model.KanbanBoard) (*model.KanbanBoard, error) {
-	board.ID = uuid.New()
-	board.CreatedAt = time.Now()
-
-	if err := r.db.Create(board).Error; err != nil {
+	if err := r.db.Clauses(clause.Returning{}).Create(board).Error; err != nil {
 		return nil, err
 	}
 	return board, nil

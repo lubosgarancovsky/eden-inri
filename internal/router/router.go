@@ -96,6 +96,7 @@ func SetupRouter(r *gin.Engine, cfg *config.Config, db *gorm.DB) *gin.Engine {
 		projects.DELETE("/:projectId", projectHandler.Delete)
 		projects.POST("/:projectId/attachments", projectHandler.UploadAttachments)
 		projects.GET("/:projectId/attachments", projectHandler.ListAttachments)
+		projects.GET("/:projectId/favourite", projectHandler.Favourite)
 	}
 
 	// Labels
@@ -119,7 +120,7 @@ func SetupRouter(r *gin.Engine, cfg *config.Config, db *gorm.DB) *gin.Engine {
 
 	{
 		projects.GET("/:projectId/kanban", kanbanHandler.FindAll)
-		projects.POST("/:projectId/kanban", projectHandler.Create)
+		projects.POST("/:projectId/kanban", kanbanHandler.Insert)
 		projects.GET("/:projectId/kanban/:kanbanId", kanbanHandler.FindByID)
 		projects.DELETE("/:projectId/kanban/:kanbanId", kanbanHandler.Delete)
 	}

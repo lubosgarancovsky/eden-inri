@@ -163,3 +163,19 @@ func (r *ProjectUserRepository) GetProjectUserIfMember(
 
 	return &pu, err
 }
+
+// Update is_starred flag
+func (r *ProjectUserRepository) Favourite(
+	userID, projectID uuid.UUID,
+	isStarred bool,
+) (*model.ProjectUser, error) {
+	var projectUser model.ProjectUser
+	err := r.db.Model(&projectUser).
+		Clauses(clause.Returning{}).
+		Select("*").
+		Where("project_id = ? AND user_id = ?", projectID, userID).
+		Update("is_starred", isStarred).
+		Error
+
+	return &projectUser, err
+}

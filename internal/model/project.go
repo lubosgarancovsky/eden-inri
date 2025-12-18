@@ -14,18 +14,17 @@ type Project struct {
 	Status         string         `json:"status"`
 	Tags           pq.StringArray `gorm:"type:text[]" json:"tags" swaggertype:"array,string"`
 	Slug           string         `json:"slug"`
-	IsStarred      bool           `json:"isStarred"`
 	CreatedAt      time.Time      `json:"createdAt"`
 	UpdatedAt      time.Time      `json:"updatedAt"`
 	LastActivityAt time.Time      `json:"lastActivityAt"`
 	StorySequence  int            `json:"storySequence"`
-	Role           ProjectRole    `json:"role"`
+	Role           ProjectRole    `json:"role"`      // From ProjectUser
+	IsStarred      bool           `json:"isStarred"` // From ProjectUser
 }
 
 type ProjectRequest struct {
 	Name        string   `json:"name"`
 	Description string   `json:"description"`
-	IsStarred   bool     `json:"isStarred"`
 	Status      string   `json:"status"`
 	Tags        []string `json:"tags"`
 	Slug        string   `json:"slug"`
@@ -36,6 +35,7 @@ type ProjectUser struct {
 	UserID    uuid.UUID   `json:"-"`
 	User      User        `json:"user"`
 	Role      ProjectRole `json:"role"`
+	IsStarred bool        `json:"isStarred"`
 	JoinedAt  time.Time   `json:"joinedAt"`
 }
 

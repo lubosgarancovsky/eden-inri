@@ -417,11 +417,16 @@ definitions:
       id:
         type: string
       isStarred:
+        description: From ProjectUser
         type: boolean
       lastActivityAt:
         type: string
       name:
         type: string
+      role:
+        allOf:
+        - $ref: '#/definitions/model.ProjectRole'
+        description: From ProjectUser
       slug:
         type: string
       status:
@@ -492,6 +497,8 @@ definitions:
     - Guest
   model.ProjectUser:
     properties:
+      isStarred:
+        type: boolean
       joinedAt:
         type: string
       projectId:
@@ -1571,6 +1578,20 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/model.ProjectRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.Project'
+      tags:
+      - Projects
+  /v1/inri/projects/:projectId/favourite:
+    post:
+      consumes:
+      - application/json
+      description: Toggles the is_starred flag in a project for current user
       produces:
       - application/json
       responses:

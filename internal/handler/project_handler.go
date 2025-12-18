@@ -267,3 +267,32 @@ func (h *ProjectHandler) ListAttachments(c *gin.Context) {
 
 	c.JSON(200, result)
 }
+
+// Favourite @Summary      Add/Remove from favorites
+// @Description  Toggles the is_starred flag in a project for current user
+// @Tags         Projects
+// @Accept       json
+// @Produce      json
+// @Success      201  {object}  model.Project
+// @Router       /v1/inri/projects/:projectId/favourite [post]
+func (h *ProjectHandler) Favourite(c *gin.Context) {
+	user, err := helpers.GetUserContext(c)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	UID, err := helpers.ExtractID(c, "projectId")
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	result, err := h.s.Favourite(user.ID, UID)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	c.JSON(201, result)
+}
