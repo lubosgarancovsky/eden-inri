@@ -179,8 +179,7 @@ func (h *ProjectHandler) Delete(c *gin.Context) {
 		return
 	}
 
-	_, err = h.s.Delete(user.ID, UID)
-	if err != nil {
+	if err = h.s.Delete(user.ID, UID); err != nil {
 		c.Error(err)
 		return
 	}

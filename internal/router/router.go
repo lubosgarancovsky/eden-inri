@@ -126,7 +126,7 @@ func SetupRouter(r *gin.Engine, cfg *config.Config, db *gorm.DB) *gin.Engine {
 
 	// Project Documents
 	projectDocRepo := repository.NewProjectDocumentRepository(db)
-	projectDocService := service.NewProjectDocumentService(projectDocRepo, projectRepo)
+	projectDocService := service.NewProjectDocumentService(projectDocRepo, projectUserService)
 	projectDocHandler := handler.NewProjectDocumentHandler(parser, projectDocService)
 
 	projectDocuments := projects.Group(":projectId/documents")

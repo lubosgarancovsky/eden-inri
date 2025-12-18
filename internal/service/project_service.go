@@ -45,13 +45,12 @@ func (s *ProjectService) FindByID(userID uuid.UUID, id uuid.UUID) (*model.Projec
 
 func (s *ProjectService) Create(userID uuid.UUID, input *model.ProjectRequest) (*model.Project, error) {
 	prj := &model.Project{
-		UserID:      userID,
 		Name:        input.Name,
 		Description: input.Description,
 		Status:      input.Status,
 		Tags:        input.Tags,
 		Slug:        input.Slug,
-		IsStarred:   false,
+		IsStarred:   input.IsStarred,
 	}
 	return s.r.Insert(userID, prj)
 }
@@ -67,15 +66,11 @@ func (s *ProjectService) Update(userID, id uuid.UUID, input *model.ProjectReques
 		return nil, err
 	}
 
-	if _, err := s.FindByID(userID, id); err != nil {
-		return nil, err
-	}
-
 	prj := &model.Project{
 		ID:             id,
-		UserID:         userID,
 		Name:           input.Name,
 		Description:    input.Description,
+		IsStarred:      input.IsStarred,
 		Status:         input.Status,
 		Tags:           input.Tags,
 		Slug:           input.Slug,
@@ -85,22 +80,18 @@ func (s *ProjectService) Update(userID, id uuid.UUID, input *model.ProjectReques
 	return s.r.Update(prj)
 }
 
-func (s *ProjectService) Delete(userID, id uuid.UUID) (*model.Project, error) {
+func (s *ProjectService) Delete(userID, id uuid.UUID) error {
 	role, err := s.projectUserService.GetUserRole(id, userID)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	// Only owner
 	if err := s.projectUserService.RequireRole(role, model.Owner); err != nil {
-		return nil, err
+		return err
 	}
 
-	prj, err := s.FindByID(userID, id)
-	if err != nil {
-		return nil, err
-	}
-	return prj, s.r.Delete(id)
+	return s.r.Delete(id)
 }
 
 func (s *ProjectService) SaveAttachments(c *gin.Context, userID uuid.UUID, projectID uuid.UUID, files []multipart.FileHeader) error {

@@ -17,8 +17,7 @@ func NewKanbanBoardService(repo *repository.KanbanBoardRepository, projectUserSe
 
 // List all boards in project (caller must be member)
 func (s *KanbanBoardService) FindAll(userID, projectID uuid.UUID) ([]model.KanbanBoard, error) {
-	_, err := s.projectUserService.GetProjectUserIfMember(projectID, userID)
-	if err != nil {
+	if _, err := s.projectUserService.GetProjectUserIfMember(projectID, userID); err != nil {
 		return nil, err
 	}
 
@@ -27,8 +26,7 @@ func (s *KanbanBoardService) FindAll(userID, projectID uuid.UUID) ([]model.Kanba
 
 // Get board detail
 func (s *KanbanBoardService) FindByID(userID, projectID, boardID uuid.UUID) (*model.KanbanBoard, error) {
-	_, err := s.projectUserService.GetProjectUserIfMember(projectID, userID)
-	if err != nil {
+	if _, err := s.projectUserService.GetProjectUserIfMember(projectID, userID); err != nil {
 		return nil, err
 	}
 
@@ -37,8 +35,7 @@ func (s *KanbanBoardService) FindByID(userID, projectID, boardID uuid.UUID) (*mo
 
 // Create board (requires user to be member of project)
 func (s *KanbanBoardService) Insert(userID, projectID uuid.UUID) (*model.KanbanBoard, error) {
-	_, err := s.projectUserService.GetProjectUserIfMember(projectID, userID)
-	if err != nil {
+	if _, err := s.projectUserService.GetProjectUserIfMember(projectID, userID); err != nil {
 		return nil, err
 	}
 

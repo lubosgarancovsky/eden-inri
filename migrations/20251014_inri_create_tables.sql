@@ -64,7 +64,6 @@ CREATE TABLE IF NOT EXISTS inri_attachments (
 -- Projects
 CREATE TABLE IF NOT EXISTS inri_projects (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID NOT NULL,
     name TEXT,
     description TEXT,
     status TEXT,
@@ -80,7 +79,6 @@ CREATE TABLE IF NOT EXISTS inri_projects (
 -- Project Documents
 CREATE TABLE IF NOT EXISTS inri_project_documents (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID NOT NULL,
     project_id UUID NOT NULL,
     name TEXT,
     content TEXT,

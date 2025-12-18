@@ -9,7 +9,6 @@ import (
 
 type ProjectDocument struct {
 	ID        uuid.UUID      `gorm:"primary_key;type:uuid;default:uuid_generate_v4()" json:"id"`
-	UserID    uuid.UUID      `json:"-"`
 	ProjectID uuid.UUID      `json:"-"`
 	Name      string         `json:"name"`
 	Content   string         `json:"content"`
