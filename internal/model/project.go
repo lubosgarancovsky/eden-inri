@@ -18,8 +18,8 @@ type Project struct {
 	UpdatedAt      time.Time      `json:"updatedAt"`
 	LastActivityAt time.Time      `json:"lastActivityAt"`
 	StorySequence  int            `json:"storySequence"`
-	Role           ProjectRole    `json:"role"`      // From ProjectUser
-	IsStarred      bool           `json:"isStarred"` // From ProjectUser
+	Role           ProjectRole    `json:"role" gorm:"->"`      // From ProjectUser
+	IsStarred      bool           `json:"isStarred" gorm:"->"` // From ProjectUser
 }
 
 type ProjectRequest struct {
@@ -27,7 +27,6 @@ type ProjectRequest struct {
 	Description string   `json:"description"`
 	Status      string   `json:"status"`
 	Tags        []string `json:"tags"`
-	Slug        string   `json:"slug"`
 }
 
 type ProjectUser struct {

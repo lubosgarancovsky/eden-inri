@@ -45,11 +45,11 @@ func (s *ProjectService) FindByID(userID uuid.UUID, id uuid.UUID) (*model.Projec
 
 func (s *ProjectService) Create(userID uuid.UUID, input *model.ProjectRequest) (*model.Project, error) {
 	prj := &model.Project{
-		Name:        input.Name,
-		Description: input.Description,
-		Status:      input.Status,
-		Tags:        input.Tags,
-		Slug:        input.Slug,
+		Name:           input.Name,
+		Description:    input.Description,
+		Status:         input.Status,
+		Tags:           input.Tags,
+		LastActivityAt: time.Now(),
 	}
 	return s.r.Insert(userID, prj)
 }
@@ -71,11 +71,15 @@ func (s *ProjectService) Update(userID, id uuid.UUID, input *model.ProjectReques
 		Description:    input.Description,
 		Status:         input.Status,
 		Tags:           input.Tags,
-		Slug:           input.Slug,
 		UpdatedAt:      time.Now(),
 		LastActivityAt: time.Now(),
 	}
-	return s.r.Update(prj)
+
+	if _, err := s.r.Update(prj); err != nil {
+		return nil, err
+	}
+
+	return prj, nil
 }
 
 func (s *ProjectService) Delete(userID, id uuid.UUID) error {
