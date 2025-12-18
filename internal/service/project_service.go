@@ -110,7 +110,7 @@ func (s *ProjectService) ListAttachments(userID, projectID uuid.UUID) ([]*model.
 }
 
 func (s *ProjectService) Favourite(userID, projectID uuid.UUID) (*model.Project, error) {
-	prj, err := s.r.FindByID(userID, projectID)
+	prj, err := s.r.FindByID(projectID, userID)
 	if err != nil {
 		return nil, err
 	}

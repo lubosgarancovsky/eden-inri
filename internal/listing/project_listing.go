@@ -5,7 +5,7 @@ var ProjectFilter = map[string]string{
 	"status":         "status",
 	"slug":           "slug",
 	"lastActivityAt": "last_activity_at",
-	"isStarred":      "is_starred",
+	"isStarred":      "pu.is_starred",
 	"role":           "pu.role",
 }
 
