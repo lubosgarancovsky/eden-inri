@@ -80,9 +80,10 @@ func (r *ProjectRepository) Insert(
 
 		// 1. Insert project
 		if err := tx.
+			Model(&prj).
 			Clauses(clause.Returning{}).
-			Select("p.*, pu.role, pu.is_starred").
-			Create(prj).
+			Select("*").
+			Create(&prj).
 			Error; err != nil {
 			return err
 		}
@@ -109,7 +110,14 @@ func (r *ProjectRepository) Insert(
 }
 
 func (r *ProjectRepository) Update(prj *model.Project) (*model.Project, error) {
-	result := r.db.Clauses(clause.Returning{}).Select("p.*, pu.role", "pu.is_starred").Where("id = ?", prj.ID).Select("*").Updates(&prj)
+	result := r.db.Model(&prj).Clauses(clause.Returning{}).Select("*").Where("id = ?", prj.ID).Updates(map[string]interface{}{
+		"name":             prj.Name,
+		"description":      prj.Description,
+		"tags":             prj.Tags,
+		"status":           prj.Status,
+		"updated_at":       prj.UpdatedAt,
+		"last_activity_at": prj.LastActivityAt,
+	})
 	if result.Error != nil {
 		return nil, api_err.Wrap(api_err.ErrInternalServer, result.Error)
 	}
