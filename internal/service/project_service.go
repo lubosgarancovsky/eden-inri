@@ -49,6 +49,7 @@ func (s *ProjectService) Create(userID uuid.UUID, input *model.ProjectRequest) (
 		Description:    input.Description,
 		Status:         input.Status,
 		Tags:           input.Tags,
+		Slug:           input.Slug,
 		LastActivityAt: time.Now(),
 	}
 	return s.r.Insert(userID, prj)

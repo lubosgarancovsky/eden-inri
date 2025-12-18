@@ -27,6 +27,7 @@ type ProjectRequest struct {
 	Description string   `json:"description"`
 	Status      string   `json:"status"`
 	Tags        []string `json:"tags"`
+	Slug        string   `json:"slug"`
 }
 
 type ProjectUser struct {
