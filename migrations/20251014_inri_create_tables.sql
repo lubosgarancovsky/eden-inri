@@ -99,10 +99,15 @@ CREATE TABLE inri_project_users (
     PRIMARY KEY (project_id, user_id)
 );
 
+CREATE TYPE inri_kanban_status AS ENUM ('open', 'closed');
+
 -- Kanban Board
 CREATE TABLE inri_kanban_boards (
     id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name       TEXT NOT NULL,
+    status     inri_kanban_status NOT NULL default 'open',
     project_id UUID NOT NULL UNIQUE REFERENCES inri_projects(id) ON DELETE CASCADE,
+    last_activity_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 

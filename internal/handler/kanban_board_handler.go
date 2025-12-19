@@ -2,8 +2,10 @@ package handler
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/lubosgarancovsky/eden-inri/internal/model"
 	"github.com/lubosgarancovsky/eden-inri/internal/service"
 	"github.com/lubosgarancovsky/eden-inri/pkg/helpers"
+	"github.com/lubosgarancovsky/go-kit/api_err"
 )
 
 type KanbanBoardHandler struct {
@@ -102,13 +104,62 @@ func (h *KanbanBoardHandler) Insert(c *gin.Context) {
 		return
 	}
 
-	board, err := h.s.Insert(user.ID, projectID)
+	var req model.KanbanBoardRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.Error(api_err.ErrBadRequest.WithMessage(err.Error()))
+		return
+	}
+
+	board, err := h.s.Insert(user.ID, projectID, &req)
 	if err != nil {
 		c.Error(err)
 		return
 	}
 
 	c.JSON(201, board)
+}
+
+// Update @Summary      Update the Kanban board
+// @Description  Updates the Kanban board
+// @Tags         Kanban boards
+// @Accept       json
+// @Produce      json
+// @Param        projectId   path      string  true  "Project ID"
+// @Param        kanbanId   path      string  true  "Kanban ID"
+// @Success      201  {object}  model.KanbanBoard
+// @Router       /v1/inri/projects/{projectId}/kanban/{kanbanId} [put]
+func (h *KanbanBoardHandler) Update(c *gin.Context) {
+	projectID, err := helpers.ExtractID(c, "projectId")
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	kanbanID, err := helpers.ExtractID(c, "kanbanId")
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	user, err := helpers.GetUserContext(c)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	var req model.KanbanBoardRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.Error(api_err.ErrBadRequest.WithMessage(err.Error()))
+		return
+	}
+
+	board, err := h.s.Update(user.ID, projectID, kanbanID, &req)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	c.JSON(200, board)
 }
 
 // Delete @Summary      Delete a board
