@@ -1,11 +1,16 @@
 package listing
 
 var KanbanBoardFilter = map[string]string{
-	"id":        "id",
-	"projectId": "project_id",
-	"createdAt": "created_at",
+	"id":             "id",
+	"name":           "name",
+	"status":         "status",
+	"projectId":      "project_id",
+	"createdAt":      "created_at",
+	"lastActivityAt": "last_activity_at",
 }
 
 var KanbanBoardSort = map[string]string{
-	"createdAt": "created_at",
+	"name":           "name",
+	"createdAt":      "created_at",
+	"lastActivityAt": "last_activity_at",
 }

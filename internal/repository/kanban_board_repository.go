@@ -36,6 +36,14 @@ func (r *KanbanBoardRepository) Create(board *model.KanbanBoard) (*model.KanbanB
 	return board, nil
 }
 
+// Update a new Kanban board
+func (r *KanbanBoardRepository) Update(board *model.KanbanBoard) (*model.KanbanBoard, error) {
+	if err := r.db.Clauses(clause.Returning{}).Updates(board).Where("id = ? AND project_id = ?", board.ID, board.ProjectID).Error; err != nil {
+		return nil, err
+	}
+	return board, nil
+}
+
 // Find a board by ID, ensuring it belongs to the project
 func (r *KanbanBoardRepository) FindByID(boardID, projectID uuid.UUID) (*model.KanbanBoard, error) {
 	var board model.KanbanBoard

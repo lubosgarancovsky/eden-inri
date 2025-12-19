@@ -34,16 +34,34 @@ func (s *KanbanBoardService) FindByID(userID, projectID, boardID uuid.UUID) (*mo
 }
 
 // Create board (requires user to be member of project)
-func (s *KanbanBoardService) Insert(userID, projectID uuid.UUID) (*model.KanbanBoard, error) {
+func (s *KanbanBoardService) Insert(userID, projectID uuid.UUID, input *model.KanbanBoardRequest) (*model.KanbanBoard, error) {
 	if _, err := s.projectUserService.GetProjectUserIfMember(projectID, userID); err != nil {
 		return nil, err
 	}
 
 	board := &model.KanbanBoard{
 		ProjectID: projectID,
+		Name:      input.Name,
+		Status:    input.Status,
 	}
 
 	return s.repo.Create(board)
+}
+
+// Create board (requires user to be member of project)
+func (s *KanbanBoardService) Update(userID, projectID uuid.UUID, kanbanID uuid.UUID, input *model.KanbanBoardRequest) (*model.KanbanBoard, error) {
+	if _, err := s.projectUserService.GetProjectUserIfMember(projectID, userID); err != nil {
+		return nil, err
+	}
+
+	board := &model.KanbanBoard{
+		ID:        kanbanID,
+		ProjectID: projectID,
+		Name:      input.Name,
+		Status:    input.Status,
+	}
+
+	return s.repo.Update(board)
 }
 
 // Delete board (caller must be member)
