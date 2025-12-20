@@ -18,7 +18,7 @@ type ClientListItem struct {
 	Tags         pq.StringArray `json:"tags" gorm:"type:text[]" swaggertype:"array,string"`
 	HourRate     float64        `json:"hourRate"`
 	StartedAt    time.Time      `json:"startedAt"`
-	FinishedAt   time.Time      `json:"finishedAt"`
+	FinishedAt   *time.Time     `json:"finishedAt"`
 	CreatedAt    time.Time      `json:"createdAt"`
 	UpdatedAt    time.Time      `json:"updatedAt"`
 }
@@ -29,16 +29,16 @@ type Client struct {
 }
 
 type ClientRequest struct {
-	ClientType   string    `json:"clientType"`
-	ContractType string    `json:"contractType"`
-	Name         string    `json:"name"`
-	Description  string    `json:"description"`
-	TaxNumber    string    `json:"taxNumber"`
-	Address      string    `json:"address"`
-	Tags         []string  `json:"tags"`
-	HourRate     float64   `json:"hourRate"`
-	StartedAt    time.Time `json:"startedAt"`
-	FinishedAt   time.Time `json:"finishedAt"`
+	ClientType   string     `json:"clientType"`
+	ContractType string     `json:"contractType"`
+	Name         string     `json:"name"`
+	Description  string     `json:"description"`
+	TaxNumber    string     `json:"taxNumber"`
+	Address      string     `json:"address"`
+	Tags         []string   `json:"tags"`
+	HourRate     float64    `json:"hourRate"`
+	StartedAt    time.Time  `json:"startedAt"`
+	FinishedAt   *time.Time `json:"finishedAt"`
 }
 
 func (cl *ClientListItem) TableName() string {

@@ -21,7 +21,7 @@ func NewClientRepository(db *gorm.DB) *ClientRepository {
 }
 
 func (r *ClientRepository) FindAll(userID uuid.UUID, lq *list.ListingQuery) ([]model.ClientListItem, int64, error) {
-	query := r.db.Model(&model.ClientListItem{}).Where("user_id = ?", userID)
+	query := r.db.Model(&model.ClientListItem{}).Select("*").Where("user_id = ?", userID)
 	if lq.Filter != nil {
 		query = query.Where(lq.Filter.Query, lq.Filter.Args...)
 	}
@@ -35,21 +35,21 @@ func (r *ClientRepository) FindAll(userID uuid.UUID, lq *list.ListingQuery) ([]m
 
 func (r *ClientRepository) FindByID(clientID uuid.UUID) (*model.Client, error) {
 	var result model.Client
-	if err := r.db.Model(&model.Client{}).Where("id = ?", clientID).First(&result).Error; err != nil {
+	if err := r.db.Model(&model.Client{}).Select("*").Where("id = ?", clientID).First(&result).Error; err != nil {
 		return nil, err
 	}
 	return &result, nil
 }
 
 func (r *ClientRepository) Insert(client *model.Client) (*model.Client, error) {
-	if err := r.db.Clauses(clause.Returning{}).Create(client).Error; err != nil {
+	if err := r.db.Clauses(clause.Returning{}).Select("*").Create(client).Error; err != nil {
 		return nil, err
 	}
 	return client, nil
 }
 
 func (r *ClientRepository) Update(client *model.Client) (*model.Client, error) {
-	result := r.db.Clauses(clause.Returning{}).Where("id = ?", client.ID).Updates(&client)
+	result := r.db.Clauses(clause.Returning{}).Select("*").Where("id = ?", client.ID).Updates(&client)
 	if result.Error != nil {
 		return nil, api_err.Wrap(api_err.ErrInternalServer, result.Error)
 	}
@@ -60,7 +60,7 @@ func (r *ClientRepository) Update(client *model.Client) (*model.Client, error) {
 }
 
 func (r *ClientRepository) Delete(clientID uuid.UUID) error {
-	result := r.db.Clauses(clause.Returning{}).Where("id = ?", clientID).Delete(model.Client{})
+	result := r.db.Where("id = ?", clientID).Delete(model.Client{})
 	if result.Error != nil {
 		return api_err.Wrap(api_err.ErrInternalServer, result.Error)
 	}

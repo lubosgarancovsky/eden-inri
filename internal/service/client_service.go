@@ -30,7 +30,7 @@ func (s *ClientService) FindAll(userID uuid.UUID, lq *list.ListingQuery) (*list.
 	}, nil
 }
 
-func (s *ClientService) FindByID(userID uuid.UUID, clientID uuid.UUID) (*model.Client, error) {
+func (s *ClientService) FindByID(userID, clientID uuid.UUID) (*model.Client, error) {
 	client, err := s.r.FindByID(clientID)
 	if err != nil {
 		return nil, err
@@ -48,8 +48,8 @@ func (s *ClientService) Create(userID uuid.UUID, input *model.ClientRequest) (*m
 	return s.r.Insert(client)
 }
 
-func (s *ClientService) Update(userID uuid.UUID, clientID uuid.UUID, input *model.ClientRequest) (*model.Client, error) {
-	_, err := s.FindByID(userID, userID)
+func (s *ClientService) Update(userID, clientID uuid.UUID, input *model.ClientRequest) (*model.Client, error) {
+	_, err := s.FindByID(userID, clientID)
 	if err != nil {
 		return nil, err
 	}

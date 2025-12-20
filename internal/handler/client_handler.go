@@ -141,13 +141,13 @@ func (h *ClientHandler) Update(c *gin.Context) {
 		return
 	}
 
-	UID, err := helpers.ExtractID(c, "clientId")
+	clientID, err := helpers.ExtractID(c, "clientId")
 	if err != nil {
 		c.Error(err)
 		return
 	}
 
-	result, err := h.s.Update(user.ID, UID, &input)
+	result, err := h.s.Update(user.ID, clientID, &input)
 	if err != nil {
 		c.Error(err)
 		return
