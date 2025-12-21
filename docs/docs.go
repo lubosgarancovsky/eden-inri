@@ -332,6 +332,56 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/inri/clients/{clientId}/contact-persons": {
+            "get": {
+                "description": "Returns a paginated list of all contacts registered for the client",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Clients"
+                ],
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Items per page",
+                        "name": "pageSize",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "RSQL filter query",
+                        "name": "filter",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort query",
+                        "name": "sort",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ContactPersonPage"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/inri/contact-persons": {
             "get": {
                 "description": "Returns a paginated list of all contact persons",
@@ -1979,6 +2029,42 @@ const docTemplate = `{
                     }
                 }
             },
+            "put": {
+                "description": "Updates the Kanban board",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Kanban boards"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project ID",
+                        "name": "projectId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Kanban ID",
+                        "name": "kanbanId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/model.KanbanBoard"
+                        }
+                    }
+                }
+            },
             "delete": {
                 "description": "Deletes a Kanban board",
                 "consumes": [
@@ -2883,7 +2969,16 @@ const docTemplate = `{
                 "id": {
                     "type": "string"
                 },
+                "lastActivityAt": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
                 "projectId": {
+                    "type": "string"
+                },
+                "status": {
                     "type": "string"
                 }
             }
@@ -3272,6 +3367,9 @@ const docTemplate = `{
         "model.User": {
             "type": "object",
             "properties": {
+                "email": {
+                    "type": "string"
+                },
                 "firstName": {
                     "type": "string"
                 },
