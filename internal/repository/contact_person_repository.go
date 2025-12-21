@@ -33,6 +33,19 @@ func (r *ContactPersonRepository) FindAll(userID uuid.UUID, lq *list.ListingQuer
 	return items, total, nil
 }
 
+func (r *ContactPersonRepository) FindAllByClientID(userID, clientID uuid.UUID, lq *list.ListingQuery) ([]model.ContactPerson, int64, error) {
+	query := r.db.Model(&model.ContactPerson{}).Where("user_id = ? AND client_id = ?", userID, clientID)
+	if lq.Filter != nil {
+		query = query.Where(lq.Filter.Query, lq.Filter.Args...)
+	}
+
+	items, total, err := helpers.List[model.ContactPerson](query, lq)
+	if err != nil {
+		return nil, 0, err
+	}
+	return items, total, nil
+}
+
 func (r *ContactPersonRepository) FindByID(id uuid.UUID) (*model.ContactPerson, error) {
 	var result model.ContactPerson
 	if err := r.db.Model(&model.ContactPerson{}).Where("id = ?", id).First(&result).Error; err != nil {

@@ -28,20 +28,6 @@ func SetupRouter(r *gin.Engine, cfg *config.Config, db *gorm.DB) *gin.Engine {
 	attachmentService := service.NewAttachmentService(cfg, attachmentRepo)
 	attachmentHandler := handler.NewAttachmentHandler(parser, attachmentService)
 
-	// Clients
-	clientRepo := repository.NewClientRepository(db)
-	clientService := service.NewClientService(clientRepo)
-	clientHandler := handler.NewClientHandler(parser, clientService)
-
-	clients := protected.Group("/clients")
-	{
-		clients.GET("", clientHandler.FindAll)
-		clients.GET("/:clientId", clientHandler.FindByID)
-		clients.POST("", clientHandler.Create)
-		clients.PUT("/:clientId", clientHandler.Update)
-		clients.DELETE("/:clientId", clientHandler.Delete)
-	}
-
 	// Contact persons
 	cpRepo := repository.NewContactPersonRepository(db)
 	cpService := service.NewContactPersonService(cpRepo)
@@ -54,6 +40,21 @@ func SetupRouter(r *gin.Engine, cfg *config.Config, db *gorm.DB) *gin.Engine {
 		contactPersons.POST("", cpHandler.Create)
 		contactPersons.PUT("/:contactPersonId", cpHandler.Update)
 		contactPersons.DELETE("/:contactPersonId", cpHandler.Delete)
+	}
+
+	// Clients
+	clientRepo := repository.NewClientRepository(db)
+	clientService := service.NewClientService(clientRepo, cpService)
+	clientHandler := handler.NewClientHandler(parser, clientService)
+
+	clients := protected.Group("/clients")
+	{
+		clients.GET("", clientHandler.FindAll)
+		clients.GET("/:clientId", clientHandler.FindByID)
+		clients.POST("", clientHandler.Create)
+		clients.PUT("/:clientId", clientHandler.Update)
+		clients.DELETE("/:clientId", clientHandler.Delete)
+		clients.GET("/:clientId/contact-persons", clientHandler.FindAllContactPersons)
 	}
 
 	// Invoices

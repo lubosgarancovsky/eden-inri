@@ -75,3 +75,17 @@ func (s *ContactPersonService) Delete(userID uuid.UUID, id uuid.UUID) (*model.Co
 	}
 	return cp, s.r.Delete(id)
 }
+
+func (s *ContactPersonService) FindAllByClientID(userID, clientID uuid.UUID, lq *list.ListingQuery) (*list.Page[model.ContactPerson], error) {
+	items, totalCount, err := s.r.FindAllByClientID(userID, clientID, lq)
+	if err != nil {
+		return nil, err
+	}
+
+	return &list.Page[model.ContactPerson]{
+		Items:      items,
+		Page:       lq.Page,
+		PageSize:   lq.Limit,
+		TotalCount: totalCount,
+	}, nil
+}
