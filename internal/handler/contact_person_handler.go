@@ -206,7 +206,7 @@ func (h *ContactPersonHandler) Delete(c *gin.Context) {
 		return
 	}
 
-	if _, err := h.s.Delete(user.ID, clientID, UID); err != nil {
+	if err = h.s.Delete(user.ID, clientID, UID); err != nil {
 		c.Error(err)
 		return
 	}
