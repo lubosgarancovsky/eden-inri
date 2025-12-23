@@ -35,7 +35,7 @@ func NewContactPersonHandler(parser *rsql.Parser, s *service.ContactPersonServic
 // @Param        filter      query     string     false  "RSQL filter query"
 // @Param        sort  query     string     false  "Sort query"
 // @Success      200  {object}   ContactPersonPage
-// @Router       /v1/inri/contact-persons [get]
+// @Router       /v1/inri/clients/{clientsId}/contact-persons [get]
 func (h *ContactPersonHandler) FindAll(c *gin.Context) {
 	lq, apiErr := helpers.CreateListingQuery(c, h.parser, listing.ContactPersonFilter, listing.ContactPersonSort)
 	if apiErr != nil {
@@ -49,7 +49,13 @@ func (h *ContactPersonHandler) FindAll(c *gin.Context) {
 		return
 	}
 
-	result, err := h.s.FindAll(user.ID, lq)
+	clientID, err := helpers.ExtractID(c, "clientId")
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	result, err := h.s.FindAll(user.ID, clientID, lq)
 	if err != nil {
 		c.Error(err)
 		return
@@ -65,7 +71,7 @@ func (h *ContactPersonHandler) FindAll(c *gin.Context) {
 // @Produce      json
 // @Param        contactPersonId   path      string  true  "Contact Person ID"
 // @Success      200  {object}   model.ContactPerson
-// @Router       /v1/inri/contact-persons/{contactPersonId} [get]
+// @Router       /v1/inri/clients/{clientsId}/contact-persons/{contactPersonId} [get]
 func (h *ContactPersonHandler) FindByID(c *gin.Context) {
 	UID, err := helpers.ExtractID(c, "contactPersonId")
 	if err != nil {
@@ -79,7 +85,13 @@ func (h *ContactPersonHandler) FindByID(c *gin.Context) {
 		return
 	}
 
-	result, err := h.s.FindByID(user.ID, UID)
+	clientID, err := helpers.ExtractID(c, "clientId")
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	result, err := h.s.FindByID(user.ID, clientID, UID)
 	if err != nil {
 		c.Error(err)
 		return
@@ -95,7 +107,7 @@ func (h *ContactPersonHandler) FindByID(c *gin.Context) {
 // @Produce      json
 // @Param        contactPerson  body  model.ContactPersonRequest  true  "Contact person data"
 // @Success      201  {object}  model.ContactPerson
-// @Router       /v1/inri/contact-persons [post]
+// @Router       /v1/inri/clients/{clientsId}/contact-persons [post]
 func (h *ContactPersonHandler) Create(c *gin.Context) {
 	var input model.ContactPersonRequest
 	if err := c.ShouldBindJSON(&input); err != nil {
@@ -109,7 +121,13 @@ func (h *ContactPersonHandler) Create(c *gin.Context) {
 		return
 	}
 
-	result, err := h.s.Create(user.ID, &input)
+	clientID, err := helpers.ExtractID(c, "clientId")
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	result, err := h.s.Create(user.ID, clientID, &input)
 	if err != nil {
 		c.Error(err)
 		return
@@ -126,7 +144,7 @@ func (h *ContactPersonHandler) Create(c *gin.Context) {
 // @Param        contactPerson  body  model.ContactPersonRequest  true  "Contact person data"
 // @Param        contactPersonId   path      string  true  "Contact Person ID"
 // @Success      200  {object}  model.ContactPerson
-// @Router       /v1/inri/contact-persons/{contactPersonId} [put]
+// @Router       /v1/inri/clients/{clientsId}/contact-persons/{contactPersonId} [put]
 func (h *ContactPersonHandler) Update(c *gin.Context) {
 	var input model.ContactPersonRequest
 	if err := c.ShouldBindJSON(&input); err != nil {
@@ -140,13 +158,19 @@ func (h *ContactPersonHandler) Update(c *gin.Context) {
 		return
 	}
 
-	UID, err := helpers.ExtractID(c, "contactPersonId")
+	contactPersonID, err := helpers.ExtractID(c, "contactPersonId")
 	if err != nil {
 		c.Error(err)
 		return
 	}
 
-	result, err := h.s.Update(user.ID, UID, &input)
+	clientID, err := helpers.ExtractID(c, "clientId")
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	result, err := h.s.Update(user.ID, clientID, contactPersonID, &input)
 	if err != nil {
 		c.Error(err)
 		return
@@ -162,7 +186,7 @@ func (h *ContactPersonHandler) Update(c *gin.Context) {
 // @Produce      json
 // @Param        contactPersonId   path      string  true  "Contact Person ID"
 // @Success      204  {string}  string  "No Content"
-// @Router       /v1/inri/contact-persons/{contactPersonId} [delete]
+// @Router       /v1/inri/clients/{clientsId}/contact-persons/{contactPersonId} [delete]
 func (h *ContactPersonHandler) Delete(c *gin.Context) {
 	UID, err := helpers.ExtractID(c, "contactPersonId")
 	if err != nil {
@@ -176,8 +200,13 @@ func (h *ContactPersonHandler) Delete(c *gin.Context) {
 		return
 	}
 
-	_, err = h.s.Delete(user.ID, UID)
+	clientID, err := helpers.ExtractID(c, "clientId")
 	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	if _, err := h.s.Delete(user.ID, clientID, UID); err != nil {
 		c.Error(err)
 		return
 	}

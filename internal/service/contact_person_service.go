@@ -16,8 +16,8 @@ func NewContactPersonService(r *repository.ContactPersonRepository) *ContactPers
 	return &ContactPersonService{r}
 }
 
-func (s *ContactPersonService) FindAll(userID uuid.UUID, lq *list.ListingQuery) (*list.Page[model.ContactPerson], error) {
-	items, totalCount, err := s.r.FindAll(userID, lq)
+func (s *ContactPersonService) FindAll(userID, clientID uuid.UUID, lq *list.ListingQuery) (*list.Page[model.ContactPerson], error) {
+	items, totalCount, err := s.r.FindAll(userID, clientID, lq)
 	if err != nil {
 		return nil, err
 	}
@@ -30,8 +30,8 @@ func (s *ContactPersonService) FindAll(userID uuid.UUID, lq *list.ListingQuery) 
 	}, nil
 }
 
-func (s *ContactPersonService) FindByID(userID uuid.UUID, id uuid.UUID) (*model.ContactPerson, error) {
-	cp, err := s.r.FindByID(id)
+func (s *ContactPersonService) FindByID(userID, clientID, id uuid.UUID) (*model.ContactPerson, error) {
+	cp, err := s.r.FindByID(clientID, id)
 	if err != nil {
 		return nil, err
 	}
@@ -41,10 +41,10 @@ func (s *ContactPersonService) FindByID(userID uuid.UUID, id uuid.UUID) (*model.
 	return cp, nil
 }
 
-func (s *ContactPersonService) Create(userID uuid.UUID, input *model.ContactPersonRequest) (*model.ContactPerson, error) {
+func (s *ContactPersonService) Create(userID, clientID uuid.UUID, input *model.ContactPersonRequest) (*model.ContactPerson, error) {
 	cp := &model.ContactPerson{
 		UserID:   userID,
-		ClientID: input.ClientID,
+		ClientID: clientID,
 		Name:     input.Name,
 		Email:    input.Email,
 		Phone:    input.Phone,
@@ -52,15 +52,15 @@ func (s *ContactPersonService) Create(userID uuid.UUID, input *model.ContactPers
 	return s.r.Insert(cp)
 }
 
-func (s *ContactPersonService) Update(userID uuid.UUID, id uuid.UUID, input *model.ContactPersonRequest) (*model.ContactPerson, error) {
-	_, err := s.FindByID(userID, id)
+func (s *ContactPersonService) Update(userID, clientID, id uuid.UUID, input *model.ContactPersonRequest) (*model.ContactPerson, error) {
+	_, err := s.FindByID(userID, clientID, id)
 	if err != nil {
 		return nil, err
 	}
 	cp := &model.ContactPerson{
 		ID:       id,
 		UserID:   userID,
-		ClientID: input.ClientID,
+		ClientID: clientID,
 		Name:     input.Name,
 		Email:    input.Email,
 		Phone:    input.Phone,
@@ -68,24 +68,10 @@ func (s *ContactPersonService) Update(userID uuid.UUID, id uuid.UUID, input *mod
 	return s.r.Update(cp)
 }
 
-func (s *ContactPersonService) Delete(userID uuid.UUID, id uuid.UUID) (*model.ContactPerson, error) {
-	cp, err := s.FindByID(userID, id)
+func (s *ContactPersonService) Delete(userID, clientID uuid.UUID, id uuid.UUID) (*model.ContactPerson, error) {
+	cp, err := s.FindByID(userID, clientID, id)
 	if err != nil {
 		return nil, err
 	}
-	return cp, s.r.Delete(id)
-}
-
-func (s *ContactPersonService) FindAllByClientID(userID, clientID uuid.UUID, lq *list.ListingQuery) (*list.Page[model.ContactPerson], error) {
-	items, totalCount, err := s.r.FindAllByClientID(userID, clientID, lq)
-	if err != nil {
-		return nil, err
-	}
-
-	return &list.Page[model.ContactPerson]{
-		Items:      items,
-		Page:       lq.Page,
-		PageSize:   lq.Limit,
-		TotalCount: totalCount,
-	}, nil
+	return cp, s.r.Delete(clientID, id)
 }

@@ -23,6 +23,8 @@ func SetupRouter(r *gin.Engine, cfg *config.Config, db *gorm.DB) *gin.Engine {
 		c.JSON(200, gin.H{"status": "ok"})
 	})
 
+	emailService := service.NewEmailService(cfg)
+
 	// Attachments
 	attachmentRepo := repository.NewAttachmentRepository(db)
 	attachmentService := service.NewAttachmentService(cfg, attachmentRepo)
@@ -33,7 +35,8 @@ func SetupRouter(r *gin.Engine, cfg *config.Config, db *gorm.DB) *gin.Engine {
 	cpService := service.NewContactPersonService(cpRepo)
 	cpHandler := handler.NewContactPersonHandler(parser, cpService)
 
-	contactPersons := protected.Group("/contact-persons")
+	clients := protected.Group("/clients")
+	contactPersons := clients.Group("/:clientId/contact-persons")
 	{
 		contactPersons.GET("", cpHandler.FindAll)
 		contactPersons.GET("/:contactPersonId", cpHandler.FindByID)
@@ -44,17 +47,14 @@ func SetupRouter(r *gin.Engine, cfg *config.Config, db *gorm.DB) *gin.Engine {
 
 	// Clients
 	clientRepo := repository.NewClientRepository(db)
-	clientService := service.NewClientService(clientRepo, cpService)
+	clientService := service.NewClientService(clientRepo)
 	clientHandler := handler.NewClientHandler(parser, clientService)
-
-	clients := protected.Group("/clients")
 	{
 		clients.GET("", clientHandler.FindAll)
 		clients.GET("/:clientId", clientHandler.FindByID)
 		clients.POST("", clientHandler.Create)
 		clients.PUT("/:clientId", clientHandler.Update)
 		clients.DELETE("/:clientId", clientHandler.Delete)
-		clients.GET("/:clientId/contact-persons", clientHandler.FindAllContactPersons)
 	}
 
 	// Invoices
@@ -201,6 +201,15 @@ func SetupRouter(r *gin.Engine, cfg *config.Config, db *gorm.DB) *gin.Engine {
 		storyLabels.GET("/:labelId", storyLabelHandler.AssignLabel)
 		storyLabels.POST("/:labelId", storyLabelHandler.UnassignLabel)
 
+	}
+
+	// Project invitation
+	invitationRepo := repository.NewProjectInvitationRepository(db)
+	invitationService := service.NewProjectInvitationService(cfg, invitationRepo, projectService, projectUserService, emailService)
+	invitationHandler := handler.NewProjectInvitationsHandler(invitationService)
+	{
+		projects.POST("/:projectId/invite", invitationHandler.Create)
+		projects.POST("/accept-invitation", invitationHandler.Accept)
 	}
 
 	// TODO: Add time log API
