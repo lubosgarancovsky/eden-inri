@@ -18,10 +18,9 @@ type ContactPerson struct {
 }
 
 type ContactPersonRequest struct {
-	ClientID uuid.UUID `json:"clientId"`
-	Name     string    `json:"name"`
-	Email    string    `json:"email"`
-	Phone    string    `json:"phone"`
+	Name  string `json:"name"`
+	Email string `json:"email"`
+	Phone string `json:"phone"`
 }
 
 func (cp *ContactPerson) TableName() string {
