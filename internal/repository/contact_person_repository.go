@@ -60,7 +60,7 @@ func (r *ContactPersonRepository) Update(cp *model.ContactPerson) (*model.Contac
 }
 
 func (r *ContactPersonRepository) Delete(clientId, id uuid.UUID) error {
-	result := r.db.Clauses(clause.Returning{}).Where("id = ? AND client_id = ?", id, clientId).Delete(model.ContactPerson{})
+	result := r.db.Where("id = ? AND client_id = ?", id, clientId).Delete(model.ContactPerson{})
 	if result.Error != nil {
 		return api_err.Wrap(api_err.ErrInternalServer, result.Error)
 	}

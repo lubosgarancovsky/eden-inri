@@ -68,10 +68,9 @@ func (s *ContactPersonService) Update(userID, clientID, id uuid.UUID, input *mod
 	return s.r.Update(cp)
 }
 
-func (s *ContactPersonService) Delete(userID, clientID uuid.UUID, id uuid.UUID) (*model.ContactPerson, error) {
-	cp, err := s.FindByID(userID, clientID, id)
-	if err != nil {
-		return nil, err
+func (s *ContactPersonService) Delete(userID, clientID uuid.UUID, id uuid.UUID) error {
+	if _, err := s.FindByID(userID, clientID, id); err != nil {
+		return err
 	}
-	return cp, s.r.Delete(clientID, id)
+	return s.r.Delete(clientID, id)
 }
