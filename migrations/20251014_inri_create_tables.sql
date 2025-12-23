@@ -193,6 +193,18 @@ CREATE TABLE inri_story_time_logs (
     updated_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
     CONSTRAINT positive_duration CHECK (duration > interval '0')
 );
+
+CREATE TABLE inri_project_invitations (
+    id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id     UUID NOT NULL REFERENCES iam_users(id) ON DELETE CASCADE,
+    project_id  UUID NOT NULL REFERENCES inri_projects(id) ON DELETE CASCADE,
+    role        inri_project_role NOT NULL,
+    token       TEXT NOT NULL,
+    invited_by  UUID NOT NULL REFERENCES iam_users(id) ON DELETE CASCADE,
+    created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+    expires_at  TIMESTAMPTZ NOT NULL,
+    accepted_at TIMESTAMPTZ
+);
 -- +goose StatementEnd
 
 -- +goose Down

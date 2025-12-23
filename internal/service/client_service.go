@@ -9,12 +9,11 @@ import (
 )
 
 type ClientService struct {
-	r         *repository.ClientRepository
-	cpService *ContactPersonService
+	r *repository.ClientRepository
 }
 
-func NewClientService(r *repository.ClientRepository, cpService *ContactPersonService) *ClientService {
-	return &ClientService{r, cpService}
+func NewClientService(r *repository.ClientRepository) *ClientService {
+	return &ClientService{r}
 }
 
 func (s *ClientService) FindAll(userID uuid.UUID, lq *list.ListingQuery) (*list.Page[model.ClientListItem], error) {
@@ -85,8 +84,4 @@ func fromRequest(userID uuid.UUID, input *model.ClientRequest) *model.Client {
 		},
 		Description: input.Description,
 	}
-}
-
-func (s *ClientService) FindAllContactPersons(userID, clientID uuid.UUID, lq *list.ListingQuery) (*list.Page[model.ContactPerson], error) {
-	return s.cpService.FindAllByClientID(userID, clientID, lq)
 }
