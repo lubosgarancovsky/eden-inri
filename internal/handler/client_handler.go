@@ -2,16 +2,30 @@ package handler
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/lubosgarancovsky/eden-inri/internal/listing"
 	"github.com/lubosgarancovsky/eden-inri/internal/model"
 	"github.com/lubosgarancovsky/eden-inri/internal/service"
 	"github.com/lubosgarancovsky/eden-inri/pkg/helpers"
+	"github.com/lubosgarancovsky/eden-inri/pkg/types"
 	"github.com/lubosgarancovsky/go-kit/rsql"
 )
 
+var ClientListConfig = types.ListConfig{
+	Filter: map[string]string{
+		"clientType":   "client_type",
+		"contractType": "contract_type",
+		"name":         "name",
+	},
+	Sort: map[string]string{
+		"startedAt":  "started_at",
+		"finishedAt": "finished_at",
+		"createdAt":  "created_at",
+		"name":       "name",
+	},
+}
+
 type ClientHandler struct {
-	s      *service.ClientService
-	parser *rsql.Parser
+	clientService *service.ClientService
+	parser        *rsql.Parser
 }
 
 type ClientPage struct {
@@ -37,25 +51,7 @@ func NewClientHandler(parser *rsql.Parser, s *service.ClientService) *ClientHand
 // @Success      200  {object}   ClientPage
 // @Router       /v1/inri/clients [get]
 func (h *ClientHandler) FindAll(c *gin.Context) {
-	lq, apiErr := helpers.CreateListingQuery(c, h.parser, listing.ClientFilter, listing.ClientSort)
-	if apiErr != nil {
-		c.Error(apiErr)
-		return
-	}
-
-	user, err := helpers.GetUserContext(c)
-	if err != nil {
-		c.Error(err)
-		return
-	}
-
-	result, err := h.s.FindAll(user.ID, lq)
-	if err != nil {
-		c.Error(err)
-		return
-	}
-
-	c.JSON(200, result)
+	helpers.HandleList(c, h.parser, ClientListConfig, h.clientService.FindAll)
 }
 
 // FindByID @Summary      Get client by ID
@@ -67,25 +63,7 @@ func (h *ClientHandler) FindAll(c *gin.Context) {
 // @Success      200  {object}   model.Client
 // @Router       /v1/inri/clients/{clientId} [get]
 func (h *ClientHandler) FindByID(c *gin.Context) {
-	UID, err := helpers.ExtractID(c, "clientId")
-	if err != nil {
-		c.Error(err)
-		return
-	}
-
-	user, err := helpers.GetUserContext(c)
-	if err != nil {
-		c.Error(err)
-		return
-	}
-
-	result, err := h.s.FindByID(user.ID, UID)
-	if err != nil {
-		c.Error(err)
-		return
-	}
-
-	c.JSON(200, result)
+	helpers.HandleFindByID(c, "clientId", h.clientService.FindByID)
 }
 
 // Create @Summary      Create a new client
@@ -97,26 +75,7 @@ func (h *ClientHandler) FindByID(c *gin.Context) {
 // @Success      201  {object}  model.Client
 // @Router       /v1/inri/clients [post]
 func (h *ClientHandler) Create(c *gin.Context) {
-	var input model.ClientRequest
-	err := c.ShouldBindJSON(&input)
-	if err != nil {
-		c.Error(err)
-		return
-	}
-
-	user, err := helpers.GetUserContext(c)
-	if err != nil {
-		c.Error(err)
-		return
-	}
-
-	result, err := h.s.Create(user.ID, &input)
-	if err != nil {
-		c.Error(err)
-		return
-	}
-
-	c.JSON(201, result)
+	helpers.HandleCreate(c, h.clientService.Create)
 }
 
 // Update @Summary      Update a client
@@ -129,31 +88,7 @@ func (h *ClientHandler) Create(c *gin.Context) {
 // @Success      200  {object}  model.Client
 // @Router       /v1/inri/clients/{clientId} [put]
 func (h *ClientHandler) Update(c *gin.Context) {
-	var input model.ClientRequest
-	err := c.ShouldBindJSON(&input)
-	if err != nil {
-		c.Error(err)
-	}
-
-	user, err := helpers.GetUserContext(c)
-	if err != nil {
-		c.Error(err)
-		return
-	}
-
-	clientID, err := helpers.ExtractID(c, "clientId")
-	if err != nil {
-		c.Error(err)
-		return
-	}
-
-	result, err := h.s.Update(user.ID, clientID, &input)
-	if err != nil {
-		c.Error(err)
-		return
-	}
-
-	c.JSON(200, result)
+	helpers.HandleUpdate(c, "clientId", h.clientService.Update)
 }
 
 // Delete @Summary      Delete a client
@@ -165,23 +100,5 @@ func (h *ClientHandler) Update(c *gin.Context) {
 // @Success      204  {string}  string  "No Content"
 // @Router       /v1/inri/clients/{clientId} [delete]
 func (h *ClientHandler) Delete(c *gin.Context) {
-	UID, err := helpers.ExtractID(c, "clientId")
-	if err != nil {
-		c.Error(err)
-		return
-	}
-
-	user, err := helpers.GetUserContext(c)
-	if err != nil {
-		c.Error(err)
-		return
-	}
-
-	_, err = h.s.Delete(user.ID, UID)
-	if err != nil {
-		c.Error(err)
-		return
-	}
-
-	c.Status(204)
+	helpers.HandleDelete(c, "clientId", h.clientService.Delete)
 }
