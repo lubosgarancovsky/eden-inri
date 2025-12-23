@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/google/uuid"
@@ -20,8 +21,11 @@ func NewClientRepository(db *gorm.DB) *ClientRepository {
 	return &ClientRepository{db: db}
 }
 
-func (r *ClientRepository) FindAll(userID uuid.UUID, lq *list.ListingQuery) ([]model.ClientListItem, int64, error) {
-	query := r.db.Model(&model.ClientListItem{}).Select("*").Where("user_id = ?", userID)
+func (r *ClientRepository) FindAll(ctx context.Context, userID uuid.UUID, lq *list.ListingQuery) (*[]model.ClientListItem, int64, error) {
+	query := r.db.Model(&model.ClientListItem{}).
+		Select("*").
+		Where("user_id = ?", userID)
+
 	if lq.Filter != nil {
 		query = query.Where(lq.Filter.Query, lq.Filter.Args...)
 	}
@@ -30,26 +34,39 @@ func (r *ClientRepository) FindAll(userID uuid.UUID, lq *list.ListingQuery) ([]m
 	if err != nil {
 		return nil, 0, err
 	}
-	return items, total, nil
+	return &items, total, nil
 }
 
-func (r *ClientRepository) FindByID(clientID uuid.UUID) (*model.Client, error) {
+func (r *ClientRepository) FindByID(ctx context.Context, userID, clientID uuid.UUID) (*model.Client, error) {
 	var result model.Client
-	if err := r.db.Model(&model.Client{}).Select("*").Where("id = ?", clientID).First(&result).Error; err != nil {
+	if err := r.db.Model(&model.Client{}).
+		Select("*").
+		Where("user_id = ? AND id = ?", userID, clientID).
+		First(&result).Error; err != nil {
 		return nil, err
 	}
 	return &result, nil
 }
 
-func (r *ClientRepository) Insert(client *model.Client) (*model.Client, error) {
-	if err := r.db.Clauses(clause.Returning{}).Select("*").Create(client).Error; err != nil {
+func (r *ClientRepository) Insert(ctx context.Context, client *model.Client) (*model.Client, error) {
+	if err := r.db.
+		Clauses(clause.Returning{}).
+		Select("*").
+		Create(client).
+		Error; err != nil {
 		return nil, err
 	}
+
 	return client, nil
 }
 
-func (r *ClientRepository) Update(client *model.Client) (*model.Client, error) {
-	result := r.db.Clauses(clause.Returning{}).Select("*").Where("id = ?", client.ID).Updates(&client)
+func (r *ClientRepository) Update(ctx context.Context, client *model.Client) (*model.Client, error) {
+	result := r.db.
+		Clauses(clause.Returning{}).
+		Select("*").
+		Where("user_id = ? AND id = ?", client.UserID, client.ID).
+		Updates(&client)
+
 	if result.Error != nil {
 		return nil, api_err.Wrap(api_err.ErrInternalServer, result.Error)
 	}
@@ -59,8 +76,11 @@ func (r *ClientRepository) Update(client *model.Client) (*model.Client, error) {
 	return client, nil
 }
 
-func (r *ClientRepository) Delete(clientID uuid.UUID) error {
-	result := r.db.Where("id = ?", clientID).Delete(model.Client{})
+func (r *ClientRepository) Delete(ctx context.Context, userID, clientID uuid.UUID) error {
+	result := r.db.
+		Where("user_id = ? AND id = ?", userID, clientID).
+		Delete(model.Client{})
+
 	if result.Error != nil {
 		return api_err.Wrap(api_err.ErrInternalServer, result.Error)
 	}

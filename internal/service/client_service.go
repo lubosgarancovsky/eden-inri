@@ -1,10 +1,11 @@
 package service
 
 import (
+	"context"
+
 	"github.com/google/uuid"
 	"github.com/lubosgarancovsky/eden-inri/internal/model"
 	"github.com/lubosgarancovsky/eden-inri/internal/repository"
-	"github.com/lubosgarancovsky/go-kit/api_err"
 	"github.com/lubosgarancovsky/go-kit/list"
 )
 
@@ -16,59 +17,29 @@ func NewClientService(r *repository.ClientRepository) *ClientService {
 	return &ClientService{r}
 }
 
-func (s *ClientService) FindAll(userID uuid.UUID, lq *list.ListingQuery) (*list.Page[model.ClientListItem], error) {
-	items, totalCount, err := s.r.FindAll(userID, lq)
-	if err != nil {
-		return nil, err
-	}
-
-	return &list.Page[model.ClientListItem]{
-		Items:      items,
-		Page:       lq.Page,
-		PageSize:   lq.Limit,
-		TotalCount: totalCount,
-	}, nil
+func (s *ClientService) FindAll(ctx context.Context, userID uuid.UUID, lq *list.ListingQuery) (*[]model.ClientListItem, int64, error) {
+	return s.r.FindAll(ctx, userID, lq)
 }
 
-func (s *ClientService) FindByID(userID, clientID uuid.UUID) (*model.Client, error) {
-	client, err := s.r.FindByID(clientID)
-	if err != nil {
-		return nil, err
-	}
-
-	if client.UserID != userID {
-		return nil, api_err.ErrForbidden
-	}
-
-	return client, nil
+func (s *ClientService) FindByID(ctx context.Context, userID, clientID uuid.UUID) (*model.Client, error) {
+	return s.r.FindByID(ctx, userID, clientID)
 }
 
-func (s *ClientService) Create(userID uuid.UUID, input *model.ClientRequest) (*model.Client, error) {
-	client := fromRequest(userID, input)
-	return s.r.Insert(client)
+func (s *ClientService) Create(ctx context.Context, userID uuid.UUID, payload *model.ClientRequest) (*model.Client, error) {
+	return s.r.Insert(ctx, buildClientPayload(userID, payload))
 }
 
-func (s *ClientService) Update(userID, clientID uuid.UUID, input *model.ClientRequest) (*model.Client, error) {
-	_, err := s.FindByID(userID, clientID)
-	if err != nil {
-		return nil, err
-	}
-
-	client := fromRequest(userID, input)
+func (s *ClientService) Update(ctx context.Context, userID, clientID uuid.UUID, payload *model.ClientRequest) (*model.Client, error) {
+	client := buildClientPayload(userID, payload)
 	client.ID = clientID
-	return s.r.Update(client)
+	return s.r.Update(ctx, client)
 }
 
-func (s *ClientService) Delete(userID, clientID uuid.UUID) (*model.Client, error) {
-	client, err := s.FindByID(userID, clientID)
-	if err != nil {
-		return nil, err
-	}
-
-	return client, s.r.Delete(clientID)
+func (s *ClientService) Delete(ctx context.Context, userID, clientID uuid.UUID) error {
+	return s.r.Delete(ctx, userID, clientID)
 }
 
-func fromRequest(userID uuid.UUID, input *model.ClientRequest) *model.Client {
+func buildClientPayload(userID uuid.UUID, input *model.ClientRequest) *model.Client {
 	return &model.Client{
 		ClientListItem: model.ClientListItem{
 			UserID:       userID,

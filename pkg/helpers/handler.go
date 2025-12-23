@@ -1,11 +1,13 @@
 package helpers
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/lubosgarancovsky/eden-inri/internal/model"
+	"github.com/lubosgarancovsky/eden-inri/pkg/types"
 	"github.com/lubosgarancovsky/go-kit/api_err"
 	"github.com/lubosgarancovsky/go-kit/filter"
 	"github.com/lubosgarancovsky/go-kit/list"
@@ -64,30 +66,112 @@ func CreateListingQuery(c *gin.Context, parser *rsql.Parser, filterMap map[strin
 	return lq, nil
 }
 
-func ExtractID(c *gin.Context, name string) (uuid.UUID, error) {
+func ExtractID(c *gin.Context, name string) uuid.UUID {
 	ID, ok := c.Params.Get(name)
 	if !ok {
-		return uuid.Nil, api_err.ErrParameterMissing.WithMessage(fmt.Sprintf("Path parameter %s is missing", name))
+		c.Error(api_err.ErrParameterMissing.WithMessage(fmt.Sprintf("Path parameter %s is missing", name)))
+		return uuid.Nil
 	}
 
 	UID, err := uuid.Parse(ID)
 	if err != nil {
-		return uuid.Nil, api_err.Wrap(api_err.ErrInvalidUUID.WithMessage(fmt.Sprintf("%s is not a valid UUID", ID)), err)
+		c.Error(api_err.Wrap(api_err.ErrInvalidUUID.WithMessage(fmt.Sprintf("%s is not a valid UUID", ID)), err))
+		return uuid.Nil
 	}
 
-	return UID, nil
+	return UID
 }
 
-func GetUserContext(c *gin.Context) (*model.UserContext, error) {
-	user, ok := c.Get("user")
-	if !ok {
-		return nil, api_err.ErrUnauthorized
+func GetUserContext(c *gin.Context) *model.UserContext {
+	user, _ := c.Get("user")
+	return user.(*model.UserContext)
+}
+
+func HandleList[T any](c *gin.Context, parser *rsql.Parser, config types.ListConfig, fn func(ctx context.Context, userID uuid.UUID, lq *list.ListingQuery) (*[]T, int64, error)) {
+	lq, apiErr := CreateListingQuery(c, parser, config.Filter, config.Sort)
+	if apiErr != nil {
+		c.Error(apiErr)
+		return
 	}
 
-	userCtx, ok := user.(*model.UserContext)
-	if !ok {
-		return nil, api_err.ErrUnauthorized
+	user := GetUserContext(c)
+
+	items, totalCount, err := fn(c.Request.Context(), user.ID, lq)
+	if err != nil {
+		c.Error(err)
+		return
 	}
 
-	return userCtx, nil
+	result := &list.Page[T]{
+		Items:      *items,
+		Page:       lq.Page,
+		PageSize:   lq.Limit,
+		TotalCount: totalCount,
+	}
+
+	c.JSON(200, result)
+}
+
+func HandleFindByID[T any](c *gin.Context, paramName string, fn func(ctx context.Context, userID, resourceID uuid.UUID) (T, error)) {
+	resourceID := ExtractID(c, paramName)
+	user := GetUserContext(c)
+
+	result, err := fn(c.Request.Context(), user.ID, resourceID)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	c.JSON(200, result)
+}
+
+func HandleCreate[T any, R any](c *gin.Context, fn func(ctx context.Context, userID uuid.UUID, payload *T) (R, error)) {
+	user := GetUserContext(c)
+
+	var input T
+	err := c.ShouldBindJSON(&input)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	result, err := fn(c.Request.Context(), user.ID, &input)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	c.JSON(201, result)
+}
+
+func HandleUpdate[T any, R any](c *gin.Context, paramName string, fn func(ctx context.Context, userID, resourceID uuid.UUID, payload *T) (R, error)) {
+	user := GetUserContext(c)
+	resourceID := ExtractID(c, paramName)
+
+	var input T
+	err := c.ShouldBindJSON(&input)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	result, err := fn(c.Request.Context(), user.ID, resourceID, &input)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	c.JSON(201, result)
+}
+
+func HandleDelete(c *gin.Context, paramName string, fn func(ctx context.Context, userID, resourceID uuid.UUID) error) {
+	user := GetUserContext(c)
+	resourceID := ExtractID(c, paramName)
+
+	if err := fn(c.Request.Context(), user.ID, resourceID); err != nil {
+		c.Error(err)
+		return
+	}
+
+	c.JSON(204, gin.H{})
 }
