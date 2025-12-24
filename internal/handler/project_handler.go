@@ -4,13 +4,30 @@ import (
 	"mime/multipart"
 
 	"github.com/gin-gonic/gin"
-	"github.com/lubosgarancovsky/eden-inri/internal/listing"
 	"github.com/lubosgarancovsky/eden-inri/internal/model"
 	"github.com/lubosgarancovsky/eden-inri/internal/service"
 	"github.com/lubosgarancovsky/eden-inri/pkg/helpers"
+	"github.com/lubosgarancovsky/eden-inri/pkg/types"
 	"github.com/lubosgarancovsky/go-kit/api_err"
 	"github.com/lubosgarancovsky/go-kit/rsql"
 )
+
+var ProjectListConfig = types.ListConfig{
+	Filter: map[string]string{
+		"name":           "name",
+		"status":         "status",
+		"slug":           "slug",
+		"lastActivityAt": "last_activity_at",
+		"isStarred":      "pu.is_starred",
+		"role":           "pu.role",
+	},
+	Sort: map[string]string{
+		"name":           "name",
+		"createdAt":      "created_at",
+		"updatedAt":      "updated_at",
+		"lastActivityAt": "last_activity_at",
+	},
+}
 
 type ProjectHandler struct {
 	s      *service.ProjectService
@@ -40,25 +57,7 @@ func NewProjectHandler(parser *rsql.Parser, s *service.ProjectService) *ProjectH
 // @Success      200  {object}   ProjectPage
 // @Router       /v1/inri/projects [get]
 func (h *ProjectHandler) FindAll(c *gin.Context) {
-	lq, apiErr := helpers.CreateListingQuery(c, h.parser, listing.ProjectFilter, listing.ProjectSort)
-	if apiErr != nil {
-		c.Error(apiErr)
-		return
-	}
-
-	user, err := helpers.GetUserContext(c)
-	if err != nil {
-		c.Error(err)
-		return
-	}
-
-	result, err := h.s.FindAll(user.ID, lq)
-	if err != nil {
-		c.Error(err)
-		return
-	}
-
-	c.JSON(200, result)
+	helpers.HandleList(c, h.parser, ProjectListConfig, h.s.FindAll)
 }
 
 // FindByID @Summary      Get project by ID
@@ -70,25 +69,7 @@ func (h *ProjectHandler) FindAll(c *gin.Context) {
 // @Success      200  {object}   model.Project
 // @Router       /v1/inri/projects/{projectId} [get]
 func (h *ProjectHandler) FindByID(c *gin.Context) {
-	UID, err := helpers.ExtractID(c, "projectId")
-	if err != nil {
-		c.Error(err)
-		return
-	}
-
-	user, err := helpers.GetUserContext(c)
-	if err != nil {
-		c.Error(err)
-		return
-	}
-
-	result, err := h.s.FindByID(user.ID, UID)
-	if err != nil {
-		c.Error(err)
-		return
-	}
-
-	c.JSON(200, result)
+	helpers.HandleFindByID(c, "projectId", h.s.FindByID)
 }
 
 // Create @Summary      Create a new project
@@ -100,25 +81,7 @@ func (h *ProjectHandler) FindByID(c *gin.Context) {
 // @Success      201  {object}  model.Project
 // @Router       /v1/inri/projects [post]
 func (h *ProjectHandler) Create(c *gin.Context) {
-	var input model.ProjectRequest
-	if err := c.ShouldBindJSON(&input); err != nil {
-		c.Error(err)
-		return
-	}
-
-	user, err := helpers.GetUserContext(c)
-	if err != nil {
-		c.Error(err)
-		return
-	}
-
-	result, err := h.s.Create(user.ID, &input)
-	if err != nil {
-		c.Error(err)
-		return
-	}
-
-	c.JSON(201, result)
+	helpers.HandleCreate(c, h.s.Create)
 }
 
 // Update @Summary      Update a project
@@ -137,19 +100,9 @@ func (h *ProjectHandler) Update(c *gin.Context) {
 		return
 	}
 
-	user, err := helpers.GetUserContext(c)
-	if err != nil {
-		c.Error(err)
-		return
-	}
+	projectID := helpers.ExtractID(c, "projectId")
 
-	UID, err := helpers.ExtractID(c, "projectId")
-	if err != nil {
-		c.Error(err)
-		return
-	}
-
-	result, err := h.s.Update(user.ID, UID, &input)
+	result, err := h.s.Update(c.Request.Context(), projectID, &input)
 	if err != nil {
 		c.Error(err)
 		return
@@ -167,19 +120,9 @@ func (h *ProjectHandler) Update(c *gin.Context) {
 // @Success      204  {string}  string  "No Content"
 // @Router       /v1/inri/projects/{projectId} [delete]
 func (h *ProjectHandler) Delete(c *gin.Context) {
-	UID, err := helpers.ExtractID(c, "projectId")
-	if err != nil {
-		c.Error(err)
-		return
-	}
+	projectID := helpers.ExtractID(c, "projectId")
 
-	user, err := helpers.GetUserContext(c)
-	if err != nil {
-		c.Error(err)
-		return
-	}
-
-	if err = h.s.Delete(user.ID, UID); err != nil {
+	if err := h.s.Delete(c.Request.Context(), projectID); err != nil {
 		c.Error(err)
 		return
 	}
@@ -197,17 +140,7 @@ func (h *ProjectHandler) Delete(c *gin.Context) {
 // @Success      204  {string}  string  "No Content"
 // @Router       /v1/inri/projects/{projectId}/attachments [post]
 func (h *ProjectHandler) UploadAttachments(c *gin.Context) {
-	projectID, err := helpers.ExtractID(c, "projectId")
-	if err != nil {
-		c.Error(err)
-		return
-	}
-
-	user, err := helpers.GetUserContext(c)
-	if err != nil {
-		c.Error(err)
-		return
-	}
+	projectID := helpers.ExtractID(c, "projectId")
 
 	if err := c.Request.ParseMultipartForm(32 << 20); err != nil { // 32MB default limit
 		c.Error(err)
@@ -232,7 +165,7 @@ func (h *ProjectHandler) UploadAttachments(c *gin.Context) {
 		return
 	}
 
-	if err := h.s.SaveAttachments(c, user.ID, projectID, files); err != nil {
+	if err := h.s.SaveAttachments(c, projectID, files); err != nil {
 		c.Error(err)
 		return
 	}
@@ -247,19 +180,9 @@ func (h *ProjectHandler) UploadAttachments(c *gin.Context) {
 // @Success      200  {object}   []model.Attachment
 // @Router       /v1/inri/projects/{projectId}/attachments [get]
 func (h *ProjectHandler) ListAttachments(c *gin.Context) {
-	projectID, err := helpers.ExtractID(c, "projectId")
-	if err != nil {
-		c.Error(err)
-		return
-	}
+	projectID := helpers.ExtractID(c, "projectId")
 
-	user, err := helpers.GetUserContext(c)
-	if err != nil {
-		c.Error(err)
-		return
-	}
-
-	result, err := h.s.ListAttachments(user.ID, projectID)
+	result, err := h.s.ListAttachments(c.Request.Context(), projectID)
 	if err != nil {
 		c.Error(err)
 		return
@@ -276,19 +199,10 @@ func (h *ProjectHandler) ListAttachments(c *gin.Context) {
 // @Success      201  {object}  model.Project
 // @Router       /v1/inri/projects/:projectId/favourite [post]
 func (h *ProjectHandler) Favourite(c *gin.Context) {
-	user, err := helpers.GetUserContext(c)
-	if err != nil {
-		c.Error(err)
-		return
-	}
+	userID := helpers.GetUserContext(c).ID
+	projectID := helpers.ExtractID(c, "projectId")
 
-	UID, err := helpers.ExtractID(c, "projectId")
-	if err != nil {
-		c.Error(err)
-		return
-	}
-
-	result, err := h.s.Favourite(user.ID, UID)
+	result, err := h.s.Favourite(c.Request.Context(), userID, projectID)
 	if err != nil {
 		c.Error(err)
 		return

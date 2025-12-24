@@ -5,13 +5,33 @@ import (
 	"github.com/lubosgarancovsky/eden-inri/internal/model"
 	"github.com/lubosgarancovsky/eden-inri/internal/service"
 	"github.com/lubosgarancovsky/eden-inri/pkg/helpers"
+	"github.com/lubosgarancovsky/eden-inri/pkg/types"
 	"github.com/lubosgarancovsky/go-kit/rsql"
 )
 
+var AttachmentListConfig = types.ListConfig{
+	Filter: map[string]string{
+		"model":        "model",
+		"modelId":      "model_id",
+		"originalName": "original_name",
+		"mimeType":     "mime_type",
+		"size":         "size",
+		"createdAt":    "created_at",
+		"updatedAt":    "updated_at",
+	},
+	Sort: map[string]string{
+		"originalName": "original_name",
+		"mimeType":     "mime_type",
+		"size":         "size",
+		"createdAt":    "created_at",
+		"updatedAt":    "updated_at",
+	},
+}
+
 // AttachmentHandler handles attachment endpoints
 type AttachmentHandler struct {
-	s      *service.AttachmentService
-	parser *rsql.Parser
+	parser            *rsql.Parser
+	attachmentService *service.AttachmentService
 }
 
 // AttachmentPage response for listing
@@ -22,8 +42,8 @@ type AttachmentPage struct {
 	TotalCount int64
 }
 
-func NewAttachmentHandler(parser *rsql.Parser, s *service.AttachmentService) *AttachmentHandler {
-	return &AttachmentHandler{s: s, parser: parser}
+func NewAttachmentHandler(parser *rsql.Parser, attachmentService *service.AttachmentService) *AttachmentHandler {
+	return &AttachmentHandler{parser, attachmentService}
 }
 
 // FindAll @Summary      List attachments
@@ -38,25 +58,7 @@ func NewAttachmentHandler(parser *rsql.Parser, s *service.AttachmentService) *At
 // @Success      200  {object}   AttachmentPage
 // @Router       /v1/inri/attachments [get]
 func (h *AttachmentHandler) FindAll(c *gin.Context) {
-	lq, apiErr := helpers.CreateListingQuery(c, h.parser, map[string]string{}, map[string]string{})
-	if apiErr != nil {
-		c.Error(apiErr)
-		return
-	}
-
-	user, err := helpers.GetUserContext(c)
-	if err != nil {
-		c.Error(err)
-		return
-	}
-
-	result, err := h.s.FindAll(user.ID, lq)
-	if err != nil {
-		c.Error(err)
-		return
-	}
-
-	c.JSON(200, result)
+	helpers.HandleList(c, h.parser, AttachmentListConfig, h.attachmentService.FindAll)
 }
 
 // FindByID @Summary      Get attachment by ID
@@ -68,25 +70,7 @@ func (h *AttachmentHandler) FindAll(c *gin.Context) {
 // @Success      200  {object}   model.Attachment
 // @Router       /v1/inri/attachments/{attachmentId} [get]
 func (h *AttachmentHandler) FindByID(c *gin.Context) {
-	UID, err := helpers.ExtractID(c, "attachmentId")
-	if err != nil {
-		c.Error(err)
-		return
-	}
-
-	user, err := helpers.GetUserContext(c)
-	if err != nil {
-		c.Error(err)
-		return
-	}
-
-	result, err := h.s.FindByID(user.ID, UID)
-	if err != nil {
-		c.Error(err)
-		return
-	}
-
-	c.JSON(200, result)
+	helpers.HandleFindByID(c, "attachmentId", h.attachmentService.FindByID)
 }
 
 // Delete @Summary      Delete an attachment
@@ -98,24 +82,7 @@ func (h *AttachmentHandler) FindByID(c *gin.Context) {
 // @Success      204  {string}  string  "No Content"
 // @Router       /v1/inri/attachments/{attachmentId} [delete]
 func (h *AttachmentHandler) Delete(c *gin.Context) {
-	UID, err := helpers.ExtractID(c, "attachmentId")
-	if err != nil {
-		c.Error(err)
-		return
-	}
-
-	user, err := helpers.GetUserContext(c)
-	if err != nil {
-		c.Error(err)
-		return
-	}
-
-	if _, err := h.s.Delete(user.ID, UID); err != nil {
-		c.Error(err)
-		return
-	}
-
-	c.Status(204)
+	helpers.HandleDelete(c, "attachmentId", h.attachmentService.Delete)
 }
 
 // Download @Summary      Download attachment file
@@ -126,24 +93,15 @@ func (h *AttachmentHandler) Delete(c *gin.Context) {
 // @Success      200  {file}  file
 // @Router       /v1/inri/attachments/{attachmentId}/download [get]
 func (h *AttachmentHandler) Download(c *gin.Context) {
-	UID, err := helpers.ExtractID(c, "attachmentId")
+	attachmentID := helpers.ExtractID(c, "attachmentId")
+	userID := helpers.GetUserContext(c).ID
+
+	att, err := h.attachmentService.FindByID(c.Request.Context(), userID, attachmentID)
 	if err != nil {
 		c.Error(err)
 		return
 	}
 
-	user, err := helpers.GetUserContext(c)
-	if err != nil {
-		c.Error(err)
-		return
-	}
-
-	att, err := h.s.FindByID(user.ID, UID)
-	if err != nil {
-		c.Error(err)
-		return
-	}
-
-	path := h.s.GetFilePath(att)
+	path := h.attachmentService.GetFilePath(att)
 	c.FileAttachment(path, att.OriginalName)
 }

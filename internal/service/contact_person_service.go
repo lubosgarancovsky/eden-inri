@@ -1,10 +1,11 @@
 package service
 
 import (
+	"context"
+
 	"github.com/google/uuid"
 	"github.com/lubosgarancovsky/eden-inri/internal/model"
 	"github.com/lubosgarancovsky/eden-inri/internal/repository"
-	"github.com/lubosgarancovsky/go-kit/api_err"
 	"github.com/lubosgarancovsky/go-kit/list"
 )
 
@@ -16,8 +17,8 @@ func NewContactPersonService(r *repository.ContactPersonRepository) *ContactPers
 	return &ContactPersonService{r}
 }
 
-func (s *ContactPersonService) FindAll(userID, clientID uuid.UUID, lq *list.ListingQuery) (*list.Page[model.ContactPerson], error) {
-	items, totalCount, err := s.r.FindAll(userID, clientID, lq)
+func (s *ContactPersonService) FindAll(ctx context.Context, userID, clientID uuid.UUID, lq *list.ListingQuery) (*list.Page[model.ContactPerson], error) {
+	items, totalCount, err := s.r.FindAll(ctx, userID, clientID, lq)
 	if err != nil {
 		return nil, err
 	}
@@ -30,18 +31,11 @@ func (s *ContactPersonService) FindAll(userID, clientID uuid.UUID, lq *list.List
 	}, nil
 }
 
-func (s *ContactPersonService) FindByID(userID, clientID, id uuid.UUID) (*model.ContactPerson, error) {
-	cp, err := s.r.FindByID(clientID, id)
-	if err != nil {
-		return nil, err
-	}
-	if cp.UserID != userID {
-		return nil, api_err.ErrForbidden
-	}
-	return cp, nil
+func (s *ContactPersonService) FindByID(ctx context.Context, userID, clientID, contactPersonID uuid.UUID) (*model.ContactPerson, error) {
+	return s.r.FindByID(ctx, userID, clientID, contactPersonID)
 }
 
-func (s *ContactPersonService) Create(userID, clientID uuid.UUID, input *model.ContactPersonRequest) (*model.ContactPerson, error) {
+func (s *ContactPersonService) Create(ctx context.Context, userID, clientID uuid.UUID, input *model.ContactPersonRequest) (*model.ContactPerson, error) {
 	cp := &model.ContactPerson{
 		UserID:   userID,
 		ClientID: clientID,
@@ -49,28 +43,21 @@ func (s *ContactPersonService) Create(userID, clientID uuid.UUID, input *model.C
 		Email:    input.Email,
 		Phone:    input.Phone,
 	}
-	return s.r.Insert(cp)
+	return s.r.Insert(ctx, cp)
 }
 
-func (s *ContactPersonService) Update(userID, clientID, id uuid.UUID, input *model.ContactPersonRequest) (*model.ContactPerson, error) {
-	_, err := s.FindByID(userID, clientID, id)
-	if err != nil {
-		return nil, err
-	}
+func (s *ContactPersonService) Update(ctx context.Context, userID, clientID, contactPersonID uuid.UUID, input *model.ContactPersonRequest) (*model.ContactPerson, error) {
 	cp := &model.ContactPerson{
-		ID:       id,
+		ID:       contactPersonID,
 		UserID:   userID,
 		ClientID: clientID,
 		Name:     input.Name,
 		Email:    input.Email,
 		Phone:    input.Phone,
 	}
-	return s.r.Update(cp)
+	return s.r.Update(ctx, cp)
 }
 
-func (s *ContactPersonService) Delete(userID, clientID uuid.UUID, id uuid.UUID) error {
-	if _, err := s.FindByID(userID, clientID, id); err != nil {
-		return err
-	}
-	return s.r.Delete(clientID, id)
+func (s *ContactPersonService) Delete(ctx context.Context, userID, clientID uuid.UUID, contactPersonID uuid.UUID) error {
+	return s.r.Delete(ctx, userID, clientID, contactPersonID)
 }

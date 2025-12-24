@@ -5,15 +5,34 @@ import (
 	"github.com/lubosgarancovsky/eden-inri/internal/model"
 	"github.com/lubosgarancovsky/eden-inri/internal/service"
 	"github.com/lubosgarancovsky/eden-inri/pkg/helpers"
+	"github.com/lubosgarancovsky/eden-inri/pkg/types"
 	"github.com/lubosgarancovsky/go-kit/api_err"
+	"github.com/lubosgarancovsky/go-kit/rsql"
 )
 
-type KanbanBoardHandler struct {
-	s *service.KanbanBoardService
+var KanbanBoardListConfig = types.ListConfig{
+	Filter: map[string]string{
+		"id":             "id",
+		"name":           "name",
+		"status":         "status",
+		"projectId":      "project_id",
+		"createdAt":      "created_at",
+		"lastActivityAt": "last_activity_at",
+	},
+	Sort: map[string]string{
+		"name":           "name",
+		"createdAt":      "created_at",
+		"lastActivityAt": "last_activity_at",
+	},
 }
 
-func NewKanbanBoardHandler(s *service.KanbanBoardService) *KanbanBoardHandler {
-	return &KanbanBoardHandler{s: s}
+type KanbanBoardHandler struct {
+	s      *service.KanbanBoardService
+	parser *rsql.Parser
+}
+
+func NewKanbanBoardHandler(s *service.KanbanBoardService, parser *rsql.Parser) *KanbanBoardHandler {
+	return &KanbanBoardHandler{s, parser}
 }
 
 // FindAll @Summary      List project boards
@@ -25,19 +44,10 @@ func NewKanbanBoardHandler(s *service.KanbanBoardService) *KanbanBoardHandler {
 // @Success      200  {array}  model.KanbanBoard
 // @Router       /v1/inri/projects/{projectId}/kanban [get]
 func (h *KanbanBoardHandler) FindAll(c *gin.Context) {
-	projectID, err := helpers.ExtractID(c, "projectId")
-	if err != nil {
-		c.Error(err)
-		return
-	}
+	projectID := helpers.ExtractID(c, "projectId")
 
-	user, err := helpers.GetUserContext(c)
-	if err != nil {
-		c.Error(err)
-		return
-	}
-
-	boards, err := h.s.FindAll(user.ID, projectID)
+	lq := helpers.CreateListingQuery(c, h.parser, KanbanBoardListConfig.Filter, KanbanBoardListConfig.Sort)
+	boards, err := h.s.FindAll(c.Request.Context(), projectID, lq)
 	if err != nil {
 		c.Error(err)
 		return
@@ -56,25 +66,10 @@ func (h *KanbanBoardHandler) FindAll(c *gin.Context) {
 // @Success      200  {object}  model.KanbanBoard
 // @Router       /v1/inri/projects/{projectId}/kanban/{kanbanId} [get]
 func (h *KanbanBoardHandler) FindByID(c *gin.Context) {
-	projectID, err := helpers.ExtractID(c, "projectId")
-	if err != nil {
-		c.Error(err)
-		return
-	}
+	projectID := helpers.ExtractID(c, "projectId")
+	boardID := helpers.ExtractID(c, "kanbanId")
 
-	boardID, err := helpers.ExtractID(c, "kanbanId")
-	if err != nil {
-		c.Error(err)
-		return
-	}
-
-	user, err := helpers.GetUserContext(c)
-	if err != nil {
-		c.Error(err)
-		return
-	}
-
-	board, err := h.s.FindByID(user.ID, projectID, boardID)
+	board, err := h.s.FindByID(c.Request.Context(), projectID, boardID)
 	if err != nil {
 		c.Error(err)
 		return
@@ -92,17 +87,7 @@ func (h *KanbanBoardHandler) FindByID(c *gin.Context) {
 // @Success      201  {object}  model.KanbanBoard
 // @Router       /v1/inri/projects/{projectId}/kanban [post]
 func (h *KanbanBoardHandler) Insert(c *gin.Context) {
-	projectID, err := helpers.ExtractID(c, "projectId")
-	if err != nil {
-		c.Error(err)
-		return
-	}
-
-	user, err := helpers.GetUserContext(c)
-	if err != nil {
-		c.Error(err)
-		return
-	}
+	projectID := helpers.ExtractID(c, "projectId")
 
 	var req model.KanbanBoardRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -110,7 +95,7 @@ func (h *KanbanBoardHandler) Insert(c *gin.Context) {
 		return
 	}
 
-	board, err := h.s.Insert(user.ID, projectID, &req)
+	board, err := h.s.Insert(c.Request.Context(), projectID, &req)
 	if err != nil {
 		c.Error(err)
 		return
@@ -129,23 +114,8 @@ func (h *KanbanBoardHandler) Insert(c *gin.Context) {
 // @Success      201  {object}  model.KanbanBoard
 // @Router       /v1/inri/projects/{projectId}/kanban/{kanbanId} [put]
 func (h *KanbanBoardHandler) Update(c *gin.Context) {
-	projectID, err := helpers.ExtractID(c, "projectId")
-	if err != nil {
-		c.Error(err)
-		return
-	}
-
-	kanbanID, err := helpers.ExtractID(c, "kanbanId")
-	if err != nil {
-		c.Error(err)
-		return
-	}
-
-	user, err := helpers.GetUserContext(c)
-	if err != nil {
-		c.Error(err)
-		return
-	}
+	projectID := helpers.ExtractID(c, "projectId")
+	boardID := helpers.ExtractID(c, "kanbanId")
 
 	var req model.KanbanBoardRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -153,7 +123,7 @@ func (h *KanbanBoardHandler) Update(c *gin.Context) {
 		return
 	}
 
-	board, err := h.s.Update(user.ID, projectID, kanbanID, &req)
+	board, err := h.s.Update(c.Request.Context(), projectID, boardID, &req)
 	if err != nil {
 		c.Error(err)
 		return
@@ -172,25 +142,10 @@ func (h *KanbanBoardHandler) Update(c *gin.Context) {
 // @Success      204  {string}  string  "No Content"
 // @Router       /v1/inri/projects/{projectId}/kanban/{kanbanId} [delete]
 func (h *KanbanBoardHandler) Delete(c *gin.Context) {
-	projectID, err := helpers.ExtractID(c, "projectId")
-	if err != nil {
-		c.Error(err)
-		return
-	}
+	projectID := helpers.ExtractID(c, "projectId")
+	boardID := helpers.ExtractID(c, "kanbanId")
 
-	boardID, err := helpers.ExtractID(c, "kanbanId")
-	if err != nil {
-		c.Error(err)
-		return
-	}
-
-	user, err := helpers.GetUserContext(c)
-	if err != nil {
-		c.Error(err)
-		return
-	}
-
-	if err := h.s.Delete(user.ID, projectID, boardID); err != nil {
+	if err := h.s.Delete(c.Request.Context(), projectID, boardID); err != nil {
 		c.Error(err)
 		return
 	}

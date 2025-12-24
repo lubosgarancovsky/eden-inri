@@ -15,11 +15,12 @@ import (
 	"github.com/lubosgarancovsky/go-kit/sort"
 )
 
-func CreateListingQuery(c *gin.Context, parser *rsql.Parser, filterMap map[string]string, sortMap map[string]string) (*list.ListingQuery, error) {
+func CreateListingQuery(c *gin.Context, parser *rsql.Parser, filterMap map[string]string, sortMap map[string]string) *list.ListingQuery {
 	var qp list.QueryParms
 	err := c.ShouldBindQuery(&qp)
 	if err != nil {
-		return nil, api_err.Wrap(api_err.ErrBadRequest, err).WithMessage("Invalid query parameters")
+		c.Error(api_err.Wrap(api_err.ErrBadRequest, err).WithMessage("Invalid query parameters"))
+		return nil
 	}
 
 	var limit = 10
@@ -43,12 +44,14 @@ func CreateListingQuery(c *gin.Context, parser *rsql.Parser, filterMap map[strin
 	if qp.Filter != "" {
 		ast, err := parser.Parse(qp.Filter)
 		if err != nil {
-			return nil, api_err.Wrap(api_err.ErrBadRequest, err).WithMessage("Invalid filter parameter")
+			c.Error(api_err.Wrap(api_err.ErrBadRequest, err).WithMessage("Invalid filter parameter"))
+			return nil
 		}
 
 		fil, err := filter.BuildFilter(ast, filterMap)
 		if err != nil {
-			return nil, api_err.Wrap(api_err.ErrBadRequest, err).WithMessage("Invalid filter parameter")
+			c.Error(api_err.Wrap(api_err.ErrBadRequest, err).WithMessage("Invalid filter parameter"))
+			return nil
 		}
 
 		lq.Filter = fil
@@ -57,13 +60,14 @@ func CreateListingQuery(c *gin.Context, parser *rsql.Parser, filterMap map[strin
 	if qp.Sort != "" {
 		srt, err := sort.BuildSort(qp.Sort, sortMap)
 		if err != nil {
-			return nil, api_err.Wrap(api_err.ErrBadRequest, err).WithMessage("Invalid sort parameter")
+			c.Error(api_err.Wrap(api_err.ErrBadRequest, err).WithMessage("Invalid sort parameter"))
+			return nil
 		}
 
 		lq.Sort = srt
 	}
 
-	return lq, nil
+	return lq
 }
 
 func ExtractID(c *gin.Context, name string) uuid.UUID {
@@ -88,12 +92,7 @@ func GetUserContext(c *gin.Context) *model.UserContext {
 }
 
 func HandleList[T any](c *gin.Context, parser *rsql.Parser, config types.ListConfig, fn func(ctx context.Context, userID uuid.UUID, lq *list.ListingQuery) (*[]T, int64, error)) {
-	lq, apiErr := CreateListingQuery(c, parser, config.Filter, config.Sort)
-	if apiErr != nil {
-		c.Error(apiErr)
-		return
-	}
-
+	lq := CreateListingQuery(c, parser, config.Filter, config.Sort)
 	user := GetUserContext(c)
 
 	items, totalCount, err := fn(c.Request.Context(), user.ID, lq)
