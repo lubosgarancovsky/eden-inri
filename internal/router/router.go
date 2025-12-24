@@ -81,8 +81,9 @@ func SetupRouter(r *gin.Engine, cfg *config.Config, db *gorm.DB) *gin.Engine {
 
 	projects := protected.Group("/projects")
 	{
-		projects.GET("/:projectId/members", projectUserHandler.FindAll)
-		projects.DELETE("/:projectId/members/:memberId", projectUserHandler.Delete)
+		projects.GET("/:projectId/members", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer, model.Guest), projectUserHandler.FindAll)
+		projects.PUT("/:projectId/members/:memberId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin), projectUserHandler.Update)
+		projects.DELETE("/:projectId/members/:memberId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin), projectUserHandler.Delete)
 	}
 
 	// Projects
@@ -182,7 +183,7 @@ func SetupRouter(r *gin.Engine, cfg *config.Config, db *gorm.DB) *gin.Engine {
 
 	// Story activity
 	storyActivityRepo := repository.NewStoryActivityRepository(db)
-	storyActivityService := service.NewStoryActivityService(storyActivityRepo, projectUserService, kanbanService)
+	storyActivityService := service.NewStoryActivityService(storyActivityRepo, projectUserService)
 	storyActivityHandler := handler.NewStoryActivityHandler(parser, storyActivityService)
 
 	{

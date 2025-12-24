@@ -42,12 +42,13 @@ func NewContactPersonHandler(parser *rsql.Parser, s *service.ContactPersonServic
 // @Tags         ContactPersons
 // @Accept       json
 // @Produce      json
+// @Param        clientId   path      string  true  "Client ID"
 // @Param        page      query     int     false  "Page number"     default(1)
 // @Param        pageSize  query     int     false  "Items per page"  default(10)
 // @Param        filter      query     string     false  "RSQL filter query"
 // @Param        sort  query     string     false  "Sort query"
 // @Success      200  {object}   ContactPersonPage
-// @Router       /v1/inri/clients/{clientsId}/contact-persons [get]
+// @Router       /v1/inri/clients/{clientId}/contact-persons [get]
 func (h *ContactPersonHandler) FindAll(c *gin.Context) {
 	lq := helpers.CreateListingQuery(c, h.parser, ContactPersonListConfig.Filter, ContactPersonListConfig.Sort)
 	userID := helpers.GetUserContext(c).ID
@@ -67,9 +68,10 @@ func (h *ContactPersonHandler) FindAll(c *gin.Context) {
 // @Tags         ContactPersons
 // @Accept       json
 // @Produce      json
+// @Param        clientId   path      string  true  "Client ID"
 // @Param        contactPersonId   path      string  true  "Contact Person ID"
 // @Success      200  {object}   model.ContactPerson
-// @Router       /v1/inri/clients/{clientsId}/contact-persons/{contactPersonId} [get]
+// @Router       /v1/inri/clients/{clientId}/contact-persons/{contactPersonId} [get]
 func (h *ContactPersonHandler) FindByID(c *gin.Context) {
 	clientID := helpers.ExtractID(c, "clientId")
 	contactPersonID := helpers.ExtractID(c, "contactPersonId")
@@ -89,9 +91,10 @@ func (h *ContactPersonHandler) FindByID(c *gin.Context) {
 // @Tags         ContactPersons
 // @Accept       json
 // @Produce      json
+// @Param        clientId   path      string  true  "Client ID"
 // @Param        contactPerson  body  model.ContactPersonRequest  true  "Contact person data"
 // @Success      201  {object}  model.ContactPerson
-// @Router       /v1/inri/clients/{clientsId}/contact-persons [post]
+// @Router       /v1/inri/clients/{clientId}/contact-persons [post]
 func (h *ContactPersonHandler) Create(c *gin.Context) {
 	var input model.ContactPersonRequest
 	if err := c.ShouldBindJSON(&input); err != nil {
@@ -116,10 +119,11 @@ func (h *ContactPersonHandler) Create(c *gin.Context) {
 // @Tags         ContactPersons
 // @Accept       json
 // @Produce      json
-// @Param        contactPerson  body  model.ContactPersonRequest  true  "Contact person data"
+// @Param        clientId   path      string  true  "Client ID"
 // @Param        contactPersonId   path      string  true  "Contact Person ID"
+// @Param        contactPerson  body  model.ContactPersonRequest  true  "Contact person data"
 // @Success      200  {object}  model.ContactPerson
-// @Router       /v1/inri/clients/{clientsId}/contact-persons/{contactPersonId} [put]
+// @Router       /v1/inri/clients/{clientId}/contact-persons/{contactPersonId} [put]
 func (h *ContactPersonHandler) Update(c *gin.Context) {
 	var input model.ContactPersonRequest
 	if err := c.ShouldBindJSON(&input); err != nil {
@@ -145,9 +149,10 @@ func (h *ContactPersonHandler) Update(c *gin.Context) {
 // @Tags         ContactPersons
 // @Accept       json
 // @Produce      json
+// @Param        clientId   path      string  true  "Client ID"
 // @Param        contactPersonId   path      string  true  "Contact Person ID"
 // @Success      204  {string}  string  "No Content"
-// @Router       /v1/inri/clients/{clientsId}/contact-persons/{contactPersonId} [delete]
+// @Router       /v1/inri/clients/{clientId}/contact-persons/{contactPersonId} [delete]
 func (h *ContactPersonHandler) Delete(c *gin.Context) {
 	userID := helpers.GetUserContext(c).ID
 	clientID := helpers.ExtractID(c, "clientId")

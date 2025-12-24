@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"context"
+
 	"github.com/google/uuid"
 	"github.com/lubosgarancovsky/eden-inri/internal/model"
 	"github.com/lubosgarancovsky/eden-inri/pkg/helpers"
@@ -16,17 +18,21 @@ func NewStoryActivityRepository(db *gorm.DB) *StoryActivityRepository {
 	return &StoryActivityRepository{db: db}
 }
 
-// Insert a new activity
-func (r *StoryActivityRepository) Insert(activity *model.StoryActivity) (*model.StoryActivity, error) {
-	if err := r.db.Create(activity).Error; err != nil {
-		return nil, err
-	}
-	return activity, nil
+func (r *StoryActivityRepository) Insert(ctx context.Context, activity *model.StoryActivity) (*model.StoryActivity, error) {
+	err := r.db.
+		WithContext(ctx).
+		Create(activity).
+		Error
+
+	return activity, err
 }
 
-// ListActivities for a story (paginated)
-func (r *StoryActivityRepository) ListActivities(storyID uuid.UUID, lq *list.ListingQuery) ([]model.StoryActivity, int64, error) {
-	query := r.db.Model(&model.StoryActivity{}).Where("story_id = ?", storyID).Order("created_at DESC")
+func (r *StoryActivityRepository) ListActivities(ctx context.Context, storyID uuid.UUID, lq *list.ListingQuery) ([]model.StoryActivity, int64, error) {
+	query := r.db.
+		WithContext(ctx).
+		Model(model.StoryActivity{}).
+		Where("story_id = ?", storyID)
+
 	if lq.Filter != nil {
 		query = query.Where(lq.Filter.Query, lq.Filter.Args...)
 	}

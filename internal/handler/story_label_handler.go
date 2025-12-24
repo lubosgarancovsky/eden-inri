@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/lubosgarancovsky/eden-inri/internal/service"
 	"github.com/lubosgarancovsky/eden-inri/pkg/helpers"
+	"github.com/lubosgarancovsky/eden-inri/pkg/types"
 )
 
 type StoryLabelHandler struct {
@@ -25,28 +26,10 @@ func NewStoryLabelHandler(s *service.StoryLabelService) *StoryLabelHandler {
 // @Success      204  {string} string "No Content"
 // @Router       /v1/inri/kanban/{kanbanId}/stories/{storyId}/labels/{labelId} [post]
 func (h *StoryLabelHandler) AssignLabel(c *gin.Context) {
-	storyID, err := helpers.ExtractID(c, "storyId")
-	if err != nil {
-		c.Error(err)
-		return
-	}
-	labelID, err := helpers.ExtractID(c, "labelId")
-	if err != nil {
-		c.Error(err)
-		return
-	}
-	kanbanID, err := helpers.ExtractID(c, "kanbanId")
-	if err != nil {
-		c.Error(err)
-		return
-	}
-	user, err := helpers.GetUserContext(c)
-	if err != nil {
-		c.Error(err)
-		return
-	}
+	storyID := helpers.ExtractID(c, "storyId")
+	labelID := helpers.ExtractID(c, "labelId")
 
-	if err := h.s.AssignLabel(user.ID, storyID, kanbanID, labelID); err != nil {
+	if err := h.s.AssignLabel(c.Request.Context(), storyID, labelID); err != nil {
 		c.Error(err)
 		return
 	}
@@ -62,33 +45,16 @@ func (h *StoryLabelHandler) AssignLabel(c *gin.Context) {
 // @Param        storyId    path  string  true "Story ID"
 // @Param        labelId    path  string  true "Label ID"
 // @Success      204  {string} string "No Content"
-// @Router       /v1/inri/kanban/{kanbanId}stories/{storyId}/labels/{labelId} [delete]
+// @Router       /v1/inri/kanban/{kanbanId}/stories/{storyId}/labels/{labelId} [delete]
 func (h *StoryLabelHandler) UnassignLabel(c *gin.Context) {
-	storyID, err := helpers.ExtractID(c, "storyId")
-	if err != nil {
-		c.Error(err)
-		return
-	}
-	labelID, err := helpers.ExtractID(c, "labelId")
-	if err != nil {
-		c.Error(err)
-		return
-	}
-	kanbanID, err := helpers.ExtractID(c, "kanbanId")
-	if err != nil {
-		c.Error(err)
-		return
-	}
-	user, err := helpers.GetUserContext(c)
-	if err != nil {
+	storyID := helpers.ExtractID(c, "storyId")
+	labelID := helpers.ExtractID(c, "labelId")
+
+	if err := h.s.UnassignLabel(c.Request.Context(), storyID, labelID); err != nil {
 		c.Error(err)
 		return
 	}
 
-	if err := h.s.UnassignLabel(user.ID, storyID, kanbanID, labelID); err != nil {
-		c.Error(err)
-		return
-	}
 	c.Status(204)
 }
 
@@ -100,25 +66,11 @@ func (h *StoryLabelHandler) UnassignLabel(c *gin.Context) {
 // @Param        kanbanId  path  string  true "Kanban ID"
 // @Param        storyId    path  string  true "Story ID"
 // @Success      200  {array}  model.Label
-// @Router       /v1/inri/kanban/{kanbanId}stories/{storyId}/labels [get]
+// @Router       /v1/inri/kanban/{kanbanId}/stories/{storyId}/labels [get]
 func (h *StoryLabelHandler) ListLabels(c *gin.Context) {
-	storyID, err := helpers.ExtractID(c, "storyId")
-	if err != nil {
-		c.Error(err)
-		return
-	}
-	kanbanID, err := helpers.ExtractID(c, "kanbanId")
-	if err != nil {
-		c.Error(err)
-		return
-	}
-	user, err := helpers.GetUserContext(c)
-	if err != nil {
-		c.Error(err)
-		return
-	}
+	storyID := helpers.ExtractID(c, "storyId")
 
-	labels, err := h.s.ListLabels(user.ID, storyID, kanbanID)
+	labels, err := h.s.ListLabels(c.Request.Context(), storyID)
 	if err != nil {
 		c.Error(err)
 		return

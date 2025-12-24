@@ -91,7 +91,7 @@ func (s *ProjectService) Favourite(ctx context.Context, userID, projectID uuid.U
 		return nil, err
 	}
 
-	projectUser, err := s.projectUserService.Favourite(userID, projectID)
+	projectUser, err := s.projectUserService.Favourite(ctx, userID, projectID)
 	if err != nil {
 		return nil, err
 	}

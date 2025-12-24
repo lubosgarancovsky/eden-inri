@@ -69,6 +69,19 @@ definitions:
         format: int64
         type: integer
     type: object
+  handler.LabelPage:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/model.Label'
+        type: array
+      page:
+        type: integer
+      pageSize:
+        type: integer
+      totalCount:
+        type: integer
+    type: object
   handler.MemberPage:
     properties:
       items:
@@ -124,6 +137,11 @@ definitions:
       totalCount:
         format: int64
         type: integer
+    type: object
+  model.AcceptInvitationRequest:
+    properties:
+      token:
+        type: string
     type: object
   model.ActivityType:
     enum:
@@ -276,8 +294,6 @@ definitions:
     type: object
   model.ContactPersonRequest:
     properties:
-      clientId:
-        type: string
       email:
         type: string
       name:
@@ -473,6 +489,32 @@ definitions:
         items:
           type: string
         type: array
+    type: object
+  model.ProjectInvitation:
+    properties:
+      acceptedAt:
+        type: string
+      cratedAt:
+        type: string
+      expiresAt:
+        type: string
+      id:
+        type: string
+      invitedBy:
+        type: string
+      projectId:
+        type: string
+      role:
+        $ref: '#/definitions/model.ProjectRole'
+      token:
+        type: string
+    type: object
+  model.ProjectInvitationRequest:
+    properties:
+      email:
+        type: string
+      role:
+        $ref: '#/definitions/model.ProjectRole'
     type: object
   model.ProjectRequest:
     properties:
@@ -841,41 +883,13 @@ paths:
     get:
       consumes:
       - application/json
-      description: Returns a paginated list of all contacts registered for the client
-      parameters:
-      - default: 1
-        description: Page number
-        in: query
-        name: page
-        type: integer
-      - default: 10
-        description: Items per page
-        in: query
-        name: pageSize
-        type: integer
-      - description: RSQL filter query
-        in: query
-        name: filter
-        type: string
-      - description: Sort query
-        in: query
-        name: sort
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/handler.ContactPersonPage'
-      tags:
-      - Clients
-  /v1/inri/contact-persons:
-    get:
-      consumes:
-      - application/json
       description: Returns a paginated list of all contact persons
       parameters:
+      - description: Client ID
+        in: path
+        name: clientId
+        required: true
+        type: string
       - default: 1
         description: Page number
         in: query
@@ -908,6 +922,11 @@ paths:
       - application/json
       description: Creates a new contact person
       parameters:
+      - description: Client ID
+        in: path
+        name: clientId
+        required: true
+        type: string
       - description: Contact person data
         in: body
         name: contactPerson
@@ -923,12 +942,17 @@ paths:
             $ref: '#/definitions/model.ContactPerson'
       tags:
       - ContactPersons
-  /v1/inri/contact-persons/{contactPersonId}:
+  /v1/inri/clients/{clientId}/contact-persons/{contactPersonId}:
     delete:
       consumes:
       - application/json
       description: Deletes the contact person
       parameters:
+      - description: Client ID
+        in: path
+        name: clientId
+        required: true
+        type: string
       - description: Contact Person ID
         in: path
         name: contactPersonId
@@ -948,6 +972,11 @@ paths:
       - application/json
       description: Returns a contact person by its ID
       parameters:
+      - description: Client ID
+        in: path
+        name: clientId
+        required: true
+        type: string
       - description: Contact Person ID
         in: path
         name: contactPersonId
@@ -967,17 +996,22 @@ paths:
       - application/json
       description: Updates an existing contact person
       parameters:
+      - description: Client ID
+        in: path
+        name: clientId
+        required: true
+        type: string
+      - description: Contact Person ID
+        in: path
+        name: contactPersonId
+        required: true
+        type: string
       - description: Contact person data
         in: body
         name: contactPerson
         required: true
         schema:
           $ref: '#/definitions/model.ContactPersonRequest'
-      - description: Contact Person ID
-        in: path
-        name: contactPersonId
-        required: true
-        type: string
       produces:
       - application/json
       responses:
@@ -1488,37 +1522,7 @@ paths:
             $ref: '#/definitions/model.StoryActivity'
       tags:
       - Story Activities
-  /v1/inri/kanban/{kanbanId}/stories/{storyId}/labels/{labelId}:
-    post:
-      consumes:
-      - application/json
-      description: Assigns a label to a story
-      parameters:
-      - description: Kanban ID
-        in: path
-        name: kanbanId
-        required: true
-        type: string
-      - description: Story ID
-        in: path
-        name: storyId
-        required: true
-        type: string
-      - description: Label ID
-        in: path
-        name: labelId
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "204":
-          description: No Content
-          schema:
-            type: string
-      tags:
-      - Kanban Story Labels
-  /v1/inri/kanban/{kanbanId}stories/{storyId}/labels:
+  /v1/inri/kanban/{kanbanId}/stories/{storyId}/labels:
     get:
       consumes:
       - application/json
@@ -1545,11 +1549,40 @@ paths:
             type: array
       tags:
       - Kanban Story Labels
-  /v1/inri/kanban/{kanbanId}stories/{storyId}/labels/{labelId}:
+  /v1/inri/kanban/{kanbanId}/stories/{storyId}/labels/{labelId}:
     delete:
       consumes:
       - application/json
       description: Removes a label from a story
+      parameters:
+      - description: Kanban ID
+        in: path
+        name: kanbanId
+        required: true
+        type: string
+      - description: Story ID
+        in: path
+        name: storyId
+        required: true
+        type: string
+      - description: Label ID
+        in: path
+        name: labelId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            type: string
+      tags:
+      - Kanban Story Labels
+    post:
+      consumes:
+      - application/json
+      description: Assigns a label to a story
       parameters:
       - description: Kanban ID
         in: path
@@ -1891,6 +1924,27 @@ paths:
             $ref: '#/definitions/model.ProjectDocument'
       tags:
       - ProjectDocuments
+  /v1/inri/projects/{projectId}/invite:
+    post:
+      consumes:
+      - application/json
+      description: Invites user to collaborate on a project
+      parameters:
+      - description: Project invitation data
+        in: body
+        name: invitation
+        required: true
+        schema:
+          $ref: '#/definitions/model.ProjectInvitationRequest'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No content
+          schema:
+            type: string
+      tags:
+      - Project invitations
   /v1/inri/projects/{projectId}/kanban:
     get:
       consumes:
@@ -2026,11 +2080,7 @@ paths:
         "200":
           description: OK
           schema:
-            items:
-              items:
-                $ref: '#/definitions/model.Label'
-              type: array
-            type: array
+            $ref: '#/definitions/handler.LabelPage'
       tags:
       - Labels
     post:
@@ -2230,4 +2280,25 @@ paths:
             $ref: '#/definitions/model.ProjectUser'
       tags:
       - Projects
+  /v1/inri/projects/accept-invitation:
+    post:
+      consumes:
+      - application/json
+      description: Accepts the invitation to collaborate on a project
+      parameters:
+      - description: Accept request body
+        in: body
+        name: invitation
+        required: true
+        schema:
+          $ref: '#/definitions/model.AcceptInvitationRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.ProjectInvitation'
+      tags:
+      - Project invitations
 swagger: "2.0"

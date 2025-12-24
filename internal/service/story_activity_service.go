@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"encoding/json"
 	"time"
 
@@ -13,28 +14,16 @@ import (
 type StoryActivityService struct {
 	repo               *repository.StoryActivityRepository
 	projectUserService *ProjectUserService
-	kanbanService      *KanbanBoardService
 }
 
-func NewStoryActivityService(repo *repository.StoryActivityRepository, pus *ProjectUserService, ks *KanbanBoardService) *StoryActivityService {
+func NewStoryActivityService(repo *repository.StoryActivityRepository, pus *ProjectUserService) *StoryActivityService {
 	return &StoryActivityService{
 		repo:               repo,
 		projectUserService: pus,
-		kanbanService:      ks,
 	}
 }
 
-// InsertActivity adds an activity event to a story
-func (s *StoryActivityService) InsertActivity(userID, kanbanID, storyID uuid.UUID, eventType model.ActivityType, payload json.RawMessage) (*model.StoryActivity, error) {
-	projectID, err := s.kanbanService.GetProjectIDByBoardID(kanbanID)
-	if err != nil {
-		return nil, err
-	}
-
-	if _, err := s.projectUserService.GetProjectUserIfMember(projectID, userID); err != nil {
-		return nil, err
-	}
-
+func (s *StoryActivityService) InsertActivity(ctx context.Context, userID, storyID uuid.UUID, eventType model.ActivityType, payload json.RawMessage) (*model.StoryActivity, error) {
 	activity := &model.StoryActivity{
 		StoryID:   storyID,
 		ActorID:   userID,
@@ -43,21 +32,11 @@ func (s *StoryActivityService) InsertActivity(userID, kanbanID, storyID uuid.UUI
 		CreatedAt: time.Now(),
 	}
 
-	return s.repo.Insert(activity)
+	return s.repo.Insert(ctx, activity)
 }
 
-// ListActivities returns all activities for a story
-func (s *StoryActivityService) ListActivities(userID, kanbanID, storyID uuid.UUID, lq *list.ListingQuery) (*list.Page[model.StoryActivity], error) {
-	projectID, err := s.kanbanService.GetProjectIDByBoardID(kanbanID)
-	if err != nil {
-		return nil, err
-	}
-
-	if _, err := s.projectUserService.GetProjectUserIfMember(projectID, userID); err != nil {
-		return nil, err
-	}
-
-	items, totalCount, err := s.repo.ListActivities(storyID, lq)
+func (s *StoryActivityService) ListActivities(ctx context.Context, storyID uuid.UUID, lq *list.ListingQuery) (*list.Page[model.StoryActivity], error) {
+	items, totalCount, err := s.repo.ListActivities(ctx, storyID, lq)
 	if err != nil {
 		return nil, err
 	}

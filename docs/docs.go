@@ -334,56 +334,6 @@ const docTemplate = `{
         },
         "/v1/inri/clients/{clientId}/contact-persons": {
             "get": {
-                "description": "Returns a paginated list of all contacts registered for the client",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Clients"
-                ],
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "default": 1,
-                        "description": "Page number",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "default": 10,
-                        "description": "Items per page",
-                        "name": "pageSize",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "RSQL filter query",
-                        "name": "filter",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Sort query",
-                        "name": "sort",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/handler.ContactPersonPage"
-                        }
-                    }
-                }
-            }
-        },
-        "/v1/inri/contact-persons": {
-            "get": {
                 "description": "Returns a paginated list of all contact persons",
                 "consumes": [
                     "application/json"
@@ -395,6 +345,13 @@ const docTemplate = `{
                     "ContactPersons"
                 ],
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Client ID",
+                        "name": "clientId",
+                        "in": "path",
+                        "required": true
+                    },
                     {
                         "type": "integer",
                         "default": 1,
@@ -444,6 +401,13 @@ const docTemplate = `{
                 ],
                 "parameters": [
                     {
+                        "type": "string",
+                        "description": "Client ID",
+                        "name": "clientId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
                         "description": "Contact person data",
                         "name": "contactPerson",
                         "in": "body",
@@ -463,7 +427,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/inri/contact-persons/{contactPersonId}": {
+        "/v1/inri/clients/{clientId}/contact-persons/{contactPersonId}": {
             "get": {
                 "description": "Returns a contact person by its ID",
                 "consumes": [
@@ -476,6 +440,13 @@ const docTemplate = `{
                     "ContactPersons"
                 ],
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Client ID",
+                        "name": "clientId",
+                        "in": "path",
+                        "required": true
+                    },
                     {
                         "type": "string",
                         "description": "Contact Person ID",
@@ -506,13 +477,11 @@ const docTemplate = `{
                 ],
                 "parameters": [
                     {
-                        "description": "Contact person data",
-                        "name": "contactPerson",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/model.ContactPersonRequest"
-                        }
+                        "type": "string",
+                        "description": "Client ID",
+                        "name": "clientId",
+                        "in": "path",
+                        "required": true
                     },
                     {
                         "type": "string",
@@ -520,6 +489,15 @@ const docTemplate = `{
                         "name": "contactPersonId",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "description": "Contact person data",
+                        "name": "contactPerson",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.ContactPersonRequest"
+                        }
                     }
                 ],
                 "responses": {
@@ -543,6 +521,13 @@ const docTemplate = `{
                     "ContactPersons"
                 ],
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Client ID",
+                        "name": "clientId",
+                        "in": "path",
+                        "required": true
+                    },
                     {
                         "type": "string",
                         "description": "Contact Person ID",
@@ -1318,6 +1303,47 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/inri/kanban/{kanbanId}/stories/{storyId}/labels": {
+            "get": {
+                "description": "Returns all labels assigned to a story",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Kanban Story Labels"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Kanban ID",
+                        "name": "kanbanId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Story ID",
+                        "name": "storyId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.Label"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/v1/inri/kanban/{kanbanId}/stories/{storyId}/labels/{labelId}": {
             "post": {
                 "description": "Assigns a label to a story",
@@ -1361,50 +1387,7 @@ const docTemplate = `{
                         }
                     }
                 }
-            }
-        },
-        "/v1/inri/kanban/{kanbanId}stories/{storyId}/labels": {
-            "get": {
-                "description": "Returns all labels assigned to a story",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Kanban Story Labels"
-                ],
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Kanban ID",
-                        "name": "kanbanId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Story ID",
-                        "name": "storyId",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/model.Label"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/v1/inri/kanban/{kanbanId}stories/{storyId}/labels/{labelId}": {
+            },
             "delete": {
                 "description": "Removes a label from a story",
                 "consumes": [
@@ -1547,6 +1530,39 @@ const docTemplate = `{
                         "description": "Created",
                         "schema": {
                             "$ref": "#/definitions/model.Project"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/inri/projects/accept-invitation": {
+            "post": {
+                "description": "Accepts the invitation to collaborate on a project",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Project invitations"
+                ],
+                "parameters": [
+                    {
+                        "description": "Accept request body",
+                        "name": "invitation",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.AcceptInvitationRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.ProjectInvitation"
                         }
                     }
                 }
@@ -1929,6 +1945,39 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/inri/projects/{projectId}/invite": {
+            "post": {
+                "description": "Invites user to collaborate on a project",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Project invitations"
+                ],
+                "parameters": [
+                    {
+                        "description": "Project invitation data",
+                        "name": "invitation",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.ProjectInvitationRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/inri/projects/{projectId}/kanban": {
             "get": {
                 "description": "Returns all boards of a project",
@@ -2133,13 +2182,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "array",
-                                "items": {
-                                    "$ref": "#/definitions/model.Label"
-                                }
-                            }
+                            "$ref": "#/definitions/handler.LabelPage"
                         }
                     }
                 }
@@ -2549,6 +2592,26 @@ const docTemplate = `{
                 }
             }
         },
+        "handler.LabelPage": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Label"
+                    }
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "type": "integer"
+                },
+                "totalCount": {
+                    "type": "integer"
+                }
+            }
+        },
         "handler.MemberPage": {
             "type": "object",
             "properties": {
@@ -2630,6 +2693,14 @@ const docTemplate = `{
                 "totalCount": {
                     "type": "integer",
                     "format": "int64"
+                }
+            }
+        },
+        "model.AcceptInvitationRequest": {
+            "type": "object",
+            "properties": {
+                "token": {
+                    "type": "string"
                 }
             }
         },
@@ -2855,9 +2926,6 @@ const docTemplate = `{
         "model.ContactPersonRequest": {
             "type": "object",
             "properties": {
-                "clientId": {
-                    "type": "string"
-                },
                 "email": {
                     "type": "string"
                 },
@@ -3156,6 +3224,46 @@ const docTemplate = `{
                     "items": {
                         "type": "string"
                     }
+                }
+            }
+        },
+        "model.ProjectInvitation": {
+            "type": "object",
+            "properties": {
+                "acceptedAt": {
+                    "type": "string"
+                },
+                "cratedAt": {
+                    "type": "string"
+                },
+                "expiresAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "invitedBy": {
+                    "type": "string"
+                },
+                "projectId": {
+                    "type": "string"
+                },
+                "role": {
+                    "$ref": "#/definitions/model.ProjectRole"
+                },
+                "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.ProjectInvitationRequest": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "role": {
+                    "$ref": "#/definitions/model.ProjectRole"
                 }
             }
         },

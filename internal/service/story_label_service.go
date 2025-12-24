@@ -1,6 +1,8 @@
 package service
 
 import (
+	"context"
+
 	"github.com/google/uuid"
 	"github.com/lubosgarancovsky/eden-inri/internal/model"
 	"github.com/lubosgarancovsky/eden-inri/internal/repository"
@@ -16,41 +18,14 @@ func NewStoryLabelService(repo *repository.StoryLabelRepository, pus *ProjectUse
 	return &StoryLabelService{repo: repo, projectUserService: pus, kanbanService: ks}
 }
 
-// Assign a label to a story
-func (s *StoryLabelService) AssignLabel(userID, storyID, kanbanID, labelID uuid.UUID) error {
-	projectID, err := s.kanbanService.GetProjectIDByBoardID(kanbanID)
-	if err != nil {
-		return err
-	}
-
-	if _, err := s.projectUserService.GetProjectUserIfMember(projectID, userID); err != nil {
-		return err
-	}
-	return s.repo.AssignLabel(storyID, labelID)
+func (s *StoryLabelService) AssignLabel(ctx context.Context, storyID, labelID uuid.UUID) error {
+	return s.repo.AssignLabel(ctx, storyID, labelID)
 }
 
-// Unassign a label from a story
-func (s *StoryLabelService) UnassignLabel(userID, storyID, kanbanID, labelID uuid.UUID) error {
-	projectID, err := s.kanbanService.GetProjectIDByBoardID(kanbanID)
-	if err != nil {
-		return err
-	}
-
-	if _, err := s.projectUserService.GetProjectUserIfMember(projectID, userID); err != nil {
-		return err
-	}
-	return s.repo.UnassignLabel(storyID, labelID)
+func (s *StoryLabelService) UnassignLabel(ctx context.Context, storyID, labelID uuid.UUID) error {
+	return s.repo.UnassignLabel(ctx, storyID, labelID)
 }
 
-// ListLabels for a story
-func (s *StoryLabelService) ListLabels(userID, storyID, kanbanID uuid.UUID) ([]model.Label, error) {
-	projectID, err := s.kanbanService.GetProjectIDByBoardID(kanbanID)
-	if err != nil {
-		return nil, err
-	}
-
-	if _, err := s.projectUserService.GetProjectUserIfMember(projectID, userID); err != nil {
-		return nil, err
-	}
-	return s.repo.ListLabels(storyID)
+func (s *StoryLabelService) ListLabels(ctx context.Context, storyID uuid.UUID) ([]model.Label, error) {
+	return s.repo.ListLabels(ctx, storyID)
 }
