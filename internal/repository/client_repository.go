@@ -22,7 +22,9 @@ func NewClientRepository(db *gorm.DB) *ClientRepository {
 }
 
 func (r *ClientRepository) FindAll(ctx context.Context, userID uuid.UUID, lq *list.ListingQuery) (*[]model.ClientListItem, int64, error) {
-	query := r.db.Model(&model.ClientListItem{}).
+	query := r.db.
+		WithContext(ctx).
+		Model(&model.ClientListItem{}).
 		Select("*").
 		Where("user_id = ?", userID)
 
@@ -39,7 +41,9 @@ func (r *ClientRepository) FindAll(ctx context.Context, userID uuid.UUID, lq *li
 
 func (r *ClientRepository) FindByID(ctx context.Context, userID, clientID uuid.UUID) (*model.Client, error) {
 	var result model.Client
-	if err := r.db.Model(&model.Client{}).
+	if err := r.db.
+		WithContext(ctx).
+		Model(&model.Client{}).
 		Select("*").
 		Where("user_id = ? AND id = ?", userID, clientID).
 		First(&result).Error; err != nil {
@@ -50,6 +54,7 @@ func (r *ClientRepository) FindByID(ctx context.Context, userID, clientID uuid.U
 
 func (r *ClientRepository) Insert(ctx context.Context, client *model.Client) (*model.Client, error) {
 	if err := r.db.
+		WithContext(ctx).
 		Clauses(clause.Returning{}).
 		Select("*").
 		Create(client).
@@ -62,6 +67,7 @@ func (r *ClientRepository) Insert(ctx context.Context, client *model.Client) (*m
 
 func (r *ClientRepository) Update(ctx context.Context, client *model.Client) (*model.Client, error) {
 	result := r.db.
+		WithContext(ctx).
 		Clauses(clause.Returning{}).
 		Select("*").
 		Where("user_id = ? AND id = ?", client.UserID, client.ID).
@@ -78,6 +84,7 @@ func (r *ClientRepository) Update(ctx context.Context, client *model.Client) (*m
 
 func (r *ClientRepository) Delete(ctx context.Context, userID, clientID uuid.UUID) error {
 	result := r.db.
+		WithContext(ctx).
 		Where("user_id = ? AND id = ?", userID, clientID).
 		Delete(model.Client{})
 

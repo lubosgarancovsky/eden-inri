@@ -104,15 +104,15 @@ func SetupRouter(r *gin.Engine, cfg *config.Config, db *gorm.DB) *gin.Engine {
 	// Labels
 	labelRepo := repository.NewLabelRepository(db)
 	labelService := service.NewLabelService(labelRepo, projectUserService)
-	labelHandelr := handler.NewLabelHandler(labelService)
+	labelHandelr := handler.NewLabelHandler(parser, labelService)
 
 	labels := protected.Group("/:projectId/labels")
 	{
-		labels.GET("", labelHandelr.FindAll)
-		labels.GET("/:labelId", labelHandelr.FindByID)
-		labels.POST("", labelHandelr.Insert)
-		labels.PUT("/:labelId", labelHandelr.Update)
-		labels.DELETE("/:labelId", labelHandelr.Delete)
+		labels.GET("", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer, model.Guest), labelHandelr.FindAll)
+		labels.GET("/:labelId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer, model.Guest), labelHandelr.FindByID)
+		labels.POST("", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin), labelHandelr.Insert)
+		labels.PUT("/:labelId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin), labelHandelr.Update)
+		labels.DELETE("/:labelId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin), labelHandelr.Delete)
 	}
 
 	// Kanban boards
@@ -135,11 +135,11 @@ func SetupRouter(r *gin.Engine, cfg *config.Config, db *gorm.DB) *gin.Engine {
 
 	projectDocuments := projects.Group(":projectId/documents")
 	{
-		projectDocuments.GET("", projectDocHandler.FindAll)
-		projectDocuments.GET("/:documentId", projectDocHandler.FindByID)
-		projectDocuments.POST("", projectDocHandler.Create)
-		projectDocuments.PUT("/:documentId", projectDocHandler.Update)
-		projectDocuments.DELETE("/:documentId", projectDocHandler.Delete)
+		projectDocuments.GET("", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer, model.Guest), projectDocHandler.FindAll)
+		projectDocuments.GET("/:documentId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer, model.Guest), projectDocHandler.FindByID)
+		projectDocuments.POST("", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer), projectDocHandler.Create)
+		projectDocuments.PUT("/:documentId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer), projectDocHandler.Update)
+		projectDocuments.DELETE("/:documentId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer), projectDocHandler.Delete)
 	}
 
 	// Attachments
@@ -158,11 +158,11 @@ func SetupRouter(r *gin.Engine, cfg *config.Config, db *gorm.DB) *gin.Engine {
 
 	kanban := r.Group("/kanban")
 	{
-		kanban.GET("/:kanbanId/columns", kanbanColumnsHandler.FindAll)
-		kanban.GET("/:kanbanId/columns/:columnId", kanbanColumnsHandler.FindByID)
-		kanban.POST("/:kanbanId/columns", kanbanColumnsHandler.Insert)
-		kanban.PUT("/:kanbanId/columns/:columnId", kanbanColumnsHandler.Update)
-		kanban.DELETE("/:kanbanId/columns/:columnId", kanbanColumnsHandler.Delete)
+		kanban.GET("/:kanbanId/columns", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer, model.Guest), kanbanColumnsHandler.FindAll)
+		kanban.GET("/:kanbanId/columns/:columnId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer, model.Guest), kanbanColumnsHandler.FindByID)
+		kanban.POST("/:kanbanId/columns", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer, model.Guest), kanbanColumnsHandler.Insert)
+		kanban.PUT("/:kanbanId/columns/:columnId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer, model.Guest), kanbanColumnsHandler.Update)
+		kanban.DELETE("/:kanbanId/columns/:columnId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer, model.Guest), kanbanColumnsHandler.Delete)
 	}
 
 	// Stories

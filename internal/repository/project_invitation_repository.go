@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"context"
+
 	"github.com/google/uuid"
 	"github.com/lubosgarancovsky/eden-inri/internal/model"
 	"github.com/lubosgarancovsky/go-kit/api_err"
@@ -16,9 +18,10 @@ func NewProjectInvitationRepository(db *gorm.DB) *ProjectInvitationRepository {
 	return &ProjectInvitationRepository{db: db}
 }
 
-func (r *ProjectInvitationRepository) FindByToken(userID uuid.UUID, token string) (*model.ProjectInvitation, error) {
+func (r *ProjectInvitationRepository) FindByToken(ctx context.Context, userID uuid.UUID, token string) (*model.ProjectInvitation, error) {
 	var invitation model.ProjectInvitation
 	if err := r.db.
+		WithContext(ctx).
 		Model(model.ProjectInvitation{}).
 		Select("*").
 		Where("token = ? AND user_id", token, userID).
@@ -28,8 +31,9 @@ func (r *ProjectInvitationRepository) FindByToken(userID uuid.UUID, token string
 	return &invitation, nil
 }
 
-func (r *ProjectInvitationRepository) Insert(invitation *model.ProjectInvitation) (*model.ProjectInvitation, error) {
+func (r *ProjectInvitationRepository) Insert(ctx context.Context, invitation *model.ProjectInvitation) (*model.ProjectInvitation, error) {
 	if err := r.db.
+		WithContext(ctx).
 		Model(&invitation).
 		Clauses(clause.Returning{}).
 		Select("*").
@@ -41,11 +45,13 @@ func (r *ProjectInvitationRepository) Insert(invitation *model.ProjectInvitation
 	return invitation, nil
 }
 
-func (r *ProjectInvitationRepository) Update(invitation *model.ProjectInvitation) (*model.ProjectInvitation, error) {
+func (r *ProjectInvitationRepository) Update(ctx context.Context, invitation *model.ProjectInvitation) (*model.ProjectInvitation, error) {
 	result := r.db.
+		WithContext(ctx).
 		Model(&invitation).
 		Clauses(clause.Returning{}).
 		Select("*").
+		Where("user_id = ? AND id = ?", invitation.UserID, invitation.ID).
 		Updates(invitation)
 
 	if result.Error != nil {
@@ -57,10 +63,12 @@ func (r *ProjectInvitationRepository) Update(invitation *model.ProjectInvitation
 	return invitation, nil
 }
 
-func (r *ProjectInvitationRepository) Delete(invitation *model.ProjectInvitation) error {
+func (r *ProjectInvitationRepository) Delete(ctx context.Context, userID, invitationID uuid.UUID) error {
 	result := r.db.
-		Model(&invitation).
-		Delete(invitation)
+		WithContext(ctx).
+		Where("user_id = ? AND id = ?", userID, invitationID).
+		Delete(model.ProjectInvitation{})
+
 	if result.Error != nil {
 		return api_err.Wrap(api_err.ErrInternalServer, result.Error)
 	}
@@ -71,15 +79,14 @@ func (r *ProjectInvitationRepository) Delete(invitation *model.ProjectInvitation
 	return nil
 }
 
-func (r *ProjectInvitationRepository) FindUserByEmail(email string) (*model.User, error) {
+func (r *ProjectInvitationRepository) FindUserByEmail(ctx context.Context, email string) (*model.User, error) {
 	var user model.User
-	if err := r.db.Model(&user).
+	err := r.db.Model(&user).
+		WithContext(ctx).
 		Select("id, username, email, first_name, last_name").
 		Where("email = ?", email).
 		First(&user).
-		Error; err != nil {
-		return nil, err
-	}
+		Error
 
-	return &user, nil
+	return &user, err
 }
