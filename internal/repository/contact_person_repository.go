@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/google/uuid"
@@ -20,8 +21,11 @@ func NewContactPersonRepository(db *gorm.DB) *ContactPersonRepository {
 	return &ContactPersonRepository{db: db}
 }
 
-func (r *ContactPersonRepository) FindAll(userID, clientId uuid.UUID, lq *list.ListingQuery) ([]model.ContactPerson, int64, error) {
-	query := r.db.Model(&model.ContactPerson{}).Where("user_id = ? AND client_id = ?", userID, clientId)
+func (r *ContactPersonRepository) FindAll(ctx context.Context, userID, clientID uuid.UUID, lq *list.ListingQuery) ([]model.ContactPerson, int64, error) {
+	query := r.db.
+		Model(&model.ContactPerson{}).
+		Where("user_id = ? AND client_id = ?", userID, clientID)
+
 	if lq.Filter != nil {
 		query = query.Where(lq.Filter.Query, lq.Filter.Args...)
 	}
@@ -33,23 +37,34 @@ func (r *ContactPersonRepository) FindAll(userID, clientId uuid.UUID, lq *list.L
 	return items, total, nil
 }
 
-func (r *ContactPersonRepository) FindByID(clientId, id uuid.UUID) (*model.ContactPerson, error) {
+func (r *ContactPersonRepository) FindByID(ctx context.Context, userID, clientID, contactPersonID uuid.UUID) (*model.ContactPerson, error) {
 	var result model.ContactPerson
-	if err := r.db.Model(&model.ContactPerson{}).Where("id = ? AND client_id = ?", id, clientId).First(&result).Error; err != nil {
+	if err := r.db.
+		Model(&model.ContactPerson{}).
+		Where("user_id = ? AND client_id = ? AND id = ?", userID, clientID, contactPersonID).
+		First(&result).
+		Error; err != nil {
 		return nil, err
 	}
 	return &result, nil
 }
 
-func (r *ContactPersonRepository) Insert(cp *model.ContactPerson) (*model.ContactPerson, error) {
-	if err := r.db.Clauses(clause.Returning{}).Create(cp).Error; err != nil {
+func (r *ContactPersonRepository) Insert(ctx context.Context, cp *model.ContactPerson) (*model.ContactPerson, error) {
+	if err := r.db.
+		Clauses(clause.Returning{}).
+		Create(cp).
+		Error; err != nil {
 		return nil, err
 	}
 	return cp, nil
 }
 
-func (r *ContactPersonRepository) Update(cp *model.ContactPerson) (*model.ContactPerson, error) {
-	result := r.db.Clauses(clause.Returning{}).Where("id = ? AND client_id = ?", cp.ID, cp.ClientID).Updates(&cp)
+func (r *ContactPersonRepository) Update(ctx context.Context, cp *model.ContactPerson) (*model.ContactPerson, error) {
+	result := r.db.
+		Clauses(clause.Returning{}).
+		Where("user_id = ? AND client_id = ? AND id = ?", cp.UserID, cp.ClientID, cp.ID).
+		Updates(&cp)
+
 	if result.Error != nil {
 		return nil, api_err.Wrap(api_err.ErrInternalServer, result.Error)
 	}
@@ -59,13 +74,16 @@ func (r *ContactPersonRepository) Update(cp *model.ContactPerson) (*model.Contac
 	return cp, nil
 }
 
-func (r *ContactPersonRepository) Delete(clientId, id uuid.UUID) error {
-	result := r.db.Where("id = ? AND client_id = ?", id, clientId).Delete(model.ContactPerson{})
+func (r *ContactPersonRepository) Delete(ctx context.Context, userID, clientID, contactPersonID uuid.UUID) error {
+	result := r.db.
+		Where("user_id = ? AND client_id = ? AND id = ?", userID, clientID, contactPersonID).
+		Delete(model.ContactPerson{})
+
 	if result.Error != nil {
 		return api_err.Wrap(api_err.ErrInternalServer, result.Error)
 	}
 	if result.RowsAffected == 0 {
-		return api_err.ErrNotFound.WithMessage(fmt.Sprintf("Contact person with id %s does not exist", id))
+		return api_err.ErrNotFound.WithMessage(fmt.Sprintf("Contact person with id %s does not exist", contactPersonID))
 	}
 	return nil
 }

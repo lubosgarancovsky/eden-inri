@@ -5,6 +5,7 @@ import (
 	"github.com/lubosgarancovsky/eden-inri/internal/config"
 	"github.com/lubosgarancovsky/eden-inri/internal/handler"
 	"github.com/lubosgarancovsky/eden-inri/internal/middleware"
+	"github.com/lubosgarancovsky/eden-inri/internal/model"
 	"github.com/lubosgarancovsky/eden-inri/internal/repository"
 	"github.com/lubosgarancovsky/eden-inri/internal/service"
 	"github.com/lubosgarancovsky/go-kit/rsql"
@@ -93,10 +94,10 @@ func SetupRouter(r *gin.Engine, cfg *config.Config, db *gorm.DB) *gin.Engine {
 		projects.GET("", projectHandler.FindAll)
 		projects.GET("/:projectId", projectHandler.FindByID)
 		projects.POST("", projectHandler.Create)
-		projects.PUT("/:projectId", projectHandler.Update)
-		projects.DELETE("/:projectId", projectHandler.Delete)
-		projects.POST("/:projectId/attachments", projectHandler.UploadAttachments)
-		projects.GET("/:projectId/attachments", projectHandler.ListAttachments)
+		projects.PUT("/:projectId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin), projectHandler.Update)
+		projects.DELETE("/:projectId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner), projectHandler.Delete)
+		projects.POST("/:projectId/attachments", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin), projectHandler.UploadAttachments)
+		projects.GET("/:projectId/attachments", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer, model.Guest), projectHandler.ListAttachments)
 		projects.POST("/:projectId/favourite", projectHandler.Favourite)
 	}
 
@@ -117,14 +118,14 @@ func SetupRouter(r *gin.Engine, cfg *config.Config, db *gorm.DB) *gin.Engine {
 	// Kanban boards
 	kanbanRepo := repository.NewKanbanBoardRepository(db)
 	kanbanService := service.NewKanbanBoardService(kanbanRepo, projectUserService)
-	kanbanHandler := handler.NewKanbanBoardHandler(kanbanService)
+	kanbanHandler := handler.NewKanbanBoardHandler(kanbanService, parser)
 
 	{
-		projects.GET("/:projectId/kanban", kanbanHandler.FindAll)
-		projects.POST("/:projectId/kanban", kanbanHandler.Insert)
-		projects.PUT("/:projectId/kanban/:kanbanId", kanbanHandler.Update)
-		projects.GET("/:projectId/kanban/:kanbanId", kanbanHandler.FindByID)
-		projects.DELETE("/:projectId/kanban/:kanbanId", kanbanHandler.Delete)
+		projects.GET("/:projectId/kanban", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer, model.Guest), kanbanHandler.FindAll)
+		projects.POST("/:projectId/kanban", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin), kanbanHandler.Insert)
+		projects.PUT("/:projectId/kanban/:kanbanId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin), kanbanHandler.Update)
+		projects.GET("/:projectId/kanban/:kanbanId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer, model.Guest), kanbanHandler.FindByID)
+		projects.DELETE("/:projectId/kanban/:kanbanId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin), kanbanHandler.Delete)
 	}
 
 	// Project Documents

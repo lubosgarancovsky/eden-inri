@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"time"
@@ -22,10 +23,18 @@ func NewProjectRepository(db *gorm.DB) *ProjectRepository {
 	return &ProjectRepository{db: db}
 }
 
+func (r *ProjectRepository) WithTx(ctx context.Context, fn func(txRepo *ProjectRepository) error) error {
+	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		txRepo := &ProjectRepository{db: tx}
+		return fn(txRepo)
+	})
+}
+
 func (r *ProjectRepository) FindAll(
+	ctx context.Context,
 	userID uuid.UUID,
 	lq *list.ListingQuery,
-) ([]model.Project, int64, error) {
+) (*[]model.Project, int64, error) {
 
 	query := r.db.
 		Table("inri_projects p").
@@ -45,12 +54,14 @@ func (r *ProjectRepository) FindAll(
 		return nil, 0, err
 	}
 
-	return items, total, nil
+	return &items, total, nil
 }
 
 func (r *ProjectRepository) FindByID(
-	id uuid.UUID,
-	userID uuid.UUID,
+	ctx context.Context,
+	userID,
+	projectID uuid.UUID,
+
 ) (*model.Project, error) {
 	var result model.Project
 
@@ -61,7 +72,7 @@ func (r *ProjectRepository) FindByID(
 			JOIN inri_project_users pu
 			  ON pu.project_id = p.id
 		`).
-		Where("p.id = ? AND pu.user_id = ?", id, userID).
+		Where("p.id = ? AND pu.user_id = ?", projectID, userID).
 		First(&result).Error
 
 	if err != nil {
@@ -71,45 +82,80 @@ func (r *ProjectRepository) FindByID(
 	return &result, nil
 }
 
-func (r *ProjectRepository) Insert(
-	userID uuid.UUID,
+func (r *ProjectRepository) InsertProject(
+	ctx context.Context,
 	prj *model.Project,
 ) (*model.Project, error) {
-
-	err := r.db.Transaction(func(tx *gorm.DB) error {
-
-		// 1. Insert project
-		if err := tx.
-			Model(&prj).
-			Clauses(clause.Returning{}).
-			Select("*").
-			Create(&prj).
-			Error; err != nil {
-			return err
-		}
-
-		// 2. Insert owner membership
-		pu := model.ProjectUser{
-			ProjectID: prj.ID,
-			UserID:    userID,
-			Role:      model.Owner,
-		}
-
-		if err := tx.Create(&pu).Error; err != nil {
-			return err
-		}
-
-		return nil
-	})
-
-	if err != nil {
+	if err := r.db.
+		WithContext(ctx).
+		Model(&prj).
+		Clauses(clause.Returning{}).
+		Select("*").
+		Create(&prj).
+		Error; err != nil {
 		return nil, err
 	}
 
 	return prj, nil
 }
 
-func (r *ProjectRepository) Update(prj *model.Project) (*model.Project, error) {
+func (r *ProjectRepository) InsertProjectUser(
+	ctx context.Context,
+	pu *model.ProjectUser,
+) (*model.ProjectUser, error) {
+
+	if err := r.db.Model(&pu).
+		WithContext(ctx).
+		Clauses(clause.Returning{}).
+		Select("*").
+		Create(&pu).
+		Error; err != nil {
+		return nil, err
+	}
+
+	return pu, nil
+}
+
+//func (r *ProjectRepository) Insert(
+//	ctx context.Context,
+//	userID uuid.UUID,
+//	prj *model.Project,
+//) (*model.Project, error) {
+//
+//	err := r.db.Transaction(func(tx *gorm.DB) error {
+//
+//		// 1. Insert project
+//		if err := tx.
+//			Model(&prj).
+//			Clauses(clause.Returning{}).
+//			Select("*").
+//			Create(&prj).
+//			Error; err != nil {
+//			return err
+//		}
+//
+//		// 2. Insert owner membership
+//		pu := model.ProjectUser{
+//			ProjectID: prj.ID,
+//			UserID:    userID,
+//			Role:      model.Owner,
+//		}
+//
+//		if err := tx.Create(&pu).Error; err != nil {
+//			return err
+//		}
+//
+//		return nil
+//	})
+//
+//	if err != nil {
+//		return nil, err
+//	}
+//
+//	return prj, nil
+//}
+
+func (r *ProjectRepository) Update(ctx context.Context, prj *model.Project) (*model.Project, error) {
 	result := r.db.Model(&prj).Clauses(clause.Returning{}).Select("*").Where("id = ?", prj.ID).Updates(map[string]interface{}{
 		"name":             prj.Name,
 		"description":      prj.Description,
@@ -127,13 +173,13 @@ func (r *ProjectRepository) Update(prj *model.Project) (*model.Project, error) {
 	return prj, nil
 }
 
-func (r *ProjectRepository) Delete(id uuid.UUID) error {
-	result := r.db.Where("id = ?", id).Delete(model.Project{})
+func (r *ProjectRepository) Delete(ctx context.Context, projectID uuid.UUID) error {
+	result := r.db.Where("id = ?", projectID).Delete(model.Project{})
 	if result.Error != nil {
 		return api_err.Wrap(api_err.ErrInternalServer, result.Error)
 	}
 	if result.RowsAffected == 0 {
-		return api_err.ErrNotFound.WithMessage(fmt.Sprintf("Project with id %s does not exist", id))
+		return api_err.ErrNotFound.WithMessage(fmt.Sprintf("Project with id %s does not exist", projectID))
 	}
 	return nil
 }

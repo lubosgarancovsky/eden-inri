@@ -1,18 +1,20 @@
 package service
 
 import (
+	"context"
+	"fmt"
 	"mime/multipart"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/lubosgarancovsky/eden-inri/internal/config"
 	"github.com/lubosgarancovsky/eden-inri/internal/model"
 	"github.com/lubosgarancovsky/eden-inri/internal/repository"
-	"github.com/lubosgarancovsky/go-kit/api_err"
 	"github.com/lubosgarancovsky/go-kit/list"
 )
 
@@ -25,80 +27,38 @@ func NewAttachmentService(cfg *config.Config, r *repository.AttachmentRepository
 	return &AttachmentService{cfg, r}
 }
 
-func (s *AttachmentService) SaveAttachment(c *gin.Context, userID uuid.UUID, modelName string, modelID string, file multipart.FileHeader) (*model.Attachment, error) {
-	mime, err := s.GetMimeType(&file)
+func (s *AttachmentService) FindAll(ctx context.Context, userID uuid.UUID, lq *list.ListingQuery) (*[]model.Attachment, int64, error) {
+	return s.r.FindAll(ctx, userID, lq)
+}
+
+func (s *AttachmentService) FindByID(ctx context.Context, userID uuid.UUID, attachmentID uuid.UUID) (*model.Attachment, error) {
+	result, err := s.r.FindByID(ctx, userID, attachmentID)
 	if err != nil {
 		return nil, err
 	}
-
-	attachment := &model.Attachment{
-		Model:        modelName,
-		ModelID:      modelID,
-		UserID:       userID,
-		Size:         file.Size,
-		OriginalName: file.Filename,
-		MimeType:     mime,
-		ServerName:   s.GetFileName(file.Filename),
-	}
-
-	if err := s.SaveFile(c, attachment, file); err != nil {
-		return nil, err
-	}
-
-	return s.Insert(attachment)
-}
-
-func (s *AttachmentService) SaveFile(c *gin.Context, attachment *model.Attachment, file multipart.FileHeader) error {
-	path := s.GetFilePath(attachment)
-	return c.SaveUploadedFile(&file, path)
-}
-
-func (s *AttachmentService) FindAll(userID uuid.UUID, lq *list.ListingQuery) (*list.Page[model.Attachment], error) {
-	items, totalCount, err := s.r.FindAll(userID, lq)
-	if err != nil {
-		return nil, err
-	}
-
-	return &list.Page[model.Attachment]{
-		Items:      items,
-		Page:       lq.Page,
-		PageSize:   lq.Limit,
-		TotalCount: totalCount,
-	}, nil
-}
-
-func (s *AttachmentService) FindByID(userID uuid.UUID, attachmentID uuid.UUID) (*model.Attachment, error) {
-	result, err := s.r.FindByID(attachmentID)
-	if err != nil {
-		return nil, err
-	}
-
-	if result.UserID != userID {
-		return nil, api_err.ErrForbidden
-	}
-
 	return result, nil
 }
 
-func (s *AttachmentService) FindByModelID(userID uuid.UUID, modelName string, modelID uuid.UUID) ([]*model.Attachment, error) {
-	return s.r.FindByModelID(userID, modelName, modelID)
+func (s *AttachmentService) FindByModelID(ctx context.Context, userID, modelID uuid.UUID, modelName string) ([]*model.Attachment, error) {
+	return s.r.FindByModelID(ctx, userID, modelID, modelName)
 }
 
-func (s *AttachmentService) Insert(attachment *model.Attachment) (*model.Attachment, error) {
-	return s.r.Insert(attachment)
+func (s *AttachmentService) Insert(ctx context.Context, attachment *model.Attachment) (*model.Attachment, error) {
+	return s.r.Insert(ctx, attachment)
 }
 
-func (s *AttachmentService) Delete(userID uuid.UUID, attachmentID uuid.UUID) (*model.Attachment, error) {
-	att, err := s.FindByID(userID, attachmentID)
+func (s *AttachmentService) Delete(ctx context.Context, userID, attachmentID uuid.UUID) error {
+	attachment, err := s.FindByID(ctx, userID, attachmentID)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	if err := s.r.Delete(attachmentID); err != nil {
-		return nil, err
+	if err = s.r.Delete(ctx, userID, attachmentID); err != nil {
+		return err
 	}
 
-	return att, s.DeleteFromDisk(att)
+	go s.DeleteFromDisk(context.Background(), attachment)
+	return nil
 }
 
 func (s *AttachmentService) GetFilePath(attachment *model.Attachment) string {
@@ -126,7 +86,42 @@ func (s *AttachmentService) GetMimeType(fileHeader *multipart.FileHeader) (strin
 	return http.DetectContentType(buf[:n]), nil
 }
 
-func (s *AttachmentService) DeleteFromDisk(attachment *model.Attachment) error {
+func (s *AttachmentService) SaveAttachment(c *gin.Context, userID uuid.UUID, modelName string, modelID string, file multipart.FileHeader) (*model.Attachment, error) {
+	mime, err := s.GetMimeType(&file)
+	if err != nil {
+		return nil, err
+	}
+
+	attachment := &model.Attachment{
+		Model:        modelName,
+		ModelID:      modelID,
+		UserID:       userID,
+		Size:         file.Size,
+		OriginalName: file.Filename,
+		MimeType:     mime,
+		ServerName:   s.GetFileName(file.Filename),
+	}
+
+	if err := s.SaveFile(c, attachment, file); err != nil {
+		return nil, err
+	}
+
+	return s.Insert(c.Request.Context(), attachment)
+}
+
+func (s *AttachmentService) SaveFile(c *gin.Context, attachment *model.Attachment, file multipart.FileHeader) error {
 	path := s.GetFilePath(attachment)
-	return os.Remove(path)
+	return c.SaveUploadedFile(&file, path)
+}
+
+func (s *AttachmentService) DeleteFromDisk(ctx context.Context, attachment *model.Attachment) {
+	go func() {
+		_, cancel := context.WithTimeout(ctx, 10*time.Second)
+		defer cancel()
+
+		path := s.GetFilePath(attachment)
+		if err := os.Remove(path); err != nil {
+			fmt.Println(err)
+		}
+	}()
 }

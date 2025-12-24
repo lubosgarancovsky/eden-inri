@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"mime/multipart"
 	"time"
 
@@ -22,100 +23,70 @@ func NewProjectService(r *repository.ProjectRepository, attachmentService *Attac
 	return &ProjectService{r: r, attachmentService: attachmentService, projectUserService: projectUserService, ModelName: "project"}
 }
 
-func (s *ProjectService) FindAll(userID uuid.UUID, lq *list.ListingQuery) (*list.Page[model.Project], error) {
-	items, totalCount, err := s.r.FindAll(userID, lq)
-	if err != nil {
-		return nil, err
-	}
-	return &list.Page[model.Project]{
-		Items:      items,
-		Page:       lq.Page,
-		PageSize:   lq.Limit,
-		TotalCount: totalCount,
-	}, nil
+func (s *ProjectService) FindAll(ctx context.Context, userID uuid.UUID, lq *list.ListingQuery) (*[]model.Project, int64, error) {
+	return s.r.FindAll(ctx, userID, lq)
 }
 
-func (s *ProjectService) FindByID(userID uuid.UUID, id uuid.UUID) (*model.Project, error) {
-	prj, err := s.r.FindByID(id, userID)
-	if err != nil {
-		return nil, err
-	}
-	return prj, nil
+func (s *ProjectService) FindByID(ctx context.Context, userID, projectID uuid.UUID) (*model.Project, error) {
+	return s.r.FindByID(ctx, userID, projectID)
 }
 
-func (s *ProjectService) Create(userID uuid.UUID, input *model.ProjectRequest) (*model.Project, error) {
-	prj := &model.Project{
-		Name:           input.Name,
-		Description:    input.Description,
-		Status:         input.Status,
-		Tags:           input.Tags,
-		Slug:           input.Slug,
-		LastActivityAt: time.Now(),
-	}
-	return s.r.Insert(userID, prj)
-}
+func (s *ProjectService) Create(ctx context.Context, userID uuid.UUID, input *model.ProjectRequest) (*model.Project, error) {
+	var project *model.Project
+	if err := s.r.WithTx(ctx, func(txRepo *repository.ProjectRepository) error {
+		result, err := txRepo.InsertProject(ctx, s.buildPayload(input))
+		if err != nil {
+			return err
+		}
 
-func (s *ProjectService) Update(userID, id uuid.UUID, input *model.ProjectRequest) (*model.Project, error) {
-	role, err := s.projectUserService.GetUserRole(id, userID)
-	if err != nil {
+		project = result
+
+		pu := &model.ProjectUser{
+			ProjectID: project.ID,
+			UserID:    userID,
+			Role:      model.Owner,
+		}
+
+		if _, err = txRepo.InsertProjectUser(ctx, pu); err != nil {
+			return err
+		}
+
+		return nil
+	}); err != nil {
 		return nil, err
 	}
 
-	// Only owner or admin
-	if err := s.projectUserService.RequireRole(role, model.Owner, model.Admin); err != nil {
-		return nil, err
-	}
-
-	prj := &model.Project{
-		ID:             id,
-		Name:           input.Name,
-		Description:    input.Description,
-		Status:         input.Status,
-		Tags:           input.Tags,
-		UpdatedAt:      time.Now(),
-		LastActivityAt: time.Now(),
-	}
-
-	if _, err := s.r.Update(prj); err != nil {
-		return nil, err
-	}
-
-	return prj, nil
+	return project, nil
 }
 
-func (s *ProjectService) Delete(userID, id uuid.UUID) error {
-	role, err := s.projectUserService.GetUserRole(id, userID)
-	if err != nil {
-		return err
-	}
-
-	// Only owner
-	if err := s.projectUserService.RequireRole(role, model.Owner); err != nil {
-		return err
-	}
-
-	return s.r.Delete(id)
+func (s *ProjectService) Update(ctx context.Context, projectID uuid.UUID, input *model.ProjectRequest) (*model.Project, error) {
+	project := s.buildPayload(input)
+	project.ID = projectID
+	return s.r.Update(ctx, project)
 }
 
-func (s *ProjectService) SaveAttachments(c *gin.Context, userID uuid.UUID, projectID uuid.UUID, files []multipart.FileHeader) error {
+func (s *ProjectService) Delete(ctx context.Context, projectID uuid.UUID) error {
+	return s.r.Delete(ctx, projectID)
+}
+
+func (s *ProjectService) SaveAttachments(c *gin.Context, projectID uuid.UUID, files []multipart.FileHeader) error {
 	for _, file := range files {
-		if _, err := s.attachmentService.SaveAttachment(c, userID, s.ModelName, projectID.String(), file); err != nil {
+		// Pass in projectID instead of userID as second param, to allow other members to list the attachments
+		if _, err := s.attachmentService.SaveAttachment(c, projectID, s.ModelName, projectID.String(), file); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func (s *ProjectService) ListAttachments(userID, projectID uuid.UUID) ([]*model.Attachment, error) {
-	// ensure user has access
-	if _, err := s.FindByID(userID, projectID); err != nil {
-		return nil, err
-	}
-	return s.attachmentService.FindByModelID(userID, s.ModelName, projectID)
+func (s *ProjectService) ListAttachments(ctx context.Context, projectID uuid.UUID) ([]*model.Attachment, error) {
+	// Second parameter is projectID instead of required userID
+	// projectID is a common determinant so every member can see all uploaded attachments, instead of just their own
+	return s.attachmentService.FindByModelID(ctx, projectID, projectID, s.ModelName)
 }
 
-func (s *ProjectService) Favourite(userID, projectID uuid.UUID) (*model.Project, error) {
-	prj, err := s.r.FindByID(projectID, userID)
+func (s *ProjectService) Favourite(ctx context.Context, userID, projectID uuid.UUID) (*model.Project, error) {
+	prj, err := s.r.FindByID(ctx, projectID, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -127,4 +98,15 @@ func (s *ProjectService) Favourite(userID, projectID uuid.UUID) (*model.Project,
 
 	prj.IsStarred = projectUser.IsStarred
 	return prj, nil
+}
+
+func (s *ProjectService) buildPayload(input *model.ProjectRequest) *model.Project {
+	return &model.Project{
+		Name:           input.Name,
+		Description:    input.Description,
+		Status:         input.Status,
+		Tags:           input.Tags,
+		UpdatedAt:      time.Now(),
+		LastActivityAt: time.Now(),
+	}
 }

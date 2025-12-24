@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/google/uuid"
@@ -20,8 +21,12 @@ func NewInvoiceRepository(db *gorm.DB) *InvoiceRepository {
 	return &InvoiceRepository{db: db}
 }
 
-func (r *InvoiceRepository) FindAll(userID uuid.UUID, lq *list.ListingQuery) ([]model.Invoice, int64, error) {
-	query := r.db.Model(&model.Invoice{}).Preload("Client").Where("user_id = ?", userID)
+func (r *InvoiceRepository) FindAll(ctx context.Context, userID uuid.UUID, lq *list.ListingQuery) (*[]model.Invoice, int64, error) {
+	query := r.db.
+		Model(&model.Invoice{}).
+		Preload("Client").
+		Where("user_id = ?", userID)
+
 	if lq.Filter != nil {
 		query = query.Where(lq.Filter.Query, lq.Filter.Args...)
 	}
@@ -30,29 +35,37 @@ func (r *InvoiceRepository) FindAll(userID uuid.UUID, lq *list.ListingQuery) ([]
 	if err != nil {
 		return nil, 0, err
 	}
-	return items, total, nil
+	return &items, total, nil
 }
 
-func (r *InvoiceRepository) FindByID(id uuid.UUID) (*model.Invoice, error) {
+func (r *InvoiceRepository) FindByID(ctx context.Context, userID, invoiceID uuid.UUID) (*model.Invoice, error) {
 	var result model.Invoice
-	if err := r.db.Model(&model.Invoice{}).Preload("Client").Where("id = ?", id).First(&result).Error; err != nil {
+	if err := r.db.
+		Model(model.Invoice{}).
+		Preload("Client").
+		Where("user_id = ? AND id = ?", userID, invoiceID).
+		First(&result).
+		Error; err != nil {
 		return nil, err
 	}
 	return &result, nil
 }
 
-func (r *InvoiceRepository) Insert(inv *model.Invoice) (*model.Invoice, error) {
-	if err := r.db.Clauses(clause.Returning{}).Create(inv).Error; err != nil {
+func (r *InvoiceRepository) Insert(ctx context.Context, inv *model.Invoice) (*model.Invoice, error) {
+	if err := r.db.
+		Clauses(clause.Returning{}).
+		Create(inv).
+		Error; err != nil {
 		return nil, err
 	}
 	return inv, nil
 }
 
-func (r *InvoiceRepository) Update(inv *model.Invoice) (*model.Invoice, error) {
+func (r *InvoiceRepository) Update(ctx context.Context, inv *model.Invoice) (*model.Invoice, error) {
 	result := r.db.
-		Model(&model.Invoice{}).
+		Model(model.Invoice{}).
 		Clauses(clause.Returning{}).
-		Where("id = ?", inv.ID).
+		Where("user_id = ? AND id = ?", inv.UserID, inv.ID).
 		Select("*").
 		Updates(inv)
 
@@ -67,13 +80,16 @@ func (r *InvoiceRepository) Update(inv *model.Invoice) (*model.Invoice, error) {
 	return inv, nil
 }
 
-func (r *InvoiceRepository) Delete(id uuid.UUID) error {
-	result := r.db.Clauses(clause.Returning{}).Where("id = ?", id).Delete(&model.Invoice{})
+func (r *InvoiceRepository) Delete(ctx context.Context, userID, invoiceID uuid.UUID) error {
+	result := r.db.
+		Where("user_id = ? AND id = ?", userID, invoiceID).
+		Delete(model.Invoice{})
+
 	if result.Error != nil {
 		return api_err.Wrap(api_err.ErrInternalServer, result.Error)
 	}
 	if result.RowsAffected == 0 {
-		return api_err.ErrNotFound.WithMessage(fmt.Sprintf("Invoice with id %s does not exist", id))
+		return api_err.ErrNotFound.WithMessage(fmt.Sprintf("Invoice with id %s does not exist", invoiceID))
 	}
 	return nil
 }
