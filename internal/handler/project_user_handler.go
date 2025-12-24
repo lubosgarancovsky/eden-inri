@@ -2,13 +2,30 @@ package handler
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/lubosgarancovsky/eden-inri/internal/listing"
 	"github.com/lubosgarancovsky/eden-inri/internal/model"
 	"github.com/lubosgarancovsky/eden-inri/internal/service"
 	"github.com/lubosgarancovsky/eden-inri/pkg/helpers"
+	"github.com/lubosgarancovsky/eden-inri/pkg/types"
 	"github.com/lubosgarancovsky/go-kit/api_err"
 	"github.com/lubosgarancovsky/go-kit/rsql"
 )
+
+var ProjectUserListConfig = &types.ListConfig{
+	Filter: map[string]string{
+		"projectId":     "project_id",
+		"userId":        "user_id",
+		"role":          "role",
+		"joinedAt":      "joined_at",
+		"userFirstName": "User.first_name",
+		"userLastName":  "User.first_name",
+	},
+	Sort: map[string]string{
+		"role":          "role",
+		"joinedAt":      "joined_at",
+		"userFirstName": "User.first_name",
+		"userLastName":  "User.first_name",
+	},
+}
 
 type ProjectUserHandler struct {
 	s      *service.ProjectUserService
@@ -39,25 +56,10 @@ func NewProjectUserHandler(parser *rsql.Parser, s *service.ProjectUserService) *
 // @Success      200  {object}   MemberPage
 // @Router       /v1/inri/projects/{projectId}/members [get]
 func (h *ProjectUserHandler) FindAll(c *gin.Context) {
-	projectID, err := helpers.ExtractID(c, "projectId")
-	if err != nil {
-		c.Error(err)
-		return
-	}
+	projectID := helpers.ExtractID(c, "projectId")
+	lq := helpers.CreateListingQuery(c, h.parser, ProjectUserListConfig.Filter, ProjectUserListConfig.Sort)
 
-	user, err := helpers.GetUserContext(c)
-	if err != nil {
-		c.Error(err)
-		return
-	}
-
-	lq, apiErr := helpers.CreateListingQuery(c, h.parser, listing.ProjectUserFilter, listing.ProjectUserSort)
-	if apiErr != nil {
-		c.Error(apiErr)
-		return
-	}
-
-	page, err := h.s.FindAll(user.ID, projectID, lq)
+	page, err := h.s.FindAll(c.Request.Context(), projectID, lq)
 	if err != nil {
 		c.Error(err)
 		return
@@ -77,33 +79,20 @@ func (h *ProjectUserHandler) FindAll(c *gin.Context) {
 // @Success      200  {object}  model.ProjectUser
 // @Router       /v1/inri/projects/{projectId}/members/{memberId} [put]
 func (h *ProjectUserHandler) Update(c *gin.Context) {
-	projectID, err := helpers.ExtractID(c, "projectId")
-	if err != nil {
-		c.Error(err)
-		return
-	}
-
-	memberID, err := helpers.ExtractID(c, "memberId")
-	if err != nil {
-		c.Error(err)
-		return
-	}
-
-	user, err := helpers.GetUserContext(c)
-	if err != nil {
-		c.Error(err)
-		return
-	}
+	projectID := helpers.ExtractID(c, "projectId")
+	memberID := helpers.ExtractID(c, "memberId")
+	userID := helpers.GetUserContext(c).ID
 
 	var input struct {
 		Role model.ProjectRole `json:"role" binding:"required"`
 	}
+
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.Error(api_err.ErrBadRequest.WithMessage(err.Error()))
 		return
 	}
 
-	updatedMember, err := h.s.Update(user.ID, projectID, memberID, input.Role)
+	updatedMember, err := h.s.Update(c.Request.Context(), userID, projectID, memberID, input.Role)
 	if err != nil {
 		c.Error(err)
 		return
@@ -122,25 +111,10 @@ func (h *ProjectUserHandler) Update(c *gin.Context) {
 // @Success      204  {string}  string  "No Content"
 // @Router       /v1/inri/projects/{projectId}/members/{memberId} [delete]
 func (h *ProjectUserHandler) Delete(c *gin.Context) {
-	projectID, err := helpers.ExtractID(c, "projectId")
-	if err != nil {
-		c.Error(err)
-		return
-	}
+	projectID := helpers.ExtractID(c, "projectId")
+	memberID := helpers.ExtractID(c, "memberId")
 
-	memberID, err := helpers.ExtractID(c, "memberId")
-	if err != nil {
-		c.Error(err)
-		return
-	}
-
-	user, err := helpers.GetUserContext(c)
-	if err != nil {
-		c.Error(err)
-		return
-	}
-
-	if err := h.s.Delete(user.ID, memberID, projectID); err != nil {
+	if err := h.s.Delete(c.Request.Context(), memberID, projectID); err != nil {
 		c.Error(err)
 		return
 	}

@@ -12,7 +12,7 @@ func ProjectRoleMiddleware(projectUserService *service.ProjectUserService, allow
 		projectID := helpers.ExtractID(c, "projectId")
 		userID := helpers.GetUserContext(c).ID
 
-		role, err := projectUserService.GetUserRole(projectID, userID)
+		role, err := projectUserService.GetUserRole(c.Request.Context(), projectID, userID)
 		if err != nil {
 			c.Error(err)
 			c.Abort()

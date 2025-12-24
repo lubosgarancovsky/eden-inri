@@ -2,13 +2,27 @@ package handler
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/lubosgarancovsky/eden-inri/internal/listing"
 	"github.com/lubosgarancovsky/eden-inri/internal/model"
 	"github.com/lubosgarancovsky/eden-inri/internal/service"
 	"github.com/lubosgarancovsky/eden-inri/pkg/helpers"
+	"github.com/lubosgarancovsky/eden-inri/pkg/types"
 	"github.com/lubosgarancovsky/go-kit/api_err"
 	"github.com/lubosgarancovsky/go-kit/rsql"
 )
+
+var StoryActivityListConfig = &types.ListConfig{
+	Filter: map[string]string{
+		"id":        "id",
+		"storyId":   "story_id",
+		"actorId":   "actor_id",
+		"type":      "type",
+		"createdAt": "created_at",
+		"actorName": "users.name",
+	},
+	Sort: map[string]string{
+		"createdAt": "created_at",
+	},
+}
 
 type StoryActivityHandler struct {
 	parser *rsql.Parser
@@ -37,21 +51,8 @@ func NewStoryActivityHandler(p *rsql.Parser, s *service.StoryActivityService) *S
 // @Success      201  {object}  model.StoryActivity
 // @Router       /v1/inri/kanban/{kanbanId}/stories/{storyId}/activities [post]
 func (h *StoryActivityHandler) InsertActivity(c *gin.Context) {
-	kanbanID, err := helpers.ExtractID(c, "kanbanId")
-	if err != nil {
-		c.Error(err)
-		return
-	}
-	storyID, err := helpers.ExtractID(c, "storyId")
-	if err != nil {
-		c.Error(err)
-		return
-	}
-	user, err := helpers.GetUserContext(c)
-	if err != nil {
-		c.Error(err)
-		return
-	}
+	storyID := helpers.ExtractID(c, "storyId")
+	userID := helpers.GetUserContext(c).ID
 
 	var req model.StoryActivityRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -59,7 +60,7 @@ func (h *StoryActivityHandler) InsertActivity(c *gin.Context) {
 		return
 	}
 
-	activity, err := h.s.InsertActivity(user.ID, kanbanID, storyID, req.Type, req.Payload)
+	activity, err := h.s.InsertActivity(c.Request.Context(), userID, storyID, req.Type, req.Payload)
 	if err != nil {
 		c.Error(err)
 		return
@@ -81,29 +82,11 @@ func (h *StoryActivityHandler) InsertActivity(c *gin.Context) {
 // @Success      200  {object}  ActivitiesPage
 // @Router       /v1/inri/kanban/{kanbanId}/stories/{storyId}/activities [get]
 func (h *StoryActivityHandler) ListActivities(c *gin.Context) {
-	kanbanID, err := helpers.ExtractID(c, "kanbanId")
-	if err != nil {
-		c.Error(err)
-		return
-	}
-	storyID, err := helpers.ExtractID(c, "storyId")
-	if err != nil {
-		c.Error(err)
-		return
-	}
-	user, err := helpers.GetUserContext(c)
-	if err != nil {
-		c.Error(err)
-		return
-	}
+	storyID := helpers.ExtractID(c, "storyId")
 
-	lq, apiErr := helpers.CreateListingQuery(c, h.parser, listing.InvoiceFilter, listing.InvoiceSort)
-	if apiErr != nil {
-		c.Error(apiErr)
-		return
-	}
+	lq := helpers.CreateListingQuery(c, h.parser, StoryActivityListConfig.Filter, StoryActivityListConfig.Sort)
 
-	result, err := h.s.ListActivities(user.ID, kanbanID, storyID, lq)
+	result, err := h.s.ListActivities(c.Request.Context(), storyID, lq)
 	if err != nil {
 		c.Error(err)
 		return

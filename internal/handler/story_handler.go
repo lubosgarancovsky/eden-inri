@@ -2,13 +2,38 @@ package handler
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/lubosgarancovsky/eden-inri/internal/listing"
 	"github.com/lubosgarancovsky/eden-inri/internal/model"
 	"github.com/lubosgarancovsky/eden-inri/internal/service"
 	"github.com/lubosgarancovsky/eden-inri/pkg/helpers"
+	"github.com/lubosgarancovsky/eden-inri/pkg/types"
 	"github.com/lubosgarancovsky/go-kit/api_err"
 	"github.com/lubosgarancovsky/go-kit/rsql"
 )
+
+var StoryListConfig = types.ListConfig{
+	Filter: map[string]string{
+		"id":         "id",
+		"projectId":  "project_id",
+		"boardId":    "board_id",
+		"columnId":   "column_id",
+		"slug":       "slug",
+		"title":      "title",
+		"kind":       "kind",
+		"assigneeId": "assignee_id",
+		"priority":   "priority",
+		"startDate":  "start_date",
+		"endDate":    "end_date",
+		"createdAt":  "created_at",
+	},
+	Sort: map[string]string{
+		"position":  "position",
+		"priority":  "priority",
+		"createdAt": "created_at",
+		"updatedAt": "updated_at",
+		"title":     "title",
+		"slug":      "slug",
+	},
+}
 
 type StoryHandler struct {
 	parser *rsql.Parser
@@ -40,29 +65,12 @@ func NewStoryHandler(p *rsql.Parser, s *service.StoryService) *StoryHandler {
 // @Success      200  {array}  StoryPage
 // @Router       /v1/inri/kanban/{kanbanId}/columns/{columnId}/stories [get]
 func (h *StoryHandler) FindAll(c *gin.Context) {
-	lq, apiErr := helpers.CreateListingQuery(c, h.parser, listing.StoryFilter, listing.StorySort)
-	if apiErr != nil {
-		c.Error(apiErr)
-		return
-	}
+	lq := helpers.CreateListingQuery(c, h.parser, StoryListConfig.Filter, StoryListConfig.Sort)
 
-	columnID, err := helpers.ExtractID(c, "columnId")
-	if err != nil {
-		c.Error(err)
-		return
-	}
-	kanbanID, err := helpers.ExtractID(c, "kanbanId")
-	if err != nil {
-		c.Error(err)
-		return
-	}
-	user, err := helpers.GetUserContext(c)
-	if err != nil {
-		c.Error(err)
-		return
-	}
+	columnID := helpers.ExtractID(c, "columnId")
+	kanbanID := helpers.ExtractID(c, "kanbanId")
 
-	stories, err := h.s.FindAll(user.ID, kanbanID, columnID, lq)
+	stories, err := h.s.FindAll(c.Request.Context(), kanbanID, columnID, lq)
 	if err != nil {
 		c.Error(err)
 		return
@@ -80,23 +88,10 @@ func (h *StoryHandler) FindAll(c *gin.Context) {
 // @Success      200  {object}  model.Story
 // @Router       /v1/inri/kanban/{kanbanId}/stories/{storyId} [get]
 func (h *StoryHandler) FindByID(c *gin.Context) {
-	storyID, err := helpers.ExtractID(c, "storyId")
-	if err != nil {
-		c.Error(err)
-		return
-	}
-	kanbanID, err := helpers.ExtractID(c, "kanbanId")
-	if err != nil {
-		c.Error(err)
-		return
-	}
-	user, err := helpers.GetUserContext(c)
-	if err != nil {
-		c.Error(err)
-		return
-	}
+	storyID := helpers.ExtractID(c, "storyId")
+	kanbanID := helpers.ExtractID(c, "kanbanId")
 
-	story, err := h.s.FindByID(user.ID, storyID, kanbanID)
+	story, err := h.s.FindByID(c.Request.Context(), kanbanID, storyID)
 	if err != nil {
 		c.Error(err)
 		return
@@ -116,16 +111,7 @@ func (h *StoryHandler) FindByID(c *gin.Context) {
 // @Success      201  {object}  model.Story
 // @Router       /v1/inri/kanban/{kanbanId}/stories [post]
 func (h *StoryHandler) Insert(c *gin.Context) {
-	kanbanID, err := helpers.ExtractID(c, "kanbanId")
-	if err != nil {
-		c.Error(err)
-		return
-	}
-	user, err := helpers.GetUserContext(c)
-	if err != nil {
-		c.Error(err)
-		return
-	}
+	kanbanID := helpers.ExtractID(c, "kanbanId")
 
 	var req model.StoryRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -133,7 +119,7 @@ func (h *StoryHandler) Insert(c *gin.Context) {
 		return
 	}
 
-	story, err := h.s.Insert(user.ID, kanbanID, &req)
+	story, err := h.s.Insert(c.Request.Context(), kanbanID, &req)
 	if err != nil {
 		c.Error(err)
 		return
@@ -152,21 +138,7 @@ func (h *StoryHandler) Insert(c *gin.Context) {
 // @Success      200  {object}  model.Story
 // @Router       /v1/inri/kanban/{kanbanId}/stories [put]
 func (h *StoryHandler) Update(c *gin.Context) {
-	storyID, err := helpers.ExtractID(c, "storyId")
-	if err != nil {
-		c.Error(err)
-		return
-	}
-	kanbanID, err := helpers.ExtractID(c, "kanbanId")
-	if err != nil {
-		c.Error(err)
-		return
-	}
-	user, err := helpers.GetUserContext(c)
-	if err != nil {
-		c.Error(err)
-		return
-	}
+	kanbanID := helpers.ExtractID(c, "kanbanId")
 
 	var req model.StoryRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -174,7 +146,7 @@ func (h *StoryHandler) Update(c *gin.Context) {
 		return
 	}
 
-	story, err := h.s.Update(user.ID, storyID, kanbanID, &req)
+	story, err := h.s.Update(c.Request.Context(), kanbanID, &req)
 	if err != nil {
 		c.Error(err)
 		return
@@ -192,23 +164,10 @@ func (h *StoryHandler) Update(c *gin.Context) {
 // @Success      204  {string} string "No Content"
 // @Router       /v1/inri/kanban/{kanbanId}/stories/{storyId} [delete]
 func (h *StoryHandler) Delete(c *gin.Context) {
-	storyID, err := helpers.ExtractID(c, "storyId")
-	if err != nil {
-		c.Error(err)
-		return
-	}
-	projectID, err := helpers.ExtractID(c, "projectId")
-	if err != nil {
-		c.Error(err)
-		return
-	}
-	user, err := helpers.GetUserContext(c)
-	if err != nil {
-		c.Error(err)
-		return
-	}
+	kanbanID := helpers.ExtractID(c, "kanbanId")
+	storyID := helpers.ExtractID(c, "storyId")
 
-	if err := h.s.Delete(user.ID, storyID, projectID); err != nil {
+	if err := h.s.Delete(c.Request.Context(), kanbanID, storyID); err != nil {
 		c.Error(err)
 		return
 	}
