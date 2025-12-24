@@ -2,12 +2,23 @@ package handler
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/lubosgarancovsky/eden-inri/internal/listing"
 	"github.com/lubosgarancovsky/eden-inri/internal/model"
 	"github.com/lubosgarancovsky/eden-inri/internal/service"
 	"github.com/lubosgarancovsky/eden-inri/pkg/helpers"
+	"github.com/lubosgarancovsky/eden-inri/pkg/types"
 	"github.com/lubosgarancovsky/go-kit/rsql"
 )
+
+var ProjectDocumentListConfig = &types.ListConfig{
+	Filter: map[string]string{
+		"name": "name",
+	},
+	Sort: map[string]string{
+		"createdAt": "created_at",
+		"updatedAt": "updated_at",
+		"name":      "name",
+	},
+}
 
 type ProjectDocumentHandler struct {
 	s      *service.ProjectDocumentService
@@ -38,25 +49,10 @@ func NewProjectDocumentHandler(parser *rsql.Parser, s *service.ProjectDocumentSe
 // @Success      200  {object}   ProjectDocumentPage
 // @Router       /v1/inri/projects/{projectId}/documents [get]
 func (h *ProjectDocumentHandler) FindAll(c *gin.Context) {
-	lq, apiErr := helpers.CreateListingQuery(c, h.parser, listing.ProjectDocumentFilter, listing.ProjectDocumentSort)
-	if apiErr != nil {
-		c.Error(apiErr)
-		return
-	}
+	projectID := helpers.ExtractID(c, "projectId")
+	lq := helpers.CreateListingQuery(c, h.parser, ProjectDocumentListConfig.Filter, ProjectDocumentListConfig.Sort)
 
-	projectID, err := helpers.ExtractID(c, "projectId")
-	if err != nil {
-		c.Error(err)
-		return
-	}
-
-	user, err := helpers.GetUserContext(c)
-	if err != nil {
-		c.Error(err)
-		return
-	}
-
-	result, err := h.s.FindAll(user.ID, projectID, lq)
+	result, err := h.s.FindAll(c.Request.Context(), projectID, lq)
 	if err != nil {
 		c.Error(err)
 		return
@@ -75,24 +71,10 @@ func (h *ProjectDocumentHandler) FindAll(c *gin.Context) {
 // @Success      200  {object}   model.ProjectDocument
 // @Router       /v1/inri/projects/{projectId}/documents/{documentId} [get]
 func (h *ProjectDocumentHandler) FindByID(c *gin.Context) {
-	projectID, err := helpers.ExtractID(c, "projectId")
-	if err != nil {
-		c.Error(err)
-		return
-	}
-	UID, err := helpers.ExtractID(c, "documentId")
-	if err != nil {
-		c.Error(err)
-		return
-	}
+	projectID := helpers.ExtractID(c, "projectId")
+	documentID := helpers.ExtractID(c, "documentId")
 
-	user, err := helpers.GetUserContext(c)
-	if err != nil {
-		c.Error(err)
-		return
-	}
-
-	result, err := h.s.FindByID(user.ID, projectID, UID)
+	result, err := h.s.FindByID(c.Request.Context(), projectID, documentID)
 	if err != nil {
 		c.Error(err)
 		return
@@ -117,19 +99,9 @@ func (h *ProjectDocumentHandler) Create(c *gin.Context) {
 		return
 	}
 
-	projectID, err := helpers.ExtractID(c, "projectId")
-	if err != nil {
-		c.Error(err)
-		return
-	}
+	projectID := helpers.ExtractID(c, "projectId")
 
-	user, err := helpers.GetUserContext(c)
-	if err != nil {
-		c.Error(err)
-		return
-	}
-
-	result, err := h.s.Create(user.ID, projectID, &input)
+	result, err := h.s.Create(c.Request.Context(), projectID, &input)
 	if err != nil {
 		c.Error(err)
 		return
@@ -155,24 +127,10 @@ func (h *ProjectDocumentHandler) Update(c *gin.Context) {
 		return
 	}
 
-	projectID, err := helpers.ExtractID(c, "projectId")
-	if err != nil {
-		c.Error(err)
-		return
-	}
-	UID, err := helpers.ExtractID(c, "documentId")
-	if err != nil {
-		c.Error(err)
-		return
-	}
+	projectID := helpers.ExtractID(c, "projectId")
+	documentID := helpers.ExtractID(c, "documentId")
 
-	user, err := helpers.GetUserContext(c)
-	if err != nil {
-		c.Error(err)
-		return
-	}
-
-	result, err := h.s.Update(user.ID, projectID, UID, &input)
+	result, err := h.s.Update(c.Request.Context(), projectID, documentID, &input)
 	if err != nil {
 		c.Error(err)
 		return
@@ -191,25 +149,10 @@ func (h *ProjectDocumentHandler) Update(c *gin.Context) {
 // @Success      204  {string}  string  "No Content"
 // @Router       /v1/inri/projects/{projectId}/documents/{documentId} [delete]
 func (h *ProjectDocumentHandler) Delete(c *gin.Context) {
-	projectID, err := helpers.ExtractID(c, "projectId")
-	if err != nil {
-		c.Error(err)
-		return
-	}
-	UID, err := helpers.ExtractID(c, "documentId")
-	if err != nil {
-		c.Error(err)
-		return
-	}
+	projectID := helpers.ExtractID(c, "projectId")
+	documentID := helpers.ExtractID(c, "documentId")
 
-	user, err := helpers.GetUserContext(c)
-	if err != nil {
-		c.Error(err)
-		return
-	}
-
-	_, err = h.s.Delete(user.ID, projectID, UID)
-	if err != nil {
+	if err := h.s.Delete(c.Request.Context(), projectID, documentID); err != nil {
 		c.Error(err)
 		return
 	}

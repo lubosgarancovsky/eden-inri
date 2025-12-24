@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -30,12 +31,12 @@ func NewProjectInvitationService(
 	return &ProjectInvitationService{cfg, repository, prs, pus, es}
 }
 
-func (s *ProjectInvitationService) FindUserByEmail(email string) (*model.User, error) {
-	return s.r.FindUserByEmail(email)
+func (s *ProjectInvitationService) FindUserByEmail(ctx context.Context, email string) (*model.User, error) {
+	return s.r.FindUserByEmail(ctx, email)
 }
 
-func (s *ProjectInvitationService) Create(userID, projectID uuid.UUID, req *model.ProjectInvitationRequest) error {
-	user, err := s.r.FindUserByEmail(req.Email)
+func (s *ProjectInvitationService) Create(ctx context.Context, userID, projectID uuid.UUID, req *model.ProjectInvitationRequest) error {
+	user, err := s.r.FindUserByEmail(ctx, req.Email)
 	if err != nil {
 		return err
 	}
@@ -58,7 +59,7 @@ func (s *ProjectInvitationService) Create(userID, projectID uuid.UUID, req *mode
 		ExpiresAt: time.Now().Add(time.Second * time.Duration(s.cfg.InvitationTokenExp)),
 	}
 
-	project, err := s.prs.FindByID(userID, projectID)
+	project, err := s.prs.FindByID(ctx, userID, projectID)
 	if err != nil {
 		return err
 	}
@@ -73,12 +74,12 @@ func (s *ProjectInvitationService) Create(userID, projectID uuid.UUID, req *mode
 		return err
 	}
 
-	_, err = s.r.Insert(invitation)
+	_, err = s.r.Insert(ctx, invitation)
 	return err
 }
 
-func (s *ProjectInvitationService) Accept(userID uuid.UUID, token string) (*model.ProjectInvitation, error) {
-	invitation, err := s.r.FindByToken(userID, token)
+func (s *ProjectInvitationService) Accept(ctx context.Context, userID uuid.UUID, token string) (*model.ProjectInvitation, error) {
+	invitation, err := s.r.FindByToken(ctx, userID, token)
 	if err != nil {
 		return nil, err
 	}
@@ -89,7 +90,7 @@ func (s *ProjectInvitationService) Accept(userID uuid.UUID, token string) (*mode
 
 	acceptedInvitation := invitation
 	acceptedInvitation.AcceptedAt = time.Now()
-	result, err := s.r.Update(invitation)
+	result, err := s.r.Update(ctx, invitation)
 	if err != nil {
 		return nil, err
 	}

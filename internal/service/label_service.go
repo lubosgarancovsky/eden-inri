@@ -1,9 +1,12 @@
 package service
 
 import (
+	"context"
+
 	"github.com/google/uuid"
 	"github.com/lubosgarancovsky/eden-inri/internal/model"
 	"github.com/lubosgarancovsky/eden-inri/internal/repository"
+	"github.com/lubosgarancovsky/go-kit/list"
 )
 
 type LabelService struct {
@@ -16,54 +19,49 @@ func NewLabelService(repo *repository.LabelRepository, pus *ProjectUserService) 
 }
 
 // FindAll labels for project/board
-func (s *LabelService) FindAll(userID, projectID uuid.UUID) ([]model.Label, error) {
-	if _, err := s.projectUserService.GetProjectUserIfMember(projectID, userID); err != nil {
+func (s *LabelService) FindAll(ctx context.Context, projectID uuid.UUID, lq *list.ListingQuery) (*list.Page[model.Label], error) {
+	items, totalCount, err := s.repo.FindAll(ctx, projectID, lq)
+	if err != nil {
 		return nil, err
 	}
-	return s.repo.FindAll(projectID)
+
+	return &list.Page[model.Label]{
+		Items:      *items,
+		Page:       lq.Page,
+		PageSize:   lq.Limit,
+		TotalCount: totalCount,
+	}, nil
 }
 
 // FindByID label
-func (s *LabelService) FindByID(userID, projectID, labelID uuid.UUID) (*model.Label, error) {
-	if _, err := s.projectUserService.GetProjectUserIfMember(projectID, userID); err != nil {
-		return nil, err
-	}
-	return s.repo.FindByID(labelID)
+func (s *LabelService) FindByID(ctx context.Context, projectID, labelID uuid.UUID) (*model.Label, error) {
+	return s.repo.FindByID(ctx, projectID, labelID)
 }
 
 // Insert label
-func (s *LabelService) Insert(userID, projectID uuid.UUID, req *model.LabelRequest) (*model.Label, error) {
-	if _, err := s.projectUserService.GetProjectUserIfMember(projectID, userID); err != nil {
-		return nil, err
-	}
+func (s *LabelService) Insert(ctx context.Context, projectID uuid.UUID, req *model.LabelRequest) (*model.Label, error) {
 	label := &model.Label{
 		ProjectID:   &projectID,
 		Name:        req.Name,
 		Description: req.Description,
 		Color:       req.Color,
 	}
-	return s.repo.Insert(label)
+	return s.repo.Insert(ctx, label)
 }
 
 // Update label
-func (s *LabelService) Update(userID, projectID, labelID uuid.UUID, req *model.LabelRequest) (*model.Label, error) {
-	if _, err := s.projectUserService.GetProjectUserIfMember(projectID, userID); err != nil {
-		return nil, err
+func (s *LabelService) Update(ctx context.Context, projectID, labelID uuid.UUID, req *model.LabelRequest) (*model.Label, error) {
+	label := &model.Label{
+		ID:          labelID,
+		ProjectID:   &projectID,
+		Name:        req.Name,
+		Description: req.Description,
+		Color:       req.Color,
 	}
-	label, err := s.repo.FindByID(labelID)
-	if err != nil {
-		return nil, err
-	}
-	label.Name = req.Name
-	label.Description = req.Description
-	label.Color = req.Color
-	return s.repo.Update(label)
+	return s.repo.Update(ctx, label)
 }
 
 // Delete label
-func (s *LabelService) Delete(userID, projectID, labelID uuid.UUID) error {
-	if _, err := s.projectUserService.GetProjectUserIfMember(projectID, userID); err != nil {
-		return err
-	}
-	return s.repo.Delete(labelID)
+func (s *LabelService) Delete(ctx context.Context, projectID, labelID uuid.UUID) error {
+	return s.repo.Delete(ctx, projectID, labelID)
 }

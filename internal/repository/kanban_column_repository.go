@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"errors"
+	"context"
 	"time"
 
 	"github.com/google/uuid"
@@ -19,46 +19,55 @@ func NewKanbanColumnRepository(db *gorm.DB) *KanbanColumnRepository {
 }
 
 // FindAll columns of a board
-func (r *KanbanColumnRepository) FindAll(boardID uuid.UUID) ([]model.KanbanColumn, error) {
+func (r *KanbanColumnRepository) FindAll(ctx context.Context, boardID uuid.UUID) ([]model.KanbanColumn, error) {
 	var cols []model.KanbanColumn
-	if err := r.db.Where("board_id = ?", boardID).Order("position ASC").Find(&cols).Error; err != nil {
+	if err := r.db.
+		WithContext(ctx).
+		Where("board_id = ?", boardID).
+		Order("position ASC").Find(&cols).
+		Error; err != nil {
 		return nil, err
 	}
 	return cols, nil
 }
 
 // FindByID a single column
-func (r *KanbanColumnRepository) FindByID(columnID uuid.UUID) (*model.KanbanColumn, error) {
+func (r *KanbanColumnRepository) FindByID(ctx context.Context, boardID, columnID uuid.UUID) (*model.KanbanColumn, error) {
 	var col model.KanbanColumn
-	err := r.db.Where("id = ?", columnID).First(&col).Error
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, api_err.ErrNotFound
-	}
+	err := r.db.
+		WithContext(ctx).
+		Where("board_id = ? AND id = ?", boardID, columnID).
+		First(&col).
+		Error
+
 	return &col, err
 }
 
 // Insert a new column
-func (r *KanbanColumnRepository) Insert(col *model.KanbanColumn) (*model.KanbanColumn, error) {
+func (r *KanbanColumnRepository) Insert(ctx context.Context, col *model.KanbanColumn) (*model.KanbanColumn, error) {
 	col.ID = uuid.New()
 	col.CreatedAt = time.Now()
 
-	if err := r.db.Create(col).Error; err != nil {
-		return nil, err
-	}
-	return col, nil
+	err := r.db.
+		WithContext(ctx).
+		Create(col).
+		Error
+
+	return col, err
 }
 
 // Update column
-func (r *KanbanColumnRepository) Update(col *model.KanbanColumn) (*model.KanbanColumn, error) {
-	if err := r.db.Save(col).Error; err != nil {
-		return nil, err
-	}
-	return col, nil
+func (r *KanbanColumnRepository) Update(ctx context.Context, col *model.KanbanColumn) (*model.KanbanColumn, error) {
+	return col, r.db.WithContext(ctx).Save(col).Error
 }
 
 // Delete column
-func (r *KanbanColumnRepository) Delete(columnID uuid.UUID) error {
-	result := r.db.Where("id = ?", columnID).Delete(&model.KanbanColumn{})
+func (r *KanbanColumnRepository) Delete(ctx context.Context, boardID, columnID uuid.UUID) error {
+	result := r.db.
+		WithContext(ctx).
+		Where("board_id = ? AND id = ?", boardID, columnID).
+		Delete(model.KanbanColumn{})
+
 	if result.Error != nil {
 		return result.Error
 	}

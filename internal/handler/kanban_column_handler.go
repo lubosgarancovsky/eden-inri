@@ -25,19 +25,8 @@ func NewKanbanColumnHandler(s *service.KanbanColumnService) *KanbanColumnHandler
 // @Success      200  {array}  model.KanbanColumn
 // @Router       /v1/inri/kanban/{kanbanId}/columns [get]
 func (h *KanbanColumnHandler) FindAll(c *gin.Context) {
-	boardID, err := helpers.ExtractID(c, "kanbanId")
-	if err != nil {
-		c.Error(err)
-		return
-	}
-
-	user, err := helpers.GetUserContext(c)
-	if err != nil {
-		c.Error(err)
-		return
-	}
-
-	cols, err := h.s.FindAll(user.ID, boardID)
+	boardID := helpers.ExtractID(c, "kanbanId")
+	cols, err := h.s.FindAll(c.Request.Context(), boardID)
 	if err != nil {
 		c.Error(err)
 		return
@@ -56,25 +45,10 @@ func (h *KanbanColumnHandler) FindAll(c *gin.Context) {
 // @Success      200  {object}  model.KanbanColumn
 // @Router       /v1/inri/kanban/{kanbanId}/columns/{columnId} [get]
 func (h *KanbanColumnHandler) FindByID(c *gin.Context) {
-	columnID, err := helpers.ExtractID(c, "columnId")
-	if err != nil {
-		c.Error(err)
-		return
-	}
+	columnID := helpers.ExtractID(c, "columnId")
+	boardID := helpers.ExtractID(c, "kanbanId")
 
-	boardID, err := helpers.ExtractID(c, "kanbanId")
-	if err != nil {
-		c.Error(err)
-		return
-	}
-
-	user, err := helpers.GetUserContext(c)
-	if err != nil {
-		c.Error(err)
-		return
-	}
-
-	col, err := h.s.FindByID(user.ID, boardID, columnID)
+	col, err := h.s.FindByID(c.Request.Context(), boardID, columnID)
 	if err != nil {
 		c.Error(err)
 		return
@@ -93,17 +67,7 @@ func (h *KanbanColumnHandler) FindByID(c *gin.Context) {
 // @Success      201  {object}  model.KanbanColumn
 // @Router       /v1/inri/kanban/{kanbanId}/columns [post]
 func (h *KanbanColumnHandler) Insert(c *gin.Context) {
-	boardID, err := helpers.ExtractID(c, "kanbanId")
-	if err != nil {
-		c.Error(err)
-		return
-	}
-
-	user, err := helpers.GetUserContext(c)
-	if err != nil {
-		c.Error(err)
-		return
-	}
+	boardID := helpers.ExtractID(c, "kanbanId")
 
 	var req model.KanbanColumnRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -111,7 +75,7 @@ func (h *KanbanColumnHandler) Insert(c *gin.Context) {
 		return
 	}
 
-	col, err := h.s.Insert(user.ID, boardID, &req)
+	col, err := h.s.Insert(c.Request.Context(), boardID, &req)
 	if err != nil {
 		c.Error(err)
 		return
@@ -131,22 +95,8 @@ func (h *KanbanColumnHandler) Insert(c *gin.Context) {
 // @Success      200  {object}  model.KanbanColumn
 // @Router       /v1/inri/kanban/{kanbanId}/columns/{columnId} [put]
 func (h *KanbanColumnHandler) Update(c *gin.Context) {
-	columnID, err := helpers.ExtractID(c, "columnId")
-	if err != nil {
-		c.Error(err)
-		return
-	}
-	boardID, err := helpers.ExtractID(c, "kanbanId")
-	if err != nil {
-		c.Error(err)
-		return
-	}
-
-	user, err := helpers.GetUserContext(c)
-	if err != nil {
-		c.Error(err)
-		return
-	}
+	columnID := helpers.ExtractID(c, "columnId")
+	boardID := helpers.ExtractID(c, "kanbanId")
 
 	var req model.KanbanColumnRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -154,7 +104,7 @@ func (h *KanbanColumnHandler) Update(c *gin.Context) {
 		return
 	}
 
-	col, err := h.s.Update(user.ID, boardID, columnID, &req)
+	col, err := h.s.Update(c.Request.Context(), boardID, columnID, &req)
 	if err != nil {
 		c.Error(err)
 		return
@@ -173,25 +123,10 @@ func (h *KanbanColumnHandler) Update(c *gin.Context) {
 // @Success      204  {string}  string "No Content"
 // @Router       /v1/inri/kanban/{kanbanId}/columns/{columnId} [delete]
 func (h *KanbanColumnHandler) Delete(c *gin.Context) {
-	columnID, err := helpers.ExtractID(c, "columnId")
-	if err != nil {
-		c.Error(err)
-		return
-	}
+	columnID := helpers.ExtractID(c, "columnId")
+	boardID := helpers.ExtractID(c, "kanbanId")
 
-	user, err := helpers.GetUserContext(c)
-	if err != nil {
-		c.Error(err)
-		return
-	}
-
-	boardID, err := helpers.ExtractID(c, "kanbanId")
-	if err != nil {
-		c.Error(err)
-		return
-	}
-
-	if err := h.s.Delete(user.ID, boardID, columnID); err != nil {
+	if err := h.s.Delete(c.Request.Context(), boardID, columnID); err != nil {
 		c.Error(err)
 		return
 	}

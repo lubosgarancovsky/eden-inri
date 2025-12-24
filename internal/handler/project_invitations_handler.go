@@ -30,19 +30,10 @@ func (h *ProjectInvitationsHandler) Create(c *gin.Context) {
 		return
 	}
 
-	user, err := helpers.GetUserContext(c)
-	if err != nil {
-		c.Error(err)
-		return
-	}
+	userID := helpers.GetUserContext(c).ID
+	projectID := helpers.ExtractID(c, "projectId")
 
-	projectID, err := helpers.ExtractID(c, "projectId")
-	if err != nil {
-		c.Error(err)
-		return
-	}
-
-	if err = h.service.Create(user.ID, projectID, &req); err != nil {
+	if err := h.service.Create(c.Request.Context(), userID, projectID, &req); err != nil {
 		c.Error(err)
 		return
 	}
@@ -65,13 +56,9 @@ func (h *ProjectInvitationsHandler) Accept(c *gin.Context) {
 		return
 	}
 
-	user, err := helpers.GetUserContext(c)
-	if err != nil {
-		c.Error(err)
-		return
-	}
+	userID := helpers.GetUserContext(c).ID
 
-	invitation, err := h.service.Accept(user.ID, req.Token)
+	invitation, err := h.service.Accept(c.Request.Context(), userID, req.Token)
 	if err != nil {
 		c.Error(err)
 		return

@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/google/uuid"
@@ -20,8 +21,12 @@ func NewProjectDocumentRepository(db *gorm.DB) *ProjectDocumentRepository {
 	return &ProjectDocumentRepository{db: db}
 }
 
-func (r *ProjectDocumentRepository) FindAll(projectID uuid.UUID, lq *list.ListingQuery) ([]model.ProjectDocument, int64, error) {
-	query := r.db.Model(&model.ProjectDocument{}).Where("project_id = ?", projectID)
+func (r *ProjectDocumentRepository) FindAll(ctx context.Context, projectID uuid.UUID, lq *list.ListingQuery) (*[]model.ProjectDocument, int64, error) {
+	query := r.db.
+		WithContext(ctx).
+		Model(model.ProjectDocument{}).
+		Where("project_id = ?", projectID)
+
 	if lq.Filter != nil {
 		query = query.Where(lq.Filter.Query, lq.Filter.Args...)
 	}
@@ -30,26 +35,38 @@ func (r *ProjectDocumentRepository) FindAll(projectID uuid.UUID, lq *list.Listin
 	if err != nil {
 		return nil, 0, err
 	}
-	return items, total, nil
+	return &items, total, nil
 }
 
-func (r *ProjectDocumentRepository) FindByID(projectID uuid.UUID, ID uuid.UUID) (*model.ProjectDocument, error) {
+func (r *ProjectDocumentRepository) FindByID(ctx context.Context, projectID uuid.UUID, documentID uuid.UUID) (*model.ProjectDocument, error) {
 	var result model.ProjectDocument
-	if err := r.db.Model(&model.ProjectDocument{}).Where("id = ? AND project_id = ?", ID, projectID).First(&result).Error; err != nil {
+	if err := r.db.
+		WithContext(ctx).
+		Model(model.ProjectDocument{}).
+		Where("project_id = ? AND id = ?", projectID, documentID).
+		First(&result).Error; err != nil {
 		return nil, err
 	}
 	return &result, nil
 }
 
-func (r *ProjectDocumentRepository) Insert(doc *model.ProjectDocument) (*model.ProjectDocument, error) {
-	if err := r.db.Clauses(clause.Returning{}).Create(doc).Error; err != nil {
-		return nil, err
-	}
-	return doc, nil
+func (r *ProjectDocumentRepository) Insert(ctx context.Context, doc *model.ProjectDocument) (*model.ProjectDocument, error) {
+	err := r.db.
+		WithContext(ctx).
+		Clauses(clause.Returning{}).
+		Create(doc).
+		Error
+
+	return doc, err
 }
 
-func (r *ProjectDocumentRepository) Update(doc *model.ProjectDocument) (*model.ProjectDocument, error) {
-	result := r.db.Clauses(clause.Returning{}).Where("id = ?", doc.ID).Updates(&doc)
+func (r *ProjectDocumentRepository) Update(ctx context.Context, doc *model.ProjectDocument) (*model.ProjectDocument, error) {
+	result := r.db.
+		WithContext(ctx).
+		Clauses(clause.Returning{}).
+		Where("project_id = ? AND id = ?", doc.ProjectID, doc.ID).
+		Updates(&doc)
+
 	if result.Error != nil {
 		return nil, api_err.Wrap(api_err.ErrInternalServer, result.Error)
 	}
@@ -59,13 +76,17 @@ func (r *ProjectDocumentRepository) Update(doc *model.ProjectDocument) (*model.P
 	return doc, nil
 }
 
-func (r *ProjectDocumentRepository) Delete(id uuid.UUID) error {
-	result := r.db.Clauses(clause.Returning{}).Where("id = ?", id).Delete(model.ProjectDocument{})
+func (r *ProjectDocumentRepository) Delete(ctx context.Context, projectID, documentID uuid.UUID) error {
+	result := r.db.
+		WithContext(ctx).
+		Where("project_id = ? AND id = ?", projectID, documentID).
+		Delete(model.ProjectDocument{})
+
 	if result.Error != nil {
 		return api_err.Wrap(api_err.ErrInternalServer, result.Error)
 	}
 	if result.RowsAffected == 0 {
-		return api_err.ErrNotFound.WithMessage(fmt.Sprintf("Project document with id %s does not exist", id))
+		return api_err.ErrNotFound.WithMessage(fmt.Sprintf("Project document with id %s does not exist", documentID))
 	}
 	return nil
 }
