@@ -56,6 +56,7 @@ func NewProjectHandler(parser *rsql.Parser, s *service.ProjectService) *ProjectH
 // @Param        sort  query     string     false  "Sort query"
 // @Success      200  {object}   ProjectPage
 // @Router       /v1/inri/projects [get]
+// @security GatewayAuth
 func (h *ProjectHandler) FindAll(c *gin.Context) {
 	helpers.HandleList(c, h.parser, ProjectListConfig, h.s.FindAll)
 }
@@ -68,6 +69,7 @@ func (h *ProjectHandler) FindAll(c *gin.Context) {
 // @Param        projectId   path      string  true  "Project ID"
 // @Success      200  {object}   model.Project
 // @Router       /v1/inri/projects/{projectId} [get]
+// @security GatewayAuth
 func (h *ProjectHandler) FindByID(c *gin.Context) {
 	helpers.HandleFindByID(c, "projectId", h.s.FindByID)
 }
@@ -80,6 +82,7 @@ func (h *ProjectHandler) FindByID(c *gin.Context) {
 // @Param        project  body  model.ProjectRequest  true  "Project data"
 // @Success      201  {object}  model.Project
 // @Router       /v1/inri/projects [post]
+// @security GatewayAuth
 func (h *ProjectHandler) Create(c *gin.Context) {
 	helpers.HandleCreate(c, h.s.Create)
 }
@@ -93,6 +96,7 @@ func (h *ProjectHandler) Create(c *gin.Context) {
 // @Param        projectId   path      string  true  "Project ID"
 // @Success      200  {object}  model.Project
 // @Router       /v1/inri/projects/{projectId} [put]
+// @security GatewayAuth
 func (h *ProjectHandler) Update(c *gin.Context) {
 	var input model.ProjectRequest
 	if err := c.ShouldBindJSON(&input); err != nil {
@@ -119,6 +123,7 @@ func (h *ProjectHandler) Update(c *gin.Context) {
 // @Param        projectId   path      string  true  "Project ID"
 // @Success      204  {string}  string  "No Content"
 // @Router       /v1/inri/projects/{projectId} [delete]
+// @security GatewayAuth
 func (h *ProjectHandler) Delete(c *gin.Context) {
 	projectID := helpers.ExtractID(c, "projectId")
 
@@ -139,6 +144,7 @@ func (h *ProjectHandler) Delete(c *gin.Context) {
 // @Param files formData []file true "Files to upload"
 // @Success      204  {string}  string  "No Content"
 // @Router       /v1/inri/projects/{projectId}/attachments [post]
+// @security GatewayAuth
 func (h *ProjectHandler) UploadAttachments(c *gin.Context) {
 	projectID := helpers.ExtractID(c, "projectId")
 
@@ -179,6 +185,7 @@ func (h *ProjectHandler) UploadAttachments(c *gin.Context) {
 // @Produce      json
 // @Success      200  {object}   []model.Attachment
 // @Router       /v1/inri/projects/{projectId}/attachments [get]
+// @security GatewayAuth
 func (h *ProjectHandler) ListAttachments(c *gin.Context) {
 	projectID := helpers.ExtractID(c, "projectId")
 
@@ -198,6 +205,7 @@ func (h *ProjectHandler) ListAttachments(c *gin.Context) {
 // @Produce      json
 // @Success      201  {object}  model.Project
 // @Router       /v1/inri/projects/:projectId/favourite [post]
+// @security GatewayAuth
 func (h *ProjectHandler) Favourite(c *gin.Context) {
 	userID := helpers.GetUserContext(c).ID
 	projectID := helpers.ExtractID(c, "projectId")

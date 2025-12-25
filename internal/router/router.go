@@ -171,14 +171,14 @@ func SetupRouter(r *gin.Engine, cfg *config.Config, db *gorm.DB) *gin.Engine {
 	storyService := service.NewStoryService(storyRepo, projectService, projectUserService, kanbanService)
 	storyHandler := handler.NewStoryHandler(parser, storyService)
 
-	stories := kanban.Group("/:kanbanId/stories")
+	stories := projects.Group("/:projectId/stories")
 
 	{
-		kanban.GET("/:kanbanId/columns/:columnId/stories", storyHandler.FindAll)
-		kanban.GET("/:kanbanId/stories/:storyId", storyHandler.FindByID)
-		stories.POST("", storyHandler.Insert)
-		stories.PUT("/:storyId", storyHandler.Update)
-		stories.DELETE("/:storyId", storyHandler.Delete)
+		stories.GET("", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer, model.Guest), storyHandler.FindAll)
+		stories.POST("", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer), storyHandler.Insert)
+		stories.GET("/:storyId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer, model.Guest), storyHandler.FindByID)
+		stories.PUT("/:storyId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer), storyHandler.Update)
+		stories.DELETE("/:storyId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer), storyHandler.Delete)
 	}
 
 	// Story activity
@@ -187,8 +187,8 @@ func SetupRouter(r *gin.Engine, cfg *config.Config, db *gorm.DB) *gin.Engine {
 	storyActivityHandler := handler.NewStoryActivityHandler(parser, storyActivityService)
 
 	{
-		stories.GET("/:storyId/activities", storyActivityHandler.ListActivities)
-		stories.POST("/:storyId/activities", storyActivityHandler.InsertActivity)
+		stories.GET("/:storyId/activities", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer, model.Guest), storyActivityHandler.ListActivities)
+		stories.POST("/:storyId/activities", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer), storyActivityHandler.InsertActivity)
 
 	}
 
@@ -197,11 +197,11 @@ func SetupRouter(r *gin.Engine, cfg *config.Config, db *gorm.DB) *gin.Engine {
 	storyLabelService := service.NewStoryLabelService(storyLabelRepo, projectUserService, kanbanService)
 	storyLabelHandler := handler.NewStoryLabelHandler(storyLabelService)
 
-	storyLabels := kanban.Group("/:kanbanId/stories/:storyId/labels")
+	storyLabels := stories.Group("/:storyId/labels")
 	{
-		storyLabels.GET("", storyLabelHandler.ListLabels)
-		storyLabels.GET("/:labelId", storyLabelHandler.AssignLabel)
-		storyLabels.POST("/:labelId", storyLabelHandler.UnassignLabel)
+		storyLabels.GET("", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer, model.Guest), storyLabelHandler.ListLabels)
+		storyLabels.GET("/:labelId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer), storyLabelHandler.AssignLabel)
+		storyLabels.POST("/:labelId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer), storyLabelHandler.UnassignLabel)
 
 	}
 
@@ -210,7 +210,7 @@ func SetupRouter(r *gin.Engine, cfg *config.Config, db *gorm.DB) *gin.Engine {
 	invitationService := service.NewProjectInvitationService(cfg, invitationRepo, projectService, projectUserService, emailService)
 	invitationHandler := handler.NewProjectInvitationsHandler(invitationService)
 	{
-		projects.POST("/:projectId/invite", invitationHandler.Create)
+		projects.POST("/:projectId/invite", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin), invitationHandler.Create)
 		projects.POST("/accept-invitation", invitationHandler.Accept)
 	}
 

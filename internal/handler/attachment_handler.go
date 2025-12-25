@@ -57,6 +57,7 @@ func NewAttachmentHandler(parser *rsql.Parser, attachmentService *service.Attach
 // @Param        sort      query     string  false  "Sort query"
 // @Success      200  {object}   AttachmentPage
 // @Router       /v1/inri/attachments [get]
+// @security GatewayAuth
 func (h *AttachmentHandler) FindAll(c *gin.Context) {
 	helpers.HandleList(c, h.parser, AttachmentListConfig, h.attachmentService.FindAll)
 }
@@ -69,6 +70,7 @@ func (h *AttachmentHandler) FindAll(c *gin.Context) {
 // @Param        attachmentId   path      string  true  "Attachment ID"
 // @Success      200  {object}   model.Attachment
 // @Router       /v1/inri/attachments/{attachmentId} [get]
+// @security GatewayAuth
 func (h *AttachmentHandler) FindByID(c *gin.Context) {
 	helpers.HandleFindByID(c, "attachmentId", h.attachmentService.FindByID)
 }
@@ -81,6 +83,7 @@ func (h *AttachmentHandler) FindByID(c *gin.Context) {
 // @Param        attachmentId   path      string  true  "Attachment ID"
 // @Success      204  {string}  string  "No Content"
 // @Router       /v1/inri/attachments/{attachmentId} [delete]
+// @security GatewayAuth
 func (h *AttachmentHandler) Delete(c *gin.Context) {
 	helpers.HandleDelete(c, "attachmentId", h.attachmentService.Delete)
 }
@@ -92,6 +95,7 @@ func (h *AttachmentHandler) Delete(c *gin.Context) {
 // @Param        attachmentId   path      string  true  "Attachment ID"
 // @Success      200  {file}  file
 // @Router       /v1/inri/attachments/{attachmentId}/download [get]
+// @security GatewayAuth
 func (h *AttachmentHandler) Download(c *gin.Context) {
 	attachmentID := helpers.ExtractID(c, "attachmentId")
 	userID := helpers.GetUserContext(c).ID

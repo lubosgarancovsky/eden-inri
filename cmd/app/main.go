@@ -11,6 +11,10 @@ import (
 	"github.com/lubosgarancovsky/eden-inri/internal/router"
 )
 
+// @securityDefinitions.apikey GatewayAuth
+// @description Injected by API Gateway. Do not use in production.
+// @in header
+// @name X-User-ID
 func main() {
 	r := gin.Default()
 	cfg := config.LoadConfig()

@@ -50,6 +50,7 @@ func NewClientHandler(parser *rsql.Parser, s *service.ClientService) *ClientHand
 // @Param        sort  query     string     false  "Sort query"
 // @Success      200  {object}   ClientPage
 // @Router       /v1/inri/clients [get]
+// @security GatewayAuth
 func (h *ClientHandler) FindAll(c *gin.Context) {
 	helpers.HandleList(c, h.parser, ClientListConfig, h.clientService.FindAll)
 }
@@ -62,6 +63,7 @@ func (h *ClientHandler) FindAll(c *gin.Context) {
 // @Param        clientId   path      string  true  "Client ID"
 // @Success      200  {object}   model.Client
 // @Router       /v1/inri/clients/{clientId} [get]
+// @security GatewayAuth
 func (h *ClientHandler) FindByID(c *gin.Context) {
 	helpers.HandleFindByID(c, "clientId", h.clientService.FindByID)
 }
@@ -74,6 +76,7 @@ func (h *ClientHandler) FindByID(c *gin.Context) {
 // @Param        client  body  model.ClientRequest  true  "Client data"
 // @Success      201  {object}  model.Client
 // @Router       /v1/inri/clients [post]
+// @security GatewayAuth
 func (h *ClientHandler) Create(c *gin.Context) {
 	helpers.HandleCreate(c, h.clientService.Create)
 }
@@ -87,6 +90,7 @@ func (h *ClientHandler) Create(c *gin.Context) {
 // @Param        clientId   path      string  true  "Client ID"
 // @Success      200  {object}  model.Client
 // @Router       /v1/inri/clients/{clientId} [put]
+// @security GatewayAuth
 func (h *ClientHandler) Update(c *gin.Context) {
 	helpers.HandleUpdate(c, "clientId", h.clientService.Update)
 }
@@ -99,6 +103,7 @@ func (h *ClientHandler) Update(c *gin.Context) {
 // @Param        clientId   path      string  true  "Client ID"
 // @Success      204  {string}  string  "No Content"
 // @Router       /v1/inri/clients/{clientId} [delete]
+// @security GatewayAuth
 func (h *ClientHandler) Delete(c *gin.Context) {
 	helpers.HandleDelete(c, "clientId", h.clientService.Delete)
 }

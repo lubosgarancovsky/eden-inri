@@ -50,6 +50,7 @@ func NewLabelHandler(parser *rsql.Parser, s *service.LabelService) *LabelHandler
 // @Param        boardId    path      string  false "Board ID"
 // @Success      200  {object}  LabelPage
 // @Router       /v1/inri/projects/{projectId}/labels [get]
+// @security GatewayAuth
 func (h *LabelHandler) FindAll(c *gin.Context) {
 	projectID := helpers.ExtractID(c, "projectId")
 
@@ -71,6 +72,7 @@ func (h *LabelHandler) FindAll(c *gin.Context) {
 // @Param        labelId    path      string  true  "Label ID"
 // @Success      200  {object}  model.Label
 // @Router       /v1/inri/projects/{projectId}/labels/{labelId} [get]
+// @security GatewayAuth
 func (h *LabelHandler) FindByID(c *gin.Context) {
 	projectID := helpers.ExtractID(c, "projectId")
 	labelID := helpers.ExtractID(c, "labelId")
@@ -92,6 +94,7 @@ func (h *LabelHandler) FindByID(c *gin.Context) {
 // @Param        body       body      model.LabelRequest true "Label data"
 // @Success      201  {object}  model.Label
 // @Router       /v1/inri/projects/{projectId}/labels [post]
+// @security GatewayAuth
 func (h *LabelHandler) Insert(c *gin.Context) {
 	projectID := helpers.ExtractID(c, "projectId")
 
@@ -119,6 +122,7 @@ func (h *LabelHandler) Insert(c *gin.Context) {
 // @Param        body       body      model.LabelRequest true "Updated label data"
 // @Success      200  {object}  model.Label
 // @Router       /v1/inri/projects/{projectId}/labels/{labelId} [put]
+// @security GatewayAuth
 func (h *LabelHandler) Update(c *gin.Context) {
 	projectID := helpers.ExtractID(c, "projectId")
 	labelID := helpers.ExtractID(c, "labelId")
@@ -146,6 +150,7 @@ func (h *LabelHandler) Update(c *gin.Context) {
 // @Param        labelId    path      string  true  "Label ID"
 // @Success      204  {string} string "No Content"
 // @Router       /v1/inri/projects/{projectId}/labels/{labelId} [delete]
+// @security GatewayAuth
 func (h *LabelHandler) Delete(c *gin.Context) {
 	projectID := helpers.ExtractID(c, "projectId")
 	labelID := helpers.ExtractID(c, "labelId")

@@ -49,6 +49,7 @@ func NewContactPersonHandler(parser *rsql.Parser, s *service.ContactPersonServic
 // @Param        sort  query     string     false  "Sort query"
 // @Success      200  {object}   ContactPersonPage
 // @Router       /v1/inri/clients/{clientId}/contact-persons [get]
+// @security GatewayAuth
 func (h *ContactPersonHandler) FindAll(c *gin.Context) {
 	lq := helpers.CreateListingQuery(c, h.parser, ContactPersonListConfig.Filter, ContactPersonListConfig.Sort)
 	userID := helpers.GetUserContext(c).ID
@@ -72,6 +73,7 @@ func (h *ContactPersonHandler) FindAll(c *gin.Context) {
 // @Param        contactPersonId   path      string  true  "Contact Person ID"
 // @Success      200  {object}   model.ContactPerson
 // @Router       /v1/inri/clients/{clientId}/contact-persons/{contactPersonId} [get]
+// @security GatewayAuth
 func (h *ContactPersonHandler) FindByID(c *gin.Context) {
 	clientID := helpers.ExtractID(c, "clientId")
 	contactPersonID := helpers.ExtractID(c, "contactPersonId")
@@ -95,6 +97,7 @@ func (h *ContactPersonHandler) FindByID(c *gin.Context) {
 // @Param        contactPerson  body  model.ContactPersonRequest  true  "Contact person data"
 // @Success      201  {object}  model.ContactPerson
 // @Router       /v1/inri/clients/{clientId}/contact-persons [post]
+// @security GatewayAuth
 func (h *ContactPersonHandler) Create(c *gin.Context) {
 	var input model.ContactPersonRequest
 	if err := c.ShouldBindJSON(&input); err != nil {
@@ -124,6 +127,7 @@ func (h *ContactPersonHandler) Create(c *gin.Context) {
 // @Param        contactPerson  body  model.ContactPersonRequest  true  "Contact person data"
 // @Success      200  {object}  model.ContactPerson
 // @Router       /v1/inri/clients/{clientId}/contact-persons/{contactPersonId} [put]
+// @security GatewayAuth
 func (h *ContactPersonHandler) Update(c *gin.Context) {
 	var input model.ContactPersonRequest
 	if err := c.ShouldBindJSON(&input); err != nil {
@@ -153,6 +157,7 @@ func (h *ContactPersonHandler) Update(c *gin.Context) {
 // @Param        contactPersonId   path      string  true  "Contact Person ID"
 // @Success      204  {string}  string  "No Content"
 // @Router       /v1/inri/clients/{clientId}/contact-persons/{contactPersonId} [delete]
+// @security GatewayAuth
 func (h *ContactPersonHandler) Delete(c *gin.Context) {
 	userID := helpers.GetUserContext(c).ID
 	clientID := helpers.ExtractID(c, "clientId")

@@ -13,7 +13,6 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-// AttachmentRepository provides DB access for attachments
 type AttachmentRepository struct {
 	db *gorm.DB
 }
@@ -23,7 +22,11 @@ func NewAttachmentRepository(db *gorm.DB) *AttachmentRepository {
 }
 
 func (r *AttachmentRepository) FindAll(ctx context.Context, userID uuid.UUID, lq *list.ListingQuery) (*[]model.Attachment, int64, error) {
-	query := r.db.Model(&model.Attachment{}).Where("user_id = ?", userID)
+	query := r.db.
+		WithContext(ctx).
+		Model(&model.Attachment{}).
+		Where("user_id = ?", userID)
+
 	if lq != nil && lq.Filter != nil {
 		query = query.Where(lq.Filter.Query, lq.Filter.Args...)
 	}
@@ -38,6 +41,7 @@ func (r *AttachmentRepository) FindAll(ctx context.Context, userID uuid.UUID, lq
 func (r *AttachmentRepository) FindByID(ctx context.Context, userID, attachmentID uuid.UUID) (*model.Attachment, error) {
 	var result model.Attachment
 	if err := r.db.
+		WithContext(ctx).
 		Model(&model.Attachment{}).
 		Where("user_id = ? AND id = ?", userID, attachmentID).
 		First(&result).
@@ -51,6 +55,7 @@ func (r *AttachmentRepository) FindByModelID(ctx context.Context, userID uuid.UU
 	items := make([]*model.Attachment, 0)
 
 	if err := r.db.
+		WithContext(ctx).
 		Model(model.Attachment{}).
 		Where("user_id = ? AND model_id = ? AND model = ?", userID, modelID, modelName).
 		Find(&items).
@@ -63,6 +68,7 @@ func (r *AttachmentRepository) FindByModelID(ctx context.Context, userID uuid.UU
 
 func (r *AttachmentRepository) Insert(ctx context.Context, payload *model.Attachment) (*model.Attachment, error) {
 	if err := r.db.
+		WithContext(ctx).
 		Clauses(clause.Returning{}).
 		Create(payload).
 		Error; err != nil {
@@ -73,6 +79,7 @@ func (r *AttachmentRepository) Insert(ctx context.Context, payload *model.Attach
 
 func (r *AttachmentRepository) Update(ctx context.Context, payload *model.Attachment) (*model.Attachment, error) {
 	result := r.db.
+		WithContext(ctx).
 		Clauses(clause.Returning{}).
 		Where("id = ?", payload.ID).
 		Updates(&payload)
@@ -88,6 +95,7 @@ func (r *AttachmentRepository) Update(ctx context.Context, payload *model.Attach
 
 func (r *AttachmentRepository) Delete(ctx context.Context, userID, attachmentID uuid.UUID) error {
 	result := r.db.
+		WithContext(ctx).
 		Where("user_id = ? AND id = ?", userID, attachmentID).
 		Delete(model.Attachment{})
 

@@ -45,11 +45,12 @@ func NewStoryActivityHandler(p *rsql.Parser, s *service.StoryActivityService) *S
 // @Tags         Story Activities
 // @Accept       json
 // @Produce      json
-// @Param        kanbanId  path  string  true "Kanban ID"
+// @Param        projectId  path  string  true "Project ID"
 // @Param        storyId    path  string  true "Story ID"
 // @Param        body       body  map[string]interface{} true "Activity payload including eventType and optional data"
 // @Success      201  {object}  model.StoryActivity
-// @Router       /v1/inri/kanban/{kanbanId}/stories/{storyId}/activities [post]
+// @Router       /v1/inri/projects/{projectId}/stories/{storyId}/activities [post]
+// @security GatewayAuth
 func (h *StoryActivityHandler) InsertActivity(c *gin.Context) {
 	storyID := helpers.ExtractID(c, "storyId")
 	userID := helpers.GetUserContext(c).ID
@@ -73,14 +74,15 @@ func (h *StoryActivityHandler) InsertActivity(c *gin.Context) {
 // @Tags         Story Activities
 // @Accept       json
 // @Produce      json
-// @Param        kanbanId    path  string  true "Kanban ID"
+// @Param        projectId  path  string  true "Project ID"
 // @Param        storyId    path  string  true "Story ID"
 // @Param        page      query     int     false  "Page number"     default(1)
 // @Param        pageSize  query     int     false  "Items per page"  default(10)
 // @Param        filter      query     string     false  "RSQL filter query"
 // @Param        sort  query     string     false  "Sort query"
 // @Success      200  {object}  ActivitiesPage
-// @Router       /v1/inri/kanban/{kanbanId}/stories/{storyId}/activities [get]
+// @Router       /v1/inri/projects/{projectId}/stories/{storyId}/activities [get]
+// @security GatewayAuth
 func (h *StoryActivityHandler) ListActivities(c *gin.Context) {
 	storyID := helpers.ExtractID(c, "storyId")
 

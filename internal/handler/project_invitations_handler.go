@@ -23,6 +23,7 @@ func NewProjectInvitationsHandler(service *service.ProjectInvitationService) *Pr
 // @Param        invitation  body  model.ProjectInvitationRequest  true  "Project invitation data"
 // @Success      204  {string}  "No content"
 // @Router       /v1/inri/projects/{projectId}/invite [post]
+// @security GatewayAuth
 func (h *ProjectInvitationsHandler) Create(c *gin.Context) {
 	var req model.ProjectInvitationRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -49,6 +50,7 @@ func (h *ProjectInvitationsHandler) Create(c *gin.Context) {
 // @Param        invitation  body  model.AcceptInvitationRequest  true  "Accept request body"
 // @Success      200  {object} model.ProjectInvitation
 // @Router       /v1/inri/projects/accept-invitation [post]
+// @security GatewayAuth
 func (h *ProjectInvitationsHandler) Accept(c *gin.Context) {
 	var req model.AcceptInvitationRequest
 	if err := c.ShouldBindJSON(&req); err != nil {

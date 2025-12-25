@@ -32,11 +32,11 @@ func (r *StoryRepository) DB() *gorm.DB {
 	return r.db
 }
 
-func (r *StoryRepository) FindAll(ctx context.Context, boardID, columnID uuid.UUID, lq *list.ListingQuery) (*[]model.Story, int64, error) {
+func (r *StoryRepository) FindAll(ctx context.Context, projectID uuid.UUID, lq *list.ListingQuery) (*[]model.Story, int64, error) {
 	query := r.db.
 		WithContext(ctx).
 		Model(model.Story{}).
-		Where("board_id = ? AND column_id = ?", boardID, columnID)
+		Where("project_id", projectID)
 
 	if lq.Filter != nil {
 		query = query.Where(lq.Filter.Query, lq.Filter.Args...)
@@ -50,11 +50,11 @@ func (r *StoryRepository) FindAll(ctx context.Context, boardID, columnID uuid.UU
 
 }
 
-func (r *StoryRepository) FindByID(ctx context.Context, boardID, storyID uuid.UUID) (*model.Story, error) {
+func (r *StoryRepository) FindByID(ctx context.Context, projectID, storyID uuid.UUID) (*model.Story, error) {
 	var story model.Story
 	err := r.db.
 		WithContext(ctx).
-		Where("board_id = ? AND id = ?", boardID, storyID).
+		Where("project_id = ? AND id = ?", projectID, storyID).
 		First(&story).
 		Error
 
@@ -75,17 +75,17 @@ func (r *StoryRepository) Update(ctx context.Context, story *model.Story) (*mode
 	err := r.db.
 		WithContext(ctx).
 		Clauses(clause.Returning{}).
-		Where("board_id = ? AND column_id = ? AND id = ?", story.BoardID, story.ColumnID, story.ID).
+		Where("id = ?", story.ID).
 		Updates(story).
 		Error
 
 	return story, err
 }
 
-func (r *StoryRepository) Delete(ctx context.Context, boardID, storyID uuid.UUID) error {
+func (r *StoryRepository) Delete(ctx context.Context, projectID, storyID uuid.UUID) error {
 	result := r.db.
 		WithContext(ctx).
-		Where("board_id = ? AND id = ?", boardID, storyID).
+		Where("project_id = ? AND id = ?", projectID, storyID).
 		Delete(model.Story{})
 
 	if result.Error != nil {

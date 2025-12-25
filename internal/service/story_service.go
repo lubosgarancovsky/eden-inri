@@ -23,8 +23,8 @@ func NewStoryService(repo *repository.StoryRepository, ps *ProjectService, pus *
 }
 
 // FindAll stories in a column
-func (s *StoryService) FindAll(ctx context.Context, boardID, columnID uuid.UUID, lq *list.ListingQuery) (*list.Page[model.Story], error) {
-	items, totalCount, err := s.repo.FindAll(ctx, boardID, columnID, lq)
+func (s *StoryService) FindAll(ctx context.Context, projectID uuid.UUID, lq *list.ListingQuery) (*list.Page[model.Story], error) {
+	items, totalCount, err := s.repo.FindAll(ctx, projectID, lq)
 	if err != nil {
 		return nil, err
 	}
@@ -38,15 +38,16 @@ func (s *StoryService) FindAll(ctx context.Context, boardID, columnID uuid.UUID,
 }
 
 // FindByID story
-func (s *StoryService) FindByID(ctx context.Context, boardID, storyID uuid.UUID) (*model.Story, error) {
-	return s.repo.FindByID(ctx, boardID, storyID)
+func (s *StoryService) FindByID(ctx context.Context, projectID, storyID uuid.UUID) (*model.Story, error) {
+	return s.repo.FindByID(ctx, projectID, storyID)
 }
 
 // Insert story
-func (s *StoryService) Insert(ctx context.Context, boardID uuid.UUID, req *model.StoryRequest) (*model.Story, error) {
+func (s *StoryService) Insert(ctx context.Context, projectID uuid.UUID, req *model.StoryRequest) (*model.Story, error) {
 	story := &model.Story{
-		BoardID:     &boardID,
+		ProjectID:   projectID,
 		ColumnID:    req.ColumnID,
+		BoardID:     req.BoardID,
 		Title:       req.Title,
 		Description: req.Description,
 		Kind:        req.Kind,
@@ -59,17 +60,6 @@ func (s *StoryService) Insert(ctx context.Context, boardID uuid.UUID, req *model
 
 	err := s.repo.WithTx(ctx, func(txRepo *repository.StoryRepository) error {
 		var project model.Project
-		var projectID uuid.UUID
-
-		if err := txRepo.DB().
-			WithContext(ctx).
-			Model(model.KanbanBoard{}).
-			Select("project_id").
-			Where("id = ?", boardID).
-			Scan(projectID).
-			Error; err != nil {
-			return err
-		}
 
 		if err := txRepo.DB().
 			WithContext(ctx).
@@ -98,9 +88,10 @@ func (s *StoryService) Insert(ctx context.Context, boardID uuid.UUID, req *model
 }
 
 // Update story
-func (s *StoryService) Update(ctx context.Context, boardID uuid.UUID, req *model.StoryRequest) (*model.Story, error) {
+func (s *StoryService) Update(ctx context.Context, projectID, storyID uuid.UUID, req *model.StoryRequest) (*model.Story, error) {
 	story := &model.Story{
-		BoardID:     &boardID,
+		ID:          storyID,
+		ProjectID:   projectID,
 		ColumnID:    req.ColumnID,
 		Title:       req.Title,
 		Description: req.Description,
@@ -116,6 +107,6 @@ func (s *StoryService) Update(ctx context.Context, boardID uuid.UUID, req *model
 }
 
 // Delete story
-func (s *StoryService) Delete(ctx context.Context, boardID, storyID uuid.UUID) error {
-	return s.repo.Delete(ctx, boardID, storyID)
+func (s *StoryService) Delete(ctx context.Context, projectID, storyID uuid.UUID) error {
+	return s.repo.Delete(ctx, projectID, storyID)
 }

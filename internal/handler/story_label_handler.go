@@ -4,7 +4,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/lubosgarancovsky/eden-inri/internal/service"
 	"github.com/lubosgarancovsky/eden-inri/pkg/helpers"
-	"github.com/lubosgarancovsky/eden-inri/pkg/types"
 )
 
 type StoryLabelHandler struct {
@@ -20,11 +19,12 @@ func NewStoryLabelHandler(s *service.StoryLabelService) *StoryLabelHandler {
 // @Tags         Kanban Story Labels
 // @Accept       json
 // @Produce      json
-// @Param        kanbanId  path  string  true "Kanban ID"
+// @Param        projectId  path  string  true "Project ID"
 // @Param        storyId    path  string  true "Story ID"
 // @Param        labelId    path  string  true "Label ID"
 // @Success      204  {string} string "No Content"
-// @Router       /v1/inri/kanban/{kanbanId}/stories/{storyId}/labels/{labelId} [post]
+// @Router       /v1/inri/projects/{projectId}/stories/{storyId}/labels/{labelId} [post]
+// @security GatewayAuth
 func (h *StoryLabelHandler) AssignLabel(c *gin.Context) {
 	storyID := helpers.ExtractID(c, "storyId")
 	labelID := helpers.ExtractID(c, "labelId")
@@ -41,11 +41,12 @@ func (h *StoryLabelHandler) AssignLabel(c *gin.Context) {
 // @Tags         Kanban Story Labels
 // @Accept       json
 // @Produce      json
-// @Param        kanbanId  path  string  true "Kanban ID"
+// @Param        projectId  path  string  true "Project ID"
 // @Param        storyId    path  string  true "Story ID"
 // @Param        labelId    path  string  true "Label ID"
 // @Success      204  {string} string "No Content"
-// @Router       /v1/inri/kanban/{kanbanId}/stories/{storyId}/labels/{labelId} [delete]
+// @Router       /v1/inri/projects/{projectId}/stories/{storyId}/labels/{labelId} [delete]
+// @security GatewayAuth
 func (h *StoryLabelHandler) UnassignLabel(c *gin.Context) {
 	storyID := helpers.ExtractID(c, "storyId")
 	labelID := helpers.ExtractID(c, "labelId")
@@ -63,10 +64,11 @@ func (h *StoryLabelHandler) UnassignLabel(c *gin.Context) {
 // @Tags         Kanban Story Labels
 // @Accept       json
 // @Produce      json
-// @Param        kanbanId  path  string  true "Kanban ID"
+// @Param        projectId  path  string  true "Project ID"
 // @Param        storyId    path  string  true "Story ID"
 // @Success      200  {array}  model.Label
-// @Router       /v1/inri/kanban/{kanbanId}/stories/{storyId}/labels [get]
+// @Router       /v1/inri/projects/{projectId}/stories/{storyId}/labels [get]
+// @security GatewayAuth
 func (h *StoryLabelHandler) ListLabels(c *gin.Context) {
 	storyID := helpers.ExtractID(c, "storyId")
 

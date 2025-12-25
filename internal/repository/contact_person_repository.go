@@ -23,6 +23,7 @@ func NewContactPersonRepository(db *gorm.DB) *ContactPersonRepository {
 
 func (r *ContactPersonRepository) FindAll(ctx context.Context, userID, clientID uuid.UUID, lq *list.ListingQuery) ([]model.ContactPerson, int64, error) {
 	query := r.db.
+		WithContext(ctx).
 		Model(&model.ContactPerson{}).
 		Where("user_id = ? AND client_id = ?", userID, clientID)
 
@@ -40,6 +41,7 @@ func (r *ContactPersonRepository) FindAll(ctx context.Context, userID, clientID 
 func (r *ContactPersonRepository) FindByID(ctx context.Context, userID, clientID, contactPersonID uuid.UUID) (*model.ContactPerson, error) {
 	var result model.ContactPerson
 	if err := r.db.
+		WithContext(ctx).
 		Model(&model.ContactPerson{}).
 		Where("user_id = ? AND client_id = ? AND id = ?", userID, clientID, contactPersonID).
 		First(&result).
@@ -51,6 +53,7 @@ func (r *ContactPersonRepository) FindByID(ctx context.Context, userID, clientID
 
 func (r *ContactPersonRepository) Insert(ctx context.Context, cp *model.ContactPerson) (*model.ContactPerson, error) {
 	if err := r.db.
+		WithContext(ctx).
 		Clauses(clause.Returning{}).
 		Create(cp).
 		Error; err != nil {
@@ -61,6 +64,7 @@ func (r *ContactPersonRepository) Insert(ctx context.Context, cp *model.ContactP
 
 func (r *ContactPersonRepository) Update(ctx context.Context, cp *model.ContactPerson) (*model.ContactPerson, error) {
 	result := r.db.
+		WithContext(ctx).
 		Clauses(clause.Returning{}).
 		Where("user_id = ? AND client_id = ? AND id = ?", cp.UserID, cp.ClientID, cp.ID).
 		Updates(&cp)
@@ -76,6 +80,7 @@ func (r *ContactPersonRepository) Update(ctx context.Context, cp *model.ContactP
 
 func (r *ContactPersonRepository) Delete(ctx context.Context, userID, clientID, contactPersonID uuid.UUID) error {
 	result := r.db.
+		WithContext(ctx).
 		Where("user_id = ? AND client_id = ? AND id = ?", userID, clientID, contactPersonID).
 		Delete(model.ContactPerson{})
 
