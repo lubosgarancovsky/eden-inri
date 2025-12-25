@@ -55,6 +55,7 @@ func NewProjectUserHandler(parser *rsql.Parser, s *service.ProjectUserService) *
 // @Param        sort  query     string     false  "Sort query"
 // @Success      200  {object}   MemberPage
 // @Router       /v1/inri/projects/{projectId}/members [get]
+// @security GatewayAuth
 func (h *ProjectUserHandler) FindAll(c *gin.Context) {
 	projectID := helpers.ExtractID(c, "projectId")
 	lq := helpers.CreateListingQuery(c, h.parser, ProjectUserListConfig.Filter, ProjectUserListConfig.Sort)
@@ -78,6 +79,7 @@ func (h *ProjectUserHandler) FindAll(c *gin.Context) {
 // @Param        body        body      model.UpdateProjectUserRequest true "New role"
 // @Success      200  {object}  model.ProjectUser
 // @Router       /v1/inri/projects/{projectId}/members/{memberId} [put]
+// @security GatewayAuth
 func (h *ProjectUserHandler) Update(c *gin.Context) {
 	projectID := helpers.ExtractID(c, "projectId")
 	memberID := helpers.ExtractID(c, "memberId")
@@ -110,6 +112,7 @@ func (h *ProjectUserHandler) Update(c *gin.Context) {
 // @Param        memberId    path      string  true  "Member User ID"
 // @Success      204  {string}  string  "No Content"
 // @Router       /v1/inri/projects/{projectId}/members/{memberId} [delete]
+// @security GatewayAuth
 func (h *ProjectUserHandler) Delete(c *gin.Context) {
 	projectID := helpers.ExtractID(c, "projectId")
 	memberID := helpers.ExtractID(c, "memberId")

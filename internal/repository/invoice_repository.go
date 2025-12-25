@@ -23,6 +23,7 @@ func NewInvoiceRepository(db *gorm.DB) *InvoiceRepository {
 
 func (r *InvoiceRepository) FindAll(ctx context.Context, userID uuid.UUID, lq *list.ListingQuery) (*[]model.Invoice, int64, error) {
 	query := r.db.
+		WithContext(ctx).
 		Model(&model.Invoice{}).
 		Preload("Client").
 		Where("user_id = ?", userID)
@@ -41,6 +42,7 @@ func (r *InvoiceRepository) FindAll(ctx context.Context, userID uuid.UUID, lq *l
 func (r *InvoiceRepository) FindByID(ctx context.Context, userID, invoiceID uuid.UUID) (*model.Invoice, error) {
 	var result model.Invoice
 	if err := r.db.
+		WithContext(ctx).
 		Model(model.Invoice{}).
 		Preload("Client").
 		Where("user_id = ? AND id = ?", userID, invoiceID).
@@ -53,6 +55,7 @@ func (r *InvoiceRepository) FindByID(ctx context.Context, userID, invoiceID uuid
 
 func (r *InvoiceRepository) Insert(ctx context.Context, inv *model.Invoice) (*model.Invoice, error) {
 	if err := r.db.
+		WithContext(ctx).
 		Clauses(clause.Returning{}).
 		Create(inv).
 		Error; err != nil {
@@ -63,6 +66,7 @@ func (r *InvoiceRepository) Insert(ctx context.Context, inv *model.Invoice) (*mo
 
 func (r *InvoiceRepository) Update(ctx context.Context, inv *model.Invoice) (*model.Invoice, error) {
 	result := r.db.
+		WithContext(ctx).
 		Model(model.Invoice{}).
 		Clauses(clause.Returning{}).
 		Where("user_id = ? AND id = ?", inv.UserID, inv.ID).
@@ -82,6 +86,7 @@ func (r *InvoiceRepository) Update(ctx context.Context, inv *model.Invoice) (*mo
 
 func (r *InvoiceRepository) Delete(ctx context.Context, userID, invoiceID uuid.UUID) error {
 	result := r.db.
+		WithContext(ctx).
 		Where("user_id = ? AND id = ?", userID, invoiceID).
 		Delete(model.Invoice{})
 

@@ -17,6 +17,11 @@ const docTemplate = `{
     "paths": {
         "/v1/inri/attachments": {
             "get": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
                 "description": "Returns a paginated list of all attachments",
                 "consumes": [
                     "application/json"
@@ -67,6 +72,11 @@ const docTemplate = `{
         },
         "/v1/inri/attachments/{attachmentId}": {
             "get": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
                 "description": "Returns an attachment by its ID",
                 "consumes": [
                     "application/json"
@@ -96,6 +106,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
                 "description": "Deletes the attachment.",
                 "consumes": [
                     "application/json"
@@ -127,6 +142,11 @@ const docTemplate = `{
         },
         "/v1/inri/attachments/{attachmentId}/download": {
             "get": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
                 "description": "Downloads the attachment file from disk using the stored path",
                 "produces": [
                     "application/octet-stream"
@@ -155,6 +175,11 @@ const docTemplate = `{
         },
         "/v1/inri/clients": {
             "get": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
                 "description": "Returns a paginated list of all clients",
                 "consumes": [
                     "application/json"
@@ -203,6 +228,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
                 "description": "Registers a new OAuth client in the IAM system",
                 "consumes": [
                     "application/json"
@@ -236,6 +266,11 @@ const docTemplate = `{
         },
         "/v1/inri/clients/{clientId}": {
             "get": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
                 "description": "Returns a client by its ID",
                 "consumes": [
                     "application/json"
@@ -265,6 +300,11 @@ const docTemplate = `{
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
                 "description": "Updates an existing OAuth client in the IAM system",
                 "consumes": [
                     "application/json"
@@ -303,6 +343,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
                 "description": "Deletes the OAuth client from the IAM system",
                 "consumes": [
                     "application/json"
@@ -334,6 +379,11 @@ const docTemplate = `{
         },
         "/v1/inri/clients/{clientId}/contact-persons": {
             "get": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
                 "description": "Returns a paginated list of all contact persons",
                 "consumes": [
                     "application/json"
@@ -389,6 +439,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
                 "description": "Creates a new contact person",
                 "consumes": [
                     "application/json"
@@ -429,6 +484,11 @@ const docTemplate = `{
         },
         "/v1/inri/clients/{clientId}/contact-persons/{contactPersonId}": {
             "get": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
                 "description": "Returns a contact person by its ID",
                 "consumes": [
                     "application/json"
@@ -465,6 +525,11 @@ const docTemplate = `{
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
                 "description": "Updates an existing contact person",
                 "consumes": [
                     "application/json"
@@ -510,6 +575,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
                 "description": "Deletes the contact person",
                 "consumes": [
                     "application/json"
@@ -548,6 +618,11 @@ const docTemplate = `{
         },
         "/v1/inri/invoices": {
             "get": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
                 "description": "Returns a paginated list of all invoices",
                 "consumes": [
                     "application/json"
@@ -596,6 +671,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
                 "description": "Creates a new invoice",
                 "consumes": [
                     "application/json"
@@ -629,6 +709,11 @@ const docTemplate = `{
         },
         "/v1/inri/invoices/{invoiceId}": {
             "get": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
                 "description": "Returns an invoice by its ID",
                 "consumes": [
                     "application/json"
@@ -658,6 +743,11 @@ const docTemplate = `{
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
                 "description": "Updates an existing invoice",
                 "consumes": [
                     "application/json"
@@ -696,6 +786,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
                 "description": "Deletes the invoice",
                 "consumes": [
                     "application/json"
@@ -727,6 +822,11 @@ const docTemplate = `{
         },
         "/v1/inri/invoices/{invoiceId}/attachments": {
             "get": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
                 "description": "Returns a list of attachments by invoice ID",
                 "consumes": [
                     "application/json"
@@ -750,6 +850,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
                 "description": "Upload multiple files as attachments for the given invoice",
                 "consumes": [
                     "multipart/form-data"
@@ -792,6 +897,11 @@ const docTemplate = `{
         },
         "/v1/inri/kanban/{kanbanId}/columns": {
             "get": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
                 "description": "Returns all columns for a given kanban board",
                 "consumes": [
                     "application/json"
@@ -824,6 +934,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
                 "description": "Creates a new column in the kanban board",
                 "consumes": [
                     "application/json"
@@ -864,6 +979,11 @@ const docTemplate = `{
         },
         "/v1/inri/kanban/{kanbanId}/columns/{columnId}": {
             "get": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
                 "description": "Returns a specific column by ID",
                 "consumes": [
                     "application/json"
@@ -900,6 +1020,11 @@ const docTemplate = `{
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
                 "description": "Updates an existing column",
                 "consumes": [
                     "application/json"
@@ -945,6 +1070,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
                 "description": "Deletes a column from the kanban board",
                 "consumes": [
                     "application/json"
@@ -983,6 +1113,11 @@ const docTemplate = `{
         },
         "/v1/inri/kanban/{kanbanId}/columns/{columnId}/stories": {
             "get": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
                 "description": "Returns all stories for a column",
                 "consumes": [
                     "application/json"
@@ -1050,6 +1185,11 @@ const docTemplate = `{
         },
         "/v1/inri/kanban/{kanbanId}/stories": {
             "put": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
                 "description": "Updates an existing story",
                 "consumes": [
                     "application/json"
@@ -1088,6 +1228,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
                 "description": "Creates a new story in a column",
                 "consumes": [
                     "application/json"
@@ -1135,6 +1280,11 @@ const docTemplate = `{
         },
         "/v1/inri/kanban/{kanbanId}/stories/{storyId}": {
             "get": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
                 "description": "Returns a specific story by ID",
                 "consumes": [
                     "application/json"
@@ -1164,6 +1314,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
                 "description": "Deletes a story",
                 "consumes": [
                     "application/json"
@@ -1195,6 +1350,11 @@ const docTemplate = `{
         },
         "/v1/inri/kanban/{kanbanId}/stories/{storyId}/activities": {
             "get": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
                 "description": "Returns all activity events for a story (paginated)",
                 "consumes": [
                     "application/json"
@@ -1257,6 +1417,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
                 "description": "Records a new activity for a story (e.g., label added, state changed, comment added)",
                 "consumes": [
                     "application/json"
@@ -1305,6 +1470,11 @@ const docTemplate = `{
         },
         "/v1/inri/kanban/{kanbanId}/stories/{storyId}/labels": {
             "get": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
                 "description": "Returns all labels assigned to a story",
                 "consumes": [
                     "application/json"
@@ -1346,6 +1516,11 @@ const docTemplate = `{
         },
         "/v1/inri/kanban/{kanbanId}/stories/{storyId}/labels/{labelId}": {
             "post": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
                 "description": "Assigns a label to a story",
                 "consumes": [
                     "application/json"
@@ -1389,6 +1564,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
                 "description": "Removes a label from a story",
                 "consumes": [
                     "application/json"
@@ -1434,6 +1614,11 @@ const docTemplate = `{
         },
         "/v1/inri/projects": {
             "get": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
                 "description": "Returns a paginated list of all projects",
                 "consumes": [
                     "application/json"
@@ -1482,6 +1667,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
                 "description": "Creates a new project",
                 "consumes": [
                     "application/json"
@@ -1515,6 +1705,11 @@ const docTemplate = `{
         },
         "/v1/inri/projects/:projectId/favourite": {
             "post": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
                 "description": "Toggles the is_starred flag in a project for current user",
                 "consumes": [
                     "application/json"
@@ -1537,6 +1732,11 @@ const docTemplate = `{
         },
         "/v1/inri/projects/accept-invitation": {
             "post": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
                 "description": "Accepts the invitation to collaborate on a project",
                 "consumes": [
                     "application/json"
@@ -1570,6 +1770,11 @@ const docTemplate = `{
         },
         "/v1/inri/projects/{projectId}": {
             "get": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
                 "description": "Returns a project by its ID",
                 "consumes": [
                     "application/json"
@@ -1599,6 +1804,11 @@ const docTemplate = `{
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
                 "description": "Updates an existing project",
                 "consumes": [
                     "application/json"
@@ -1637,6 +1847,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
                 "description": "Deletes the project",
                 "consumes": [
                     "application/json"
@@ -1668,6 +1883,11 @@ const docTemplate = `{
         },
         "/v1/inri/projects/{projectId}/attachments": {
             "get": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
                 "description": "Returns a list of attachments by project ID",
                 "consumes": [
                     "application/json"
@@ -1691,6 +1911,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
                 "description": "Upload multiple files as attachments for the given project",
                 "consumes": [
                     "multipart/form-data"
@@ -1733,6 +1958,11 @@ const docTemplate = `{
         },
         "/v1/inri/projects/{projectId}/documents": {
             "get": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
                 "description": "Returns a paginated list of project documents for a project",
                 "consumes": [
                     "application/json"
@@ -1788,6 +2018,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
                 "description": "Creates a new project document under the project",
                 "consumes": [
                     "application/json"
@@ -1828,6 +2063,11 @@ const docTemplate = `{
         },
         "/v1/inri/projects/{projectId}/documents/{documentId}": {
             "get": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
                 "description": "Returns a project document by its ID within the project",
                 "consumes": [
                     "application/json"
@@ -1864,6 +2104,11 @@ const docTemplate = `{
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
                 "description": "Updates an existing project document",
                 "consumes": [
                     "application/json"
@@ -1909,6 +2154,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
                 "description": "Deletes the project document",
                 "consumes": [
                     "application/json"
@@ -1947,6 +2197,11 @@ const docTemplate = `{
         },
         "/v1/inri/projects/{projectId}/invite": {
             "post": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
                 "description": "Invites user to collaborate on a project",
                 "consumes": [
                     "application/json"
@@ -1980,6 +2235,11 @@ const docTemplate = `{
         },
         "/v1/inri/projects/{projectId}/kanban": {
             "get": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
                 "description": "Returns all boards of a project",
                 "consumes": [
                     "application/json"
@@ -2012,6 +2272,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
                 "description": "Creates a new Kanban board for a project",
                 "consumes": [
                     "application/json"
@@ -2043,6 +2308,11 @@ const docTemplate = `{
         },
         "/v1/inri/projects/{projectId}/kanban/{kanbanId}": {
             "get": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
                 "description": "Returns a single Kanban board",
                 "consumes": [
                     "application/json"
@@ -2079,6 +2349,11 @@ const docTemplate = `{
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
                 "description": "Updates the Kanban board",
                 "consumes": [
                     "application/json"
@@ -2115,6 +2390,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
                 "description": "Deletes a Kanban board",
                 "consumes": [
                     "application/json"
@@ -2153,6 +2433,11 @@ const docTemplate = `{
         },
         "/v1/inri/projects/{projectId}/labels": {
             "get": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
                 "description": "Returns all labels for a project/board",
                 "consumes": [
                     "application/json"
@@ -2188,6 +2473,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
                 "description": "Creates a new label",
                 "consumes": [
                     "application/json"
@@ -2228,6 +2518,11 @@ const docTemplate = `{
         },
         "/v1/inri/projects/{projectId}/labels/{labelId}": {
             "get": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
                 "description": "Returns a label by ID",
                 "consumes": [
                     "application/json"
@@ -2264,6 +2559,11 @@ const docTemplate = `{
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
                 "description": "Updates a label",
                 "consumes": [
                     "application/json"
@@ -2309,6 +2609,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
                 "description": "Deletes a label",
                 "consumes": [
                     "application/json"
@@ -2347,6 +2652,11 @@ const docTemplate = `{
         },
         "/v1/inri/projects/{projectId}/members": {
             "get": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
                 "description": "Returns a paginated list of all project members",
                 "consumes": [
                     "application/json"
@@ -2404,6 +2714,11 @@ const docTemplate = `{
         },
         "/v1/inri/projects/{projectId}/members/{memberId}": {
             "put": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
                 "description": "Updates the role of a project member",
                 "consumes": [
                     "application/json"
@@ -2449,6 +2764,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
                 "description": "Removes a member from a project",
                 "consumes": [
                     "application/json"
@@ -3491,6 +3811,14 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        }
+    },
+    "securityDefinitions": {
+        "GatewayAuth": {
+            "description": "Injected by API Gateway. Do not use in production.",
+            "type": "apiKey",
+            "name": "X-User-ID",
+            "in": "header"
         }
     }
 }`

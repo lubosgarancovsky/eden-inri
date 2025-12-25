@@ -31,3 +31,6 @@ swagger:
 swagger-clean:
 	@echo "🧹 Removing generated Swagger docs..."
 	rm -rf $(SWAG_OUT)
+
+build:
+	GOOS=linux GOARCH=arm64 CGO_ENABLED=0 go build -o build/eden-inri ./cmd/app

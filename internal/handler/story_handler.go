@@ -63,14 +63,13 @@ func NewStoryHandler(p *rsql.Parser, s *service.StoryService) *StoryHandler {
 // @Param        filter      query     string     false  "RSQL filter query"
 // @Param        sort  query     string     false  "Sort query"
 // @Success      200  {array}  StoryPage
-// @Router       /v1/inri/kanban/{kanbanId}/columns/{columnId}/stories [get]
+// @Router       /v1/inri/projects/{projectId}/stories [get]
+// @security GatewayAuth
 func (h *StoryHandler) FindAll(c *gin.Context) {
 	lq := helpers.CreateListingQuery(c, h.parser, StoryListConfig.Filter, StoryListConfig.Sort)
+	projectID := helpers.ExtractID(c, "projectId")
 
-	columnID := helpers.ExtractID(c, "columnId")
-	kanbanID := helpers.ExtractID(c, "kanbanId")
-
-	stories, err := h.s.FindAll(c.Request.Context(), kanbanID, columnID, lq)
+	stories, err := h.s.FindAll(c.Request.Context(), projectID, lq)
 	if err != nil {
 		c.Error(err)
 		return
@@ -85,13 +84,15 @@ func (h *StoryHandler) FindAll(c *gin.Context) {
 // @Accept       json
 // @Produce      json
 // @Param        storyId    path      string  true  "Story ID"
+// @Param        projectId   path      string  true  "Project ID"
 // @Success      200  {object}  model.Story
-// @Router       /v1/inri/kanban/{kanbanId}/stories/{storyId} [get]
+// @Router       /v1/inri/projects/{projectId}/stories/{storyId} [get]
+// @security GatewayAuth
 func (h *StoryHandler) FindByID(c *gin.Context) {
+	projectID := helpers.ExtractID(c, "projectId")
 	storyID := helpers.ExtractID(c, "storyId")
-	kanbanID := helpers.ExtractID(c, "kanbanId")
 
-	story, err := h.s.FindByID(c.Request.Context(), kanbanID, storyID)
+	story, err := h.s.FindByID(c.Request.Context(), projectID, storyID)
 	if err != nil {
 		c.Error(err)
 		return
@@ -105,13 +106,13 @@ func (h *StoryHandler) FindByID(c *gin.Context) {
 // @Tags         Kanban Stories
 // @Accept       json
 // @Produce      json
-// @Param        kanbanId   path      string  true  "Kanban board ID"
-// @Param        columnId   path      string  true  "Column ID"
+// @Param        projectId   path      string  true  "Project ID"
 // @Param        body       body      model.StoryRequest true "Story data"
 // @Success      201  {object}  model.Story
-// @Router       /v1/inri/kanban/{kanbanId}/stories [post]
+// @Router       /v1/inri/projects/{projectId}/stories [post]
+// @security GatewayAuth
 func (h *StoryHandler) Insert(c *gin.Context) {
-	kanbanID := helpers.ExtractID(c, "kanbanId")
+	projectID := helpers.ExtractID(c, "projectId")
 
 	var req model.StoryRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -119,7 +120,7 @@ func (h *StoryHandler) Insert(c *gin.Context) {
 		return
 	}
 
-	story, err := h.s.Insert(c.Request.Context(), kanbanID, &req)
+	story, err := h.s.Insert(c.Request.Context(), projectID, &req)
 	if err != nil {
 		c.Error(err)
 		return
@@ -134,11 +135,14 @@ func (h *StoryHandler) Insert(c *gin.Context) {
 // @Accept       json
 // @Produce      json
 // @Param        storyId    path      string  true  "Story ID"
+// @Param        projectId   path      string  true  "Project ID"
 // @Param        body       body      model.StoryRequest true "Updated story data"
 // @Success      200  {object}  model.Story
-// @Router       /v1/inri/kanban/{kanbanId}/stories [put]
+// @Router       /v1/inri/projects/{projectId}/stories/{storyId} [put]
+// @security GatewayAuth
 func (h *StoryHandler) Update(c *gin.Context) {
-	kanbanID := helpers.ExtractID(c, "kanbanId")
+	projectID := helpers.ExtractID(c, "projectId")
+	storyID := helpers.ExtractID(c, "storyId")
 
 	var req model.StoryRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -146,7 +150,7 @@ func (h *StoryHandler) Update(c *gin.Context) {
 		return
 	}
 
-	story, err := h.s.Update(c.Request.Context(), kanbanID, &req)
+	story, err := h.s.Update(c.Request.Context(), projectID, storyID, &req)
 	if err != nil {
 		c.Error(err)
 		return
@@ -161,13 +165,15 @@ func (h *StoryHandler) Update(c *gin.Context) {
 // @Accept       json
 // @Produce      json
 // @Param        storyId    path      string  true  "Story ID"
+// @Param        projectId   path      string  true  "Project ID"
 // @Success      204  {string} string "No Content"
-// @Router       /v1/inri/kanban/{kanbanId}/stories/{storyId} [delete]
+// @Router       /v1/inri/projects/{projectId}/stories/{storyId} [delete]
+// @security GatewayAuth
 func (h *StoryHandler) Delete(c *gin.Context) {
-	kanbanID := helpers.ExtractID(c, "kanbanId")
+	projectID := helpers.ExtractID(c, "projectId")
 	storyID := helpers.ExtractID(c, "storyId")
 
-	if err := h.s.Delete(c.Request.Context(), kanbanID, storyID); err != nil {
+	if err := h.s.Delete(c.Request.Context(), projectID, storyID); err != nil {
 		c.Error(err)
 		return
 	}

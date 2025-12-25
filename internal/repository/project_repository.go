@@ -37,6 +37,7 @@ func (r *ProjectRepository) FindAll(
 ) (*[]model.Project, int64, error) {
 
 	query := r.db.
+		WithContext(ctx).
 		Table("inri_projects p").
 		Select("p.*, pu.role, pu.is_starred").
 		Joins(`
@@ -66,6 +67,7 @@ func (r *ProjectRepository) FindByID(
 	var result model.Project
 
 	err := r.db.
+		WithContext(ctx).
 		Table("inri_projects p").
 		Select("p.*, pu.role, pu.is_starred").
 		Joins(`
@@ -116,54 +118,21 @@ func (r *ProjectRepository) InsertProjectUser(
 	return pu, nil
 }
 
-//func (r *ProjectRepository) Insert(
-//	ctx context.Context,
-//	userID uuid.UUID,
-//	prj *model.Project,
-//) (*model.Project, error) {
-//
-//	err := r.db.Transaction(func(tx *gorm.DB) error {
-//
-//		// 1. Insert project
-//		if err := tx.
-//			Model(&prj).
-//			Clauses(clause.Returning{}).
-//			Select("*").
-//			Create(&prj).
-//			Error; err != nil {
-//			return err
-//		}
-//
-//		// 2. Insert owner membership
-//		pu := model.ProjectUser{
-//			ProjectID: prj.ID,
-//			UserID:    userID,
-//			Role:      model.Owner,
-//		}
-//
-//		if err := tx.Create(&pu).Error; err != nil {
-//			return err
-//		}
-//
-//		return nil
-//	})
-//
-//	if err != nil {
-//		return nil, err
-//	}
-//
-//	return prj, nil
-//}
-
 func (r *ProjectRepository) Update(ctx context.Context, prj *model.Project) (*model.Project, error) {
-	result := r.db.Model(&prj).Clauses(clause.Returning{}).Select("*").Where("id = ?", prj.ID).Updates(map[string]interface{}{
-		"name":             prj.Name,
-		"description":      prj.Description,
-		"tags":             prj.Tags,
-		"status":           prj.Status,
-		"updated_at":       prj.UpdatedAt,
-		"last_activity_at": prj.LastActivityAt,
-	})
+	result := r.db.
+		WithContext(ctx).
+		Model(&prj).
+		Clauses(clause.Returning{}).
+		Select("*").
+		Where("id = ?", prj.ID).
+		Updates(map[string]interface{}{
+			"name":             prj.Name,
+			"description":      prj.Description,
+			"tags":             prj.Tags,
+			"status":           prj.Status,
+			"updated_at":       prj.UpdatedAt,
+			"last_activity_at": prj.LastActivityAt,
+		})
 	if result.Error != nil {
 		return nil, api_err.Wrap(api_err.ErrInternalServer, result.Error)
 	}
@@ -174,7 +143,11 @@ func (r *ProjectRepository) Update(ctx context.Context, prj *model.Project) (*mo
 }
 
 func (r *ProjectRepository) Delete(ctx context.Context, projectID uuid.UUID) error {
-	result := r.db.Where("id = ?", projectID).Delete(model.Project{})
+	result := r.db.
+		WithContext(ctx).
+		Where("id = ?", projectID).
+		Delete(model.Project{})
+
 	if result.Error != nil {
 		return api_err.Wrap(api_err.ErrInternalServer, result.Error)
 	}
@@ -185,13 +158,15 @@ func (r *ProjectRepository) Delete(ctx context.Context, projectID uuid.UUID) err
 }
 
 func (r *ProjectRepository) ListProjectMembers(
+	ctx context.Context,
 	userID, projectID uuid.UUID,
 	lq *list.ListingQuery,
 ) ([]model.ProjectUser, int64, error) {
 
-	// Step 1: ensure the caller is a member
+	// Ensure the caller is a member
 	var count int64
 	if err := r.db.
+		WithContext(ctx).
 		Model(&model.ProjectUser{}).
 		Where("project_id = ? AND user_id = ?", projectID, userID).
 		Count(&count).Error; err != nil {
@@ -201,8 +176,9 @@ func (r *ProjectRepository) ListProjectMembers(
 		return nil, 0, api_err.ErrForbidden
 	}
 
-	// Step 2: build query for members with preloaded User
+	// Build query for members with preloaded User
 	query := r.db.
+		WithContext(ctx).
 		Preload("User").
 		Where("project_id = ?", projectID)
 
@@ -220,6 +196,7 @@ func (r *ProjectRepository) ListProjectMembers(
 }
 
 func (r *ProjectRepository) AddMember(
+	ctx context.Context,
 	userID, projectID uuid.UUID,
 	role model.ProjectRole,
 ) (*model.ProjectUser, error) {
@@ -231,10 +208,12 @@ func (r *ProjectRepository) AddMember(
 		JoinedAt:  time.Now(),
 	}
 
-	if err := r.db.Clauses(clause.OnConflict{
-		Columns:   []clause.Column{{Name: "project_id"}, {Name: "user_id"}},
-		DoNothing: true, // avoid duplicate membership
-	}).Create(pu).Error; err != nil {
+	if err := r.db.
+		WithContext(ctx).
+		Clauses(clause.OnConflict{
+			Columns:   []clause.Column{{Name: "project_id"}, {Name: "user_id"}},
+			DoNothing: true, // avoid duplicate membership
+		}).Create(pu).Error; err != nil {
 		return nil, err
 	}
 
@@ -242,10 +221,12 @@ func (r *ProjectRepository) AddMember(
 }
 
 func (r *ProjectRepository) RemoveMember(
+	ctx context.Context,
 	memberID, projectID uuid.UUID,
 ) error {
 
 	result := r.db.
+		WithContext(ctx).
 		Where("project_id = ? AND user_id = ?", projectID, memberID).
 		Delete(&model.ProjectUser{})
 
@@ -262,10 +243,11 @@ func (r *ProjectRepository) RemoveMember(
 	return nil
 }
 
-func (r *ProjectRepository) GetUserRole(projectID, userID uuid.UUID) (model.ProjectRole, error) {
+func (r *ProjectRepository) GetUserRole(ctx context.Context, projectID, userID uuid.UUID) (model.ProjectRole, error) {
 	var role model.ProjectRole
 
 	err := r.db.
+		WithContext(ctx).
 		Table("inri_project_users").
 		Select("role").
 		Where("project_id = ? AND user_id = ?", projectID, userID).
@@ -283,6 +265,7 @@ func (r *ProjectRepository) GetUserRole(projectID, userID uuid.UUID) (model.Proj
 
 // UpdateMemberRole updates the role of a member in a project
 func (r *ProjectRepository) UpdateMemberRole(
+	ctx context.Context,
 	projectID, memberID uuid.UUID,
 	newRole model.ProjectRole,
 ) (*model.ProjectUser, error) {
@@ -290,8 +273,10 @@ func (r *ProjectRepository) UpdateMemberRole(
 	// Only update role for non-owner members
 	pu := &model.ProjectUser{}
 	err := r.db.
+		WithContext(ctx).
 		Where("project_id = ? AND user_id = ? AND role != ?", projectID, memberID, model.Owner).
 		First(pu).Error
+
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, api_err.ErrForbidden.WithMessage("cannot change role of owner or non-existent member")

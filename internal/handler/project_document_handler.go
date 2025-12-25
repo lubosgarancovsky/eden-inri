@@ -48,6 +48,7 @@ func NewProjectDocumentHandler(parser *rsql.Parser, s *service.ProjectDocumentSe
 // @Param        sort  query     string     false  "Sort query"
 // @Success      200  {object}   ProjectDocumentPage
 // @Router       /v1/inri/projects/{projectId}/documents [get]
+// @security GatewayAuth
 func (h *ProjectDocumentHandler) FindAll(c *gin.Context) {
 	projectID := helpers.ExtractID(c, "projectId")
 	lq := helpers.CreateListingQuery(c, h.parser, ProjectDocumentListConfig.Filter, ProjectDocumentListConfig.Sort)
@@ -70,6 +71,7 @@ func (h *ProjectDocumentHandler) FindAll(c *gin.Context) {
 // @Param        documentId   path      string  true  "Document ID"
 // @Success      200  {object}   model.ProjectDocument
 // @Router       /v1/inri/projects/{projectId}/documents/{documentId} [get]
+// @security GatewayAuth
 func (h *ProjectDocumentHandler) FindByID(c *gin.Context) {
 	projectID := helpers.ExtractID(c, "projectId")
 	documentID := helpers.ExtractID(c, "documentId")
@@ -92,6 +94,7 @@ func (h *ProjectDocumentHandler) FindByID(c *gin.Context) {
 // @Param        document  body  model.ProjectDocumentRequest  true  "Document data"
 // @Success      201  {object}  model.ProjectDocument
 // @Router       /v1/inri/projects/{projectId}/documents [post]
+// @security GatewayAuth
 func (h *ProjectDocumentHandler) Create(c *gin.Context) {
 	var input model.ProjectDocumentRequest
 	if err := c.ShouldBindJSON(&input); err != nil {
@@ -120,6 +123,7 @@ func (h *ProjectDocumentHandler) Create(c *gin.Context) {
 // @Param        document  body  model.ProjectDocumentRequest  true  "Document data"
 // @Success      200  {object}  model.ProjectDocument
 // @Router       /v1/inri/projects/{projectId}/documents/{documentId} [put]
+// @security GatewayAuth
 func (h *ProjectDocumentHandler) Update(c *gin.Context) {
 	var input model.ProjectDocumentRequest
 	if err := c.ShouldBindJSON(&input); err != nil {
@@ -148,6 +152,7 @@ func (h *ProjectDocumentHandler) Update(c *gin.Context) {
 // @Param        documentId   path      string  true  "Document ID"
 // @Success      204  {string}  string  "No Content"
 // @Router       /v1/inri/projects/{projectId}/documents/{documentId} [delete]
+// @security GatewayAuth
 func (h *ProjectDocumentHandler) Delete(c *gin.Context) {
 	projectID := helpers.ExtractID(c, "projectId")
 	documentID := helpers.ExtractID(c, "documentId")

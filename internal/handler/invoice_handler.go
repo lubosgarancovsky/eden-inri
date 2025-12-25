@@ -62,6 +62,7 @@ func NewInvoiceHandler(parser *rsql.Parser, s *service.InvoiceService) *InvoiceH
 // @Param        sort  query     string     false  "Sort query"
 // @Success      200  {object}   InvoicePage
 // @Router       /v1/inri/invoices [get]
+// @security GatewayAuth
 func (h *InvoiceHandler) FindAll(c *gin.Context) {
 	helpers.HandleList(c, h.parser, InvoiceListConfig, h.s.FindAll)
 }
@@ -74,6 +75,7 @@ func (h *InvoiceHandler) FindAll(c *gin.Context) {
 // @Param        invoiceId   path      string  true  "Invoice ID"
 // @Success      200  {object}   model.Invoice
 // @Router       /v1/inri/invoices/{invoiceId} [get]
+// @security GatewayAuth
 func (h *InvoiceHandler) FindByID(c *gin.Context) {
 	helpers.HandleFindByID(c, "invoiceId", h.s.FindByID)
 }
@@ -86,6 +88,7 @@ func (h *InvoiceHandler) FindByID(c *gin.Context) {
 // @Param        invoice  body  model.InvoiceRequest  true  "Invoice data"
 // @Success      201  {object}  model.Invoice
 // @Router       /v1/inri/invoices [post]
+// @security GatewayAuth
 func (h *InvoiceHandler) Create(c *gin.Context) {
 	helpers.HandleCreate(c, h.s.Create)
 }
@@ -99,6 +102,7 @@ func (h *InvoiceHandler) Create(c *gin.Context) {
 // @Param        invoiceId   path      string  true  "Invoice ID"
 // @Success      200  {object}  model.Invoice
 // @Router       /v1/inri/invoices/{invoiceId} [put]
+// @security GatewayAuth
 func (h *InvoiceHandler) Update(c *gin.Context) {
 	helpers.HandleUpdate(c, "invoiceId", h.s.Update)
 }
@@ -111,6 +115,7 @@ func (h *InvoiceHandler) Update(c *gin.Context) {
 // @Param        invoiceId   path      string  true  "Invoice ID"
 // @Success      204  {string}  string  "No Content"
 // @Router       /v1/inri/invoices/{invoiceId} [delete]
+// @security GatewayAuth
 func (h *InvoiceHandler) Delete(c *gin.Context) {
 	helpers.HandleDelete(c, "invoiceId", h.s.Delete)
 }
@@ -124,6 +129,7 @@ func (h *InvoiceHandler) Delete(c *gin.Context) {
 // @Param files formData []file true "Files to upload"
 // @Success      204  {string}  string  "No Content"
 // @Router       /v1/inri/invoices/{invoiceId}/attachments [post]
+// @security GatewayAuth
 func (h *InvoiceHandler) UploadAttachments(c *gin.Context) {
 	invoiceID := helpers.ExtractID(c, "invoiceId")
 	userID := helpers.GetUserContext(c).ID
@@ -165,6 +171,7 @@ func (h *InvoiceHandler) UploadAttachments(c *gin.Context) {
 // @Produce      json
 // @Success      200  {object}   []model.Attachment
 // @Router       /v1/inri/invoices/{invoiceId}/attachments [get]
+// @security GatewayAuth
 func (h *InvoiceHandler) ListAttachments(c *gin.Context) {
 	invoiceID := helpers.ExtractID(c, "invoiceId")
 	userID := helpers.GetUserContext(c).ID

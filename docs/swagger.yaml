@@ -703,6 +703,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/handler.AttachmentPage'
+      security:
+      - GatewayAuth: []
       tags:
       - Attachments
   /v1/inri/attachments/{attachmentId}:
@@ -723,6 +725,8 @@ paths:
           description: No Content
           schema:
             type: string
+      security:
+      - GatewayAuth: []
       tags:
       - Attachments
     get:
@@ -742,6 +746,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/model.Attachment'
+      security:
+      - GatewayAuth: []
       tags:
       - Attachments
   /v1/inri/attachments/{attachmentId}/download:
@@ -760,6 +766,8 @@ paths:
           description: OK
           schema:
             type: file
+      security:
+      - GatewayAuth: []
       tags:
       - Attachments
   /v1/inri/clients:
@@ -793,6 +801,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/handler.ClientPage'
+      security:
+      - GatewayAuth: []
       tags:
       - Clients
     post:
@@ -813,6 +823,8 @@ paths:
           description: Created
           schema:
             $ref: '#/definitions/model.Client'
+      security:
+      - GatewayAuth: []
       tags:
       - Clients
   /v1/inri/clients/{clientId}:
@@ -833,6 +845,8 @@ paths:
           description: No Content
           schema:
             type: string
+      security:
+      - GatewayAuth: []
       tags:
       - Clients
     get:
@@ -852,6 +866,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/model.Client'
+      security:
+      - GatewayAuth: []
       tags:
       - Clients
     put:
@@ -877,6 +893,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/model.Client'
+      security:
+      - GatewayAuth: []
       tags:
       - Clients
   /v1/inri/clients/{clientId}/contact-persons:
@@ -915,6 +933,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/handler.ContactPersonPage'
+      security:
+      - GatewayAuth: []
       tags:
       - ContactPersons
     post:
@@ -940,6 +960,8 @@ paths:
           description: Created
           schema:
             $ref: '#/definitions/model.ContactPerson'
+      security:
+      - GatewayAuth: []
       tags:
       - ContactPersons
   /v1/inri/clients/{clientId}/contact-persons/{contactPersonId}:
@@ -965,6 +987,8 @@ paths:
           description: No Content
           schema:
             type: string
+      security:
+      - GatewayAuth: []
       tags:
       - ContactPersons
     get:
@@ -989,6 +1013,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/model.ContactPerson'
+      security:
+      - GatewayAuth: []
       tags:
       - ContactPersons
     put:
@@ -1019,6 +1045,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/model.ContactPerson'
+      security:
+      - GatewayAuth: []
       tags:
       - ContactPersons
   /v1/inri/invoices:
@@ -1052,6 +1080,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/handler.InvoicePage'
+      security:
+      - GatewayAuth: []
       tags:
       - Invoices
     post:
@@ -1072,6 +1102,8 @@ paths:
           description: Created
           schema:
             $ref: '#/definitions/model.Invoice'
+      security:
+      - GatewayAuth: []
       tags:
       - Invoices
   /v1/inri/invoices/{invoiceId}:
@@ -1092,6 +1124,8 @@ paths:
           description: No Content
           schema:
             type: string
+      security:
+      - GatewayAuth: []
       tags:
       - Invoices
     get:
@@ -1111,6 +1145,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/model.Invoice'
+      security:
+      - GatewayAuth: []
       tags:
       - Invoices
     put:
@@ -1136,6 +1172,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/model.Invoice'
+      security:
+      - GatewayAuth: []
       tags:
       - Invoices
   /v1/inri/invoices/{invoiceId}/attachments:
@@ -1152,6 +1190,8 @@ paths:
             items:
               $ref: '#/definitions/model.Attachment'
             type: array
+      security:
+      - GatewayAuth: []
       tags:
       - Invoices
     post:
@@ -1179,6 +1219,8 @@ paths:
           description: No Content
           schema:
             type: string
+      security:
+      - GatewayAuth: []
       tags:
       - Invoices
   /v1/inri/kanban/{kanbanId}/columns:
@@ -1201,6 +1243,8 @@ paths:
             items:
               $ref: '#/definitions/model.KanbanColumn'
             type: array
+      security:
+      - GatewayAuth: []
       tags:
       - Kanban Columns
     post:
@@ -1226,6 +1270,8 @@ paths:
           description: Created
           schema:
             $ref: '#/definitions/model.KanbanColumn'
+      security:
+      - GatewayAuth: []
       tags:
       - Kanban Columns
   /v1/inri/kanban/{kanbanId}/columns/{columnId}:
@@ -1251,6 +1297,8 @@ paths:
           description: No Content
           schema:
             type: string
+      security:
+      - GatewayAuth: []
       tags:
       - Kanban Columns
     get:
@@ -1275,6 +1323,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/model.KanbanColumn'
+      security:
+      - GatewayAuth: []
       tags:
       - Kanban Columns
     put:
@@ -1305,6 +1355,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/model.KanbanColumn'
+      security:
+      - GatewayAuth: []
       tags:
       - Kanban Columns
   /v1/inri/kanban/{kanbanId}/columns/{columnId}/stories:
@@ -1350,6 +1402,8 @@ paths:
             items:
               $ref: '#/definitions/handler.StoryPage'
             type: array
+      security:
+      - GatewayAuth: []
       tags:
       - Kanban Stories
   /v1/inri/kanban/{kanbanId}/stories:
@@ -1381,6 +1435,8 @@ paths:
           description: Created
           schema:
             $ref: '#/definitions/model.Story'
+      security:
+      - GatewayAuth: []
       tags:
       - Kanban Stories
     put:
@@ -1406,6 +1462,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/model.Story'
+      security:
+      - GatewayAuth: []
       tags:
       - Kanban Stories
   /v1/inri/kanban/{kanbanId}/stories/{storyId}:
@@ -1426,6 +1484,8 @@ paths:
           description: No Content
           schema:
             type: string
+      security:
+      - GatewayAuth: []
       tags:
       - Kanban Stories
     get:
@@ -1445,6 +1505,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/model.Story'
+      security:
+      - GatewayAuth: []
       tags:
       - Kanban Stories
   /v1/inri/kanban/{kanbanId}/stories/{storyId}/activities:
@@ -1488,6 +1550,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/handler.ActivitiesPage'
+      security:
+      - GatewayAuth: []
       tags:
       - Story Activities
     post:
@@ -1520,6 +1584,8 @@ paths:
           description: Created
           schema:
             $ref: '#/definitions/model.StoryActivity'
+      security:
+      - GatewayAuth: []
       tags:
       - Story Activities
   /v1/inri/kanban/{kanbanId}/stories/{storyId}/labels:
@@ -1547,6 +1613,8 @@ paths:
             items:
               $ref: '#/definitions/model.Label'
             type: array
+      security:
+      - GatewayAuth: []
       tags:
       - Kanban Story Labels
   /v1/inri/kanban/{kanbanId}/stories/{storyId}/labels/{labelId}:
@@ -1577,6 +1645,8 @@ paths:
           description: No Content
           schema:
             type: string
+      security:
+      - GatewayAuth: []
       tags:
       - Kanban Story Labels
     post:
@@ -1606,6 +1676,8 @@ paths:
           description: No Content
           schema:
             type: string
+      security:
+      - GatewayAuth: []
       tags:
       - Kanban Story Labels
   /v1/inri/projects:
@@ -1639,6 +1711,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/handler.ProjectPage'
+      security:
+      - GatewayAuth: []
       tags:
       - Projects
     post:
@@ -1659,6 +1733,8 @@ paths:
           description: Created
           schema:
             $ref: '#/definitions/model.Project'
+      security:
+      - GatewayAuth: []
       tags:
       - Projects
   /v1/inri/projects/:projectId/favourite:
@@ -1673,6 +1749,8 @@ paths:
           description: Created
           schema:
             $ref: '#/definitions/model.Project'
+      security:
+      - GatewayAuth: []
       tags:
       - Projects
   /v1/inri/projects/{projectId}:
@@ -1693,6 +1771,8 @@ paths:
           description: No Content
           schema:
             type: string
+      security:
+      - GatewayAuth: []
       tags:
       - Projects
     get:
@@ -1712,6 +1792,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/model.Project'
+      security:
+      - GatewayAuth: []
       tags:
       - Projects
     put:
@@ -1737,6 +1819,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/model.Project'
+      security:
+      - GatewayAuth: []
       tags:
       - Projects
   /v1/inri/projects/{projectId}/attachments:
@@ -1753,6 +1837,8 @@ paths:
             items:
               $ref: '#/definitions/model.Attachment'
             type: array
+      security:
+      - GatewayAuth: []
       tags:
       - Projects
     post:
@@ -1780,6 +1866,8 @@ paths:
           description: No Content
           schema:
             type: string
+      security:
+      - GatewayAuth: []
       tags:
       - Projects
   /v1/inri/projects/{projectId}/documents:
@@ -1818,6 +1906,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/handler.ProjectDocumentPage'
+      security:
+      - GatewayAuth: []
       tags:
       - ProjectDocuments
     post:
@@ -1843,6 +1933,8 @@ paths:
           description: Created
           schema:
             $ref: '#/definitions/model.ProjectDocument'
+      security:
+      - GatewayAuth: []
       tags:
       - ProjectDocuments
   /v1/inri/projects/{projectId}/documents/{documentId}:
@@ -1868,6 +1960,8 @@ paths:
           description: No Content
           schema:
             type: string
+      security:
+      - GatewayAuth: []
       tags:
       - ProjectDocuments
     get:
@@ -1892,6 +1986,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/model.ProjectDocument'
+      security:
+      - GatewayAuth: []
       tags:
       - ProjectDocuments
     put:
@@ -1922,6 +2018,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/model.ProjectDocument'
+      security:
+      - GatewayAuth: []
       tags:
       - ProjectDocuments
   /v1/inri/projects/{projectId}/invite:
@@ -1943,6 +2041,8 @@ paths:
           description: No content
           schema:
             type: string
+      security:
+      - GatewayAuth: []
       tags:
       - Project invitations
   /v1/inri/projects/{projectId}/kanban:
@@ -1965,6 +2065,8 @@ paths:
             items:
               $ref: '#/definitions/model.KanbanBoard'
             type: array
+      security:
+      - GatewayAuth: []
       tags:
       - Kanban boards
     post:
@@ -1984,6 +2086,8 @@ paths:
           description: Created
           schema:
             $ref: '#/definitions/model.KanbanBoard'
+      security:
+      - GatewayAuth: []
       tags:
       - Kanban boards
   /v1/inri/projects/{projectId}/kanban/{kanbanId}:
@@ -2009,6 +2113,8 @@ paths:
           description: No Content
           schema:
             type: string
+      security:
+      - GatewayAuth: []
       tags:
       - Kanban boards
     get:
@@ -2033,6 +2139,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/model.KanbanBoard'
+      security:
+      - GatewayAuth: []
       tags:
       - Kanban boards
     put:
@@ -2057,6 +2165,8 @@ paths:
           description: Created
           schema:
             $ref: '#/definitions/model.KanbanBoard'
+      security:
+      - GatewayAuth: []
       tags:
       - Kanban boards
   /v1/inri/projects/{projectId}/labels:
@@ -2081,6 +2191,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/handler.LabelPage'
+      security:
+      - GatewayAuth: []
       tags:
       - Labels
     post:
@@ -2106,6 +2218,8 @@ paths:
           description: Created
           schema:
             $ref: '#/definitions/model.Label'
+      security:
+      - GatewayAuth: []
       tags:
       - Labels
   /v1/inri/projects/{projectId}/labels/{labelId}:
@@ -2131,6 +2245,8 @@ paths:
           description: No Content
           schema:
             type: string
+      security:
+      - GatewayAuth: []
       tags:
       - Labels
     get:
@@ -2155,6 +2271,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/model.Label'
+      security:
+      - GatewayAuth: []
       tags:
       - Labels
     put:
@@ -2185,6 +2303,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/model.Label'
+      security:
+      - GatewayAuth: []
       tags:
       - Labels
   /v1/inri/projects/{projectId}/members:
@@ -2223,6 +2343,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/handler.MemberPage'
+      security:
+      - GatewayAuth: []
       tags:
       - Projects
   /v1/inri/projects/{projectId}/members/{memberId}:
@@ -2248,6 +2370,8 @@ paths:
           description: No Content
           schema:
             type: string
+      security:
+      - GatewayAuth: []
       tags:
       - Projects
     put:
@@ -2278,6 +2402,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/model.ProjectUser'
+      security:
+      - GatewayAuth: []
       tags:
       - Projects
   /v1/inri/projects/accept-invitation:
@@ -2299,6 +2425,14 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/model.ProjectInvitation'
+      security:
+      - GatewayAuth: []
       tags:
       - Project invitations
+securityDefinitions:
+  GatewayAuth:
+    description: Injected by API Gateway. Do not use in production.
+    in: header
+    name: X-User-ID
+    type: apiKey
 swagger: "2.0"

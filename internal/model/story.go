@@ -20,8 +20,8 @@ const (
 type Story struct {
 	ID          uuid.UUID      `gorm:"primary_key;type:uuid;default:uuid_generate_v4()" json:"id"`
 	ProjectID   uuid.UUID      `json:"projectId"`
-	BoardID     *uuid.UUID     `json:"boardId"`
-	ColumnID    *uuid.UUID     `json:"columnId"`
+	BoardID     uuid.UUID      `json:"boardId"`
+	ColumnID    uuid.UUID      `json:"columnId"`
 	Slug        string         `json:"slug"`
 	Title       string         `json:"title"`
 	Description string         `json:"description"`
@@ -38,8 +38,8 @@ type Story struct {
 }
 
 type StoryRequest struct {
-	BoardID     *uuid.UUID     `json:"boardId"`
-	ColumnID    *uuid.UUID     `json:"columnId"`
+	BoardID     uuid.UUID      `json:"boardId"`
+	ColumnID    uuid.UUID      `json:"columnId"`
 	Title       string         `json:"title"`
 	Description string         `json:"description"`
 	Kind        StoryKind      `json:"kind"`

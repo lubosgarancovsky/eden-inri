@@ -43,6 +43,7 @@ func NewKanbanBoardHandler(s *service.KanbanBoardService, parser *rsql.Parser) *
 // @Param        projectId   path      string  true  "Project ID"
 // @Success      200  {array}  model.KanbanBoard
 // @Router       /v1/inri/projects/{projectId}/kanban [get]
+// @security GatewayAuth
 func (h *KanbanBoardHandler) FindAll(c *gin.Context) {
 	projectID := helpers.ExtractID(c, "projectId")
 
@@ -65,6 +66,7 @@ func (h *KanbanBoardHandler) FindAll(c *gin.Context) {
 // @Param        boardId     path      string  true  "Board ID"
 // @Success      200  {object}  model.KanbanBoard
 // @Router       /v1/inri/projects/{projectId}/kanban/{kanbanId} [get]
+// @security GatewayAuth
 func (h *KanbanBoardHandler) FindByID(c *gin.Context) {
 	projectID := helpers.ExtractID(c, "projectId")
 	boardID := helpers.ExtractID(c, "kanbanId")
@@ -86,6 +88,7 @@ func (h *KanbanBoardHandler) FindByID(c *gin.Context) {
 // @Param        projectId   path      string  true  "Project ID"
 // @Success      201  {object}  model.KanbanBoard
 // @Router       /v1/inri/projects/{projectId}/kanban [post]
+// @security GatewayAuth
 func (h *KanbanBoardHandler) Insert(c *gin.Context) {
 	projectID := helpers.ExtractID(c, "projectId")
 
@@ -113,6 +116,7 @@ func (h *KanbanBoardHandler) Insert(c *gin.Context) {
 // @Param        kanbanId   path      string  true  "Kanban ID"
 // @Success      201  {object}  model.KanbanBoard
 // @Router       /v1/inri/projects/{projectId}/kanban/{kanbanId} [put]
+// @security GatewayAuth
 func (h *KanbanBoardHandler) Update(c *gin.Context) {
 	projectID := helpers.ExtractID(c, "projectId")
 	boardID := helpers.ExtractID(c, "kanbanId")
@@ -141,6 +145,7 @@ func (h *KanbanBoardHandler) Update(c *gin.Context) {
 // @Param        boardId     path      string  true  "Board ID"
 // @Success      204  {string}  string  "No Content"
 // @Router       /v1/inri/projects/{projectId}/kanban/{kanbanId} [delete]
+// @security GatewayAuth
 func (h *KanbanBoardHandler) Delete(c *gin.Context) {
 	projectID := helpers.ExtractID(c, "projectId")
 	boardID := helpers.ExtractID(c, "kanbanId")

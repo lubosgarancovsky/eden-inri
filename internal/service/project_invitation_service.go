@@ -84,7 +84,7 @@ func (s *ProjectInvitationService) Accept(ctx context.Context, userID uuid.UUID,
 		return nil, err
 	}
 
-	if err = s.pus.Insert(invitation.UserID, invitation.ProjectID, invitation.Role); err != nil {
+	if _, err = s.pus.Insert(ctx, invitation.UserID, invitation.ProjectID, invitation.Role); err != nil {
 		return nil, err
 	}
 
