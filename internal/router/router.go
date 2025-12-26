@@ -121,12 +121,13 @@ func SetupRouter(r *gin.Engine, cfg *config.Config, db *gorm.DB) *gin.Engine {
 	kanbanService := service.NewKanbanBoardService(kanbanRepo, projectUserService)
 	kanbanHandler := handler.NewKanbanBoardHandler(kanbanService, parser)
 
+	kanban := projects.Group("/:projectId/kanban")
 	{
-		projects.GET("/:projectId/kanban", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer, model.Guest), kanbanHandler.FindAll)
-		projects.POST("/:projectId/kanban", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin), kanbanHandler.Insert)
-		projects.PUT("/:projectId/kanban/:kanbanId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin), kanbanHandler.Update)
-		projects.GET("/:projectId/kanban/:kanbanId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer, model.Guest), kanbanHandler.FindByID)
-		projects.DELETE("/:projectId/kanban/:kanbanId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin), kanbanHandler.Delete)
+		kanban.GET("", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer, model.Guest), kanbanHandler.FindAll)
+		kanban.POST("", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin), kanbanHandler.Insert)
+		kanban.PUT("/:kanbanId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin), kanbanHandler.Update)
+		kanban.GET("/:kanbanId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer, model.Guest), kanbanHandler.FindByID)
+		kanban.DELETE("/:kanbanId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin), kanbanHandler.Delete)
 	}
 
 	// Project Documents
@@ -157,13 +158,13 @@ func SetupRouter(r *gin.Engine, cfg *config.Config, db *gorm.DB) *gin.Engine {
 	kanbanColumnsService := service.NewKanbanColumnService(kanbanColumnsRepo, projectUserService, kanbanService)
 	kanbanColumnsHandler := handler.NewKanbanColumnHandler(kanbanColumnsService)
 
-	kanban := r.Group("/kanban")
+	column := kanban.Group("/:kanbanId/columns")
 	{
-		kanban.GET("/:kanbanId/columns", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer, model.Guest), kanbanColumnsHandler.FindAll)
-		kanban.GET("/:kanbanId/columns/:columnId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer, model.Guest), kanbanColumnsHandler.FindByID)
-		kanban.POST("/:kanbanId/columns", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer, model.Guest), kanbanColumnsHandler.Insert)
-		kanban.PUT("/:kanbanId/columns/:columnId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer, model.Guest), kanbanColumnsHandler.Update)
-		kanban.DELETE("/:kanbanId/columns/:columnId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer, model.Guest), kanbanColumnsHandler.Delete)
+		column.GET("", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer, model.Guest), kanbanColumnsHandler.FindAll)
+		column.GET("/:columnId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer, model.Guest), kanbanColumnsHandler.FindByID)
+		column.POST("", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer, model.Guest), kanbanColumnsHandler.Insert)
+		column.PUT("/:columnId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer, model.Guest), kanbanColumnsHandler.Update)
+		column.DELETE("/:columnId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer, model.Guest), kanbanColumnsHandler.Delete)
 	}
 
 	// Stories
