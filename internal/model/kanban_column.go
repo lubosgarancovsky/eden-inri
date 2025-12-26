@@ -20,6 +20,7 @@ type KanbanColumn struct {
 	Key       string     `json:"key"`
 	Name      string     `json:"name"`
 	Type      ColumnType `json:"type"`
+	Color     string     `json:"color"`
 	Position  int        `json:"position"`
 	CreatedAt time.Time  `json:"createdAt"`
 }
@@ -27,6 +28,7 @@ type KanbanColumn struct {
 type KanbanColumnRequest struct {
 	Key      string     `json:"key"`
 	Name     string     `json:"name"`
+	Color    string     `json:"color"`
 	Position int        `json:"position"`
 	Type     ColumnType `json:"type"`
 }

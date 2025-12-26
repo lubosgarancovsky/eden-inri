@@ -35,6 +35,7 @@ func (s *KanbanColumnService) Insert(ctx context.Context, boardID uuid.UUID, col
 		Key:      colReq.Key,
 		Name:     colReq.Name,
 		Type:     colReq.Type,
+		Color:    colReq.Color,
 		Position: colReq.Position,
 	}
 
@@ -49,6 +50,7 @@ func (s *KanbanColumnService) Update(ctx context.Context, boardID, columnID uuid
 		Key:      colReq.Key,
 		Name:     colReq.Name,
 		Type:     colReq.Type,
+		Color:    colReq.Color,
 		Position: colReq.Position,
 	}
 

@@ -120,6 +120,7 @@ CREATE TABLE inri_kanban_columns (
     key       TEXT NOT NULL,
     name      TEXT NOT NULL,
     type      inri_column_type NOT NULL DEFAULT 'normal',
+    color     TEXT NOT NULL DEFAULT '#94a3b8',
     position  INTEGER NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     UNIQUE (board_id, key),
