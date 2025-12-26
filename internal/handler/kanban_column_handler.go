@@ -23,7 +23,7 @@ func NewKanbanColumnHandler(s *service.KanbanColumnService) *KanbanColumnHandler
 // @Produce      json
 // @Param        kanbanId   path      string  true  "Kanban board ID"
 // @Success      200  {array}  model.KanbanColumn
-// @Router       /v1/inri/kanban/{kanbanId}/columns [get]
+// @Router       /v1/inri/projects/{projectId}/kanban/{kanbanId}/columns [get]
 // @security GatewayAuth
 func (h *KanbanColumnHandler) FindAll(c *gin.Context) {
 	boardID := helpers.ExtractID(c, "kanbanId")
@@ -44,7 +44,7 @@ func (h *KanbanColumnHandler) FindAll(c *gin.Context) {
 // @Param        kanbanId   path      string  true  "Kanban board ID"
 // @Param        columnId   path      string  true  "Column ID"
 // @Success      200  {object}  model.KanbanColumn
-// @Router       /v1/inri/kanban/{kanbanId}/columns/{columnId} [get]
+// @Router       /v1/inri/projects/{projectId}/kanban/{kanbanId}/columns/{columnId} [get]
 // @security GatewayAuth
 func (h *KanbanColumnHandler) FindByID(c *gin.Context) {
 	columnID := helpers.ExtractID(c, "columnId")
@@ -67,7 +67,7 @@ func (h *KanbanColumnHandler) FindByID(c *gin.Context) {
 // @Param        kanbanId   path      string  true  "Kanban board ID"
 // @Param        body      body      model.KanbanColumnRequest true "Column data"
 // @Success      201  {object}  model.KanbanColumn
-// @Router       /v1/inri/kanban/{kanbanId}/columns [post]
+// @Router       /v1/inri/projects/{projectId}/kanban/{kanbanId}/columns [post]
 // @security GatewayAuth
 func (h *KanbanColumnHandler) Insert(c *gin.Context) {
 	boardID := helpers.ExtractID(c, "kanbanId")
@@ -96,7 +96,7 @@ func (h *KanbanColumnHandler) Insert(c *gin.Context) {
 // @Param        columnId   path      string  true  "Column ID"
 // @Param        body      body      model.KanbanColumnRequest true "Updated column data"
 // @Success      200  {object}  model.KanbanColumn
-// @Router       /v1/inri/kanban/{kanbanId}/columns/{columnId} [put]
+// @Router       /v1/inri/projects/{projectId}/kanban/{kanbanId}/columns/{columnId} [put]
 // @security GatewayAuth
 func (h *KanbanColumnHandler) Update(c *gin.Context) {
 	columnID := helpers.ExtractID(c, "columnId")
@@ -125,7 +125,7 @@ func (h *KanbanColumnHandler) Update(c *gin.Context) {
 // @Param        kanbanId   path      string  true  "Kanban board ID"
 // @Param        columnId   path      string  true  "Column ID"
 // @Success      204  {string}  string "No Content"
-// @Router       /v1/inri/kanban/{kanbanId}/columns/{columnId} [delete]
+// @Router       /v1/inri/projects/{projectId}/kanban/{kanbanId}/columns/{columnId} [delete]
 // @security GatewayAuth
 func (h *KanbanColumnHandler) Delete(c *gin.Context) {
 	columnID := helpers.ExtractID(c, "columnId")

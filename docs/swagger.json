@@ -884,723 +884,6 @@
                 }
             }
         },
-        "/v1/inri/kanban/{kanbanId}/columns": {
-            "get": {
-                "security": [
-                    {
-                        "GatewayAuth": []
-                    }
-                ],
-                "description": "Returns all columns for a given kanban board",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Kanban Columns"
-                ],
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Kanban board ID",
-                        "name": "kanbanId",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/model.KanbanColumn"
-                            }
-                        }
-                    }
-                }
-            },
-            "post": {
-                "security": [
-                    {
-                        "GatewayAuth": []
-                    }
-                ],
-                "description": "Creates a new column in the kanban board",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Kanban Columns"
-                ],
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Kanban board ID",
-                        "name": "kanbanId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Column data",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/model.KanbanColumnRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/model.KanbanColumn"
-                        }
-                    }
-                }
-            }
-        },
-        "/v1/inri/kanban/{kanbanId}/columns/{columnId}": {
-            "get": {
-                "security": [
-                    {
-                        "GatewayAuth": []
-                    }
-                ],
-                "description": "Returns a specific column by ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Kanban Columns"
-                ],
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Kanban board ID",
-                        "name": "kanbanId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Column ID",
-                        "name": "columnId",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/model.KanbanColumn"
-                        }
-                    }
-                }
-            },
-            "put": {
-                "security": [
-                    {
-                        "GatewayAuth": []
-                    }
-                ],
-                "description": "Updates an existing column",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Kanban Columns"
-                ],
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Kanban board ID",
-                        "name": "kanbanId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Column ID",
-                        "name": "columnId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Updated column data",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/model.KanbanColumnRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/model.KanbanColumn"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "security": [
-                    {
-                        "GatewayAuth": []
-                    }
-                ],
-                "description": "Deletes a column from the kanban board",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Kanban Columns"
-                ],
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Kanban board ID",
-                        "name": "kanbanId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Column ID",
-                        "name": "columnId",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "No Content",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/v1/inri/kanban/{kanbanId}/columns/{columnId}/stories": {
-            "get": {
-                "security": [
-                    {
-                        "GatewayAuth": []
-                    }
-                ],
-                "description": "Returns all stories for a column",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Kanban Stories"
-                ],
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Kanban board ID",
-                        "name": "kanbanId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Column ID",
-                        "name": "columnId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "default": 1,
-                        "description": "Page number",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "default": 10,
-                        "description": "Items per page",
-                        "name": "pageSize",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "RSQL filter query",
-                        "name": "filter",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Sort query",
-                        "name": "sort",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/handler.StoryPage"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/v1/inri/kanban/{kanbanId}/stories": {
-            "put": {
-                "security": [
-                    {
-                        "GatewayAuth": []
-                    }
-                ],
-                "description": "Updates an existing story",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Kanban Stories"
-                ],
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Story ID",
-                        "name": "storyId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Updated story data",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/model.StoryRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/model.Story"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "security": [
-                    {
-                        "GatewayAuth": []
-                    }
-                ],
-                "description": "Creates a new story in a column",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Kanban Stories"
-                ],
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Kanban board ID",
-                        "name": "kanbanId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Column ID",
-                        "name": "columnId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Story data",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/model.StoryRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/model.Story"
-                        }
-                    }
-                }
-            }
-        },
-        "/v1/inri/kanban/{kanbanId}/stories/{storyId}": {
-            "get": {
-                "security": [
-                    {
-                        "GatewayAuth": []
-                    }
-                ],
-                "description": "Returns a specific story by ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Kanban Stories"
-                ],
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Story ID",
-                        "name": "storyId",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/model.Story"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "security": [
-                    {
-                        "GatewayAuth": []
-                    }
-                ],
-                "description": "Deletes a story",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Kanban Stories"
-                ],
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Story ID",
-                        "name": "storyId",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "No Content",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/v1/inri/kanban/{kanbanId}/stories/{storyId}/activities": {
-            "get": {
-                "security": [
-                    {
-                        "GatewayAuth": []
-                    }
-                ],
-                "description": "Returns all activity events for a story (paginated)",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Story Activities"
-                ],
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Kanban ID",
-                        "name": "kanbanId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Story ID",
-                        "name": "storyId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "default": 1,
-                        "description": "Page number",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "default": 10,
-                        "description": "Items per page",
-                        "name": "pageSize",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "RSQL filter query",
-                        "name": "filter",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Sort query",
-                        "name": "sort",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/handler.ActivitiesPage"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "security": [
-                    {
-                        "GatewayAuth": []
-                    }
-                ],
-                "description": "Records a new activity for a story (e.g., label added, state changed, comment added)",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Story Activities"
-                ],
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Kanban ID",
-                        "name": "kanbanId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Story ID",
-                        "name": "storyId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Activity payload including eventType and optional data",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/model.StoryActivity"
-                        }
-                    }
-                }
-            }
-        },
-        "/v1/inri/kanban/{kanbanId}/stories/{storyId}/labels": {
-            "get": {
-                "security": [
-                    {
-                        "GatewayAuth": []
-                    }
-                ],
-                "description": "Returns all labels assigned to a story",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Kanban Story Labels"
-                ],
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Kanban ID",
-                        "name": "kanbanId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Story ID",
-                        "name": "storyId",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/model.Label"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/v1/inri/kanban/{kanbanId}/stories/{storyId}/labels/{labelId}": {
-            "post": {
-                "security": [
-                    {
-                        "GatewayAuth": []
-                    }
-                ],
-                "description": "Assigns a label to a story",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Kanban Story Labels"
-                ],
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Kanban ID",
-                        "name": "kanbanId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Story ID",
-                        "name": "storyId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Label ID",
-                        "name": "labelId",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "No Content",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "security": [
-                    {
-                        "GatewayAuth": []
-                    }
-                ],
-                "description": "Removes a label from a story",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Kanban Story Labels"
-                ],
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Kanban ID",
-                        "name": "kanbanId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Story ID",
-                        "name": "storyId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Label ID",
-                        "name": "labelId",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "No Content",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
         "/v1/inri/projects": {
             "get": {
                 "security": [
@@ -2420,6 +1703,222 @@
                 }
             }
         },
+        "/v1/inri/projects/{projectId}/kanban/{kanbanId}/columns": {
+            "get": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
+                "description": "Returns all columns for a given kanban board",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Kanban Columns"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Kanban board ID",
+                        "name": "kanbanId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.KanbanColumn"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
+                "description": "Creates a new column in the kanban board",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Kanban Columns"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Kanban board ID",
+                        "name": "kanbanId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Column data",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.KanbanColumnRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/model.KanbanColumn"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/inri/projects/{projectId}/kanban/{kanbanId}/columns/{columnId}": {
+            "get": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
+                "description": "Returns a specific column by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Kanban Columns"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Kanban board ID",
+                        "name": "kanbanId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Column ID",
+                        "name": "columnId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.KanbanColumn"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
+                "description": "Updates an existing column",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Kanban Columns"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Kanban board ID",
+                        "name": "kanbanId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Column ID",
+                        "name": "columnId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Updated column data",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.KanbanColumnRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.KanbanColumn"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
+                "description": "Deletes a column from the kanban board",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Kanban Columns"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Kanban board ID",
+                        "name": "kanbanId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Column ID",
+                        "name": "columnId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/inri/projects/{projectId}/labels": {
             "get": {
                 "security": [
@@ -2780,6 +2279,519 @@
                         "type": "string",
                         "description": "Member User ID",
                         "name": "memberId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/inri/projects/{projectId}/stories": {
+            "get": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
+                "description": "Returns all stories for a column",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Kanban Stories"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Kanban board ID",
+                        "name": "kanbanId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Column ID",
+                        "name": "columnId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Items per page",
+                        "name": "pageSize",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "RSQL filter query",
+                        "name": "filter",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort query",
+                        "name": "sort",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/handler.StoryPage"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
+                "description": "Creates a new story in a column",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Kanban Stories"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project ID",
+                        "name": "projectId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Story data",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.StoryRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/model.Story"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/inri/projects/{projectId}/stories/{storyId}": {
+            "get": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
+                "description": "Returns a specific story by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Kanban Stories"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Story ID",
+                        "name": "storyId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Project ID",
+                        "name": "projectId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Story"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
+                "description": "Updates an existing story",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Kanban Stories"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Story ID",
+                        "name": "storyId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Project ID",
+                        "name": "projectId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Updated story data",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.StoryRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Story"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
+                "description": "Deletes a story",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Kanban Stories"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Story ID",
+                        "name": "storyId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Project ID",
+                        "name": "projectId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/inri/projects/{projectId}/stories/{storyId}/activities": {
+            "get": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
+                "description": "Returns all activity events for a story (paginated)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Story Activities"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project ID",
+                        "name": "projectId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Story ID",
+                        "name": "storyId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Items per page",
+                        "name": "pageSize",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "RSQL filter query",
+                        "name": "filter",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort query",
+                        "name": "sort",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ActivitiesPage"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
+                "description": "Records a new activity for a story (e.g., label added, state changed, comment added)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Story Activities"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project ID",
+                        "name": "projectId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Story ID",
+                        "name": "storyId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Activity payload including eventType and optional data",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/model.StoryActivity"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/inri/projects/{projectId}/stories/{storyId}/labels": {
+            "get": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
+                "description": "Returns all labels assigned to a story",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Kanban Story Labels"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project ID",
+                        "name": "projectId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Story ID",
+                        "name": "storyId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.Label"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/inri/projects/{projectId}/stories/{storyId}/labels/{labelId}": {
+            "post": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
+                "description": "Assigns a label to a story",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Kanban Story Labels"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project ID",
+                        "name": "projectId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Story ID",
+                        "name": "storyId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Label ID",
+                        "name": "labelId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
+                "description": "Removes a label from a story",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Kanban Story Labels"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project ID",
+                        "name": "projectId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Story ID",
+                        "name": "storyId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Label ID",
+                        "name": "labelId",
                         "in": "path",
                         "required": true
                     }

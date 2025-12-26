@@ -1223,463 +1223,6 @@ paths:
       - GatewayAuth: []
       tags:
       - Invoices
-  /v1/inri/kanban/{kanbanId}/columns:
-    get:
-      consumes:
-      - application/json
-      description: Returns all columns for a given kanban board
-      parameters:
-      - description: Kanban board ID
-        in: path
-        name: kanbanId
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/model.KanbanColumn'
-            type: array
-      security:
-      - GatewayAuth: []
-      tags:
-      - Kanban Columns
-    post:
-      consumes:
-      - application/json
-      description: Creates a new column in the kanban board
-      parameters:
-      - description: Kanban board ID
-        in: path
-        name: kanbanId
-        required: true
-        type: string
-      - description: Column data
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/model.KanbanColumnRequest'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/model.KanbanColumn'
-      security:
-      - GatewayAuth: []
-      tags:
-      - Kanban Columns
-  /v1/inri/kanban/{kanbanId}/columns/{columnId}:
-    delete:
-      consumes:
-      - application/json
-      description: Deletes a column from the kanban board
-      parameters:
-      - description: Kanban board ID
-        in: path
-        name: kanbanId
-        required: true
-        type: string
-      - description: Column ID
-        in: path
-        name: columnId
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "204":
-          description: No Content
-          schema:
-            type: string
-      security:
-      - GatewayAuth: []
-      tags:
-      - Kanban Columns
-    get:
-      consumes:
-      - application/json
-      description: Returns a specific column by ID
-      parameters:
-      - description: Kanban board ID
-        in: path
-        name: kanbanId
-        required: true
-        type: string
-      - description: Column ID
-        in: path
-        name: columnId
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/model.KanbanColumn'
-      security:
-      - GatewayAuth: []
-      tags:
-      - Kanban Columns
-    put:
-      consumes:
-      - application/json
-      description: Updates an existing column
-      parameters:
-      - description: Kanban board ID
-        in: path
-        name: kanbanId
-        required: true
-        type: string
-      - description: Column ID
-        in: path
-        name: columnId
-        required: true
-        type: string
-      - description: Updated column data
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/model.KanbanColumnRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/model.KanbanColumn'
-      security:
-      - GatewayAuth: []
-      tags:
-      - Kanban Columns
-  /v1/inri/kanban/{kanbanId}/columns/{columnId}/stories:
-    get:
-      consumes:
-      - application/json
-      description: Returns all stories for a column
-      parameters:
-      - description: Kanban board ID
-        in: path
-        name: kanbanId
-        required: true
-        type: string
-      - description: Column ID
-        in: path
-        name: columnId
-        required: true
-        type: string
-      - default: 1
-        description: Page number
-        in: query
-        name: page
-        type: integer
-      - default: 10
-        description: Items per page
-        in: query
-        name: pageSize
-        type: integer
-      - description: RSQL filter query
-        in: query
-        name: filter
-        type: string
-      - description: Sort query
-        in: query
-        name: sort
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/handler.StoryPage'
-            type: array
-      security:
-      - GatewayAuth: []
-      tags:
-      - Kanban Stories
-  /v1/inri/kanban/{kanbanId}/stories:
-    post:
-      consumes:
-      - application/json
-      description: Creates a new story in a column
-      parameters:
-      - description: Kanban board ID
-        in: path
-        name: kanbanId
-        required: true
-        type: string
-      - description: Column ID
-        in: path
-        name: columnId
-        required: true
-        type: string
-      - description: Story data
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/model.StoryRequest'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/model.Story'
-      security:
-      - GatewayAuth: []
-      tags:
-      - Kanban Stories
-    put:
-      consumes:
-      - application/json
-      description: Updates an existing story
-      parameters:
-      - description: Story ID
-        in: path
-        name: storyId
-        required: true
-        type: string
-      - description: Updated story data
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/model.StoryRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/model.Story'
-      security:
-      - GatewayAuth: []
-      tags:
-      - Kanban Stories
-  /v1/inri/kanban/{kanbanId}/stories/{storyId}:
-    delete:
-      consumes:
-      - application/json
-      description: Deletes a story
-      parameters:
-      - description: Story ID
-        in: path
-        name: storyId
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "204":
-          description: No Content
-          schema:
-            type: string
-      security:
-      - GatewayAuth: []
-      tags:
-      - Kanban Stories
-    get:
-      consumes:
-      - application/json
-      description: Returns a specific story by ID
-      parameters:
-      - description: Story ID
-        in: path
-        name: storyId
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/model.Story'
-      security:
-      - GatewayAuth: []
-      tags:
-      - Kanban Stories
-  /v1/inri/kanban/{kanbanId}/stories/{storyId}/activities:
-    get:
-      consumes:
-      - application/json
-      description: Returns all activity events for a story (paginated)
-      parameters:
-      - description: Kanban ID
-        in: path
-        name: kanbanId
-        required: true
-        type: string
-      - description: Story ID
-        in: path
-        name: storyId
-        required: true
-        type: string
-      - default: 1
-        description: Page number
-        in: query
-        name: page
-        type: integer
-      - default: 10
-        description: Items per page
-        in: query
-        name: pageSize
-        type: integer
-      - description: RSQL filter query
-        in: query
-        name: filter
-        type: string
-      - description: Sort query
-        in: query
-        name: sort
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/handler.ActivitiesPage'
-      security:
-      - GatewayAuth: []
-      tags:
-      - Story Activities
-    post:
-      consumes:
-      - application/json
-      description: Records a new activity for a story (e.g., label added, state changed,
-        comment added)
-      parameters:
-      - description: Kanban ID
-        in: path
-        name: kanbanId
-        required: true
-        type: string
-      - description: Story ID
-        in: path
-        name: storyId
-        required: true
-        type: string
-      - description: Activity payload including eventType and optional data
-        in: body
-        name: body
-        required: true
-        schema:
-          additionalProperties: true
-          type: object
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/model.StoryActivity'
-      security:
-      - GatewayAuth: []
-      tags:
-      - Story Activities
-  /v1/inri/kanban/{kanbanId}/stories/{storyId}/labels:
-    get:
-      consumes:
-      - application/json
-      description: Returns all labels assigned to a story
-      parameters:
-      - description: Kanban ID
-        in: path
-        name: kanbanId
-        required: true
-        type: string
-      - description: Story ID
-        in: path
-        name: storyId
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/model.Label'
-            type: array
-      security:
-      - GatewayAuth: []
-      tags:
-      - Kanban Story Labels
-  /v1/inri/kanban/{kanbanId}/stories/{storyId}/labels/{labelId}:
-    delete:
-      consumes:
-      - application/json
-      description: Removes a label from a story
-      parameters:
-      - description: Kanban ID
-        in: path
-        name: kanbanId
-        required: true
-        type: string
-      - description: Story ID
-        in: path
-        name: storyId
-        required: true
-        type: string
-      - description: Label ID
-        in: path
-        name: labelId
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "204":
-          description: No Content
-          schema:
-            type: string
-      security:
-      - GatewayAuth: []
-      tags:
-      - Kanban Story Labels
-    post:
-      consumes:
-      - application/json
-      description: Assigns a label to a story
-      parameters:
-      - description: Kanban ID
-        in: path
-        name: kanbanId
-        required: true
-        type: string
-      - description: Story ID
-        in: path
-        name: storyId
-        required: true
-        type: string
-      - description: Label ID
-        in: path
-        name: labelId
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "204":
-          description: No Content
-          schema:
-            type: string
-      security:
-      - GatewayAuth: []
-      tags:
-      - Kanban Story Labels
   /v1/inri/projects:
     get:
       consumes:
@@ -2169,6 +1712,142 @@ paths:
       - GatewayAuth: []
       tags:
       - Kanban boards
+  /v1/inri/projects/{projectId}/kanban/{kanbanId}/columns:
+    get:
+      consumes:
+      - application/json
+      description: Returns all columns for a given kanban board
+      parameters:
+      - description: Kanban board ID
+        in: path
+        name: kanbanId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.KanbanColumn'
+            type: array
+      security:
+      - GatewayAuth: []
+      tags:
+      - Kanban Columns
+    post:
+      consumes:
+      - application/json
+      description: Creates a new column in the kanban board
+      parameters:
+      - description: Kanban board ID
+        in: path
+        name: kanbanId
+        required: true
+        type: string
+      - description: Column data
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.KanbanColumnRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.KanbanColumn'
+      security:
+      - GatewayAuth: []
+      tags:
+      - Kanban Columns
+  /v1/inri/projects/{projectId}/kanban/{kanbanId}/columns/{columnId}:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes a column from the kanban board
+      parameters:
+      - description: Kanban board ID
+        in: path
+        name: kanbanId
+        required: true
+        type: string
+      - description: Column ID
+        in: path
+        name: columnId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            type: string
+      security:
+      - GatewayAuth: []
+      tags:
+      - Kanban Columns
+    get:
+      consumes:
+      - application/json
+      description: Returns a specific column by ID
+      parameters:
+      - description: Kanban board ID
+        in: path
+        name: kanbanId
+        required: true
+        type: string
+      - description: Column ID
+        in: path
+        name: columnId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.KanbanColumn'
+      security:
+      - GatewayAuth: []
+      tags:
+      - Kanban Columns
+    put:
+      consumes:
+      - application/json
+      description: Updates an existing column
+      parameters:
+      - description: Kanban board ID
+        in: path
+        name: kanbanId
+        required: true
+        type: string
+      - description: Column ID
+        in: path
+        name: columnId
+        required: true
+        type: string
+      - description: Updated column data
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.KanbanColumnRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.KanbanColumn'
+      security:
+      - GatewayAuth: []
+      tags:
+      - Kanban Columns
   /v1/inri/projects/{projectId}/labels:
     get:
       consumes:
@@ -2406,6 +2085,336 @@ paths:
       - GatewayAuth: []
       tags:
       - Projects
+  /v1/inri/projects/{projectId}/stories:
+    get:
+      consumes:
+      - application/json
+      description: Returns all stories for a column
+      parameters:
+      - description: Kanban board ID
+        in: path
+        name: kanbanId
+        required: true
+        type: string
+      - description: Column ID
+        in: path
+        name: columnId
+        required: true
+        type: string
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Items per page
+        in: query
+        name: pageSize
+        type: integer
+      - description: RSQL filter query
+        in: query
+        name: filter
+        type: string
+      - description: Sort query
+        in: query
+        name: sort
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/handler.StoryPage'
+            type: array
+      security:
+      - GatewayAuth: []
+      tags:
+      - Kanban Stories
+    post:
+      consumes:
+      - application/json
+      description: Creates a new story in a column
+      parameters:
+      - description: Project ID
+        in: path
+        name: projectId
+        required: true
+        type: string
+      - description: Story data
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.StoryRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.Story'
+      security:
+      - GatewayAuth: []
+      tags:
+      - Kanban Stories
+  /v1/inri/projects/{projectId}/stories/{storyId}:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes a story
+      parameters:
+      - description: Story ID
+        in: path
+        name: storyId
+        required: true
+        type: string
+      - description: Project ID
+        in: path
+        name: projectId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            type: string
+      security:
+      - GatewayAuth: []
+      tags:
+      - Kanban Stories
+    get:
+      consumes:
+      - application/json
+      description: Returns a specific story by ID
+      parameters:
+      - description: Story ID
+        in: path
+        name: storyId
+        required: true
+        type: string
+      - description: Project ID
+        in: path
+        name: projectId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Story'
+      security:
+      - GatewayAuth: []
+      tags:
+      - Kanban Stories
+    put:
+      consumes:
+      - application/json
+      description: Updates an existing story
+      parameters:
+      - description: Story ID
+        in: path
+        name: storyId
+        required: true
+        type: string
+      - description: Project ID
+        in: path
+        name: projectId
+        required: true
+        type: string
+      - description: Updated story data
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.StoryRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Story'
+      security:
+      - GatewayAuth: []
+      tags:
+      - Kanban Stories
+  /v1/inri/projects/{projectId}/stories/{storyId}/activities:
+    get:
+      consumes:
+      - application/json
+      description: Returns all activity events for a story (paginated)
+      parameters:
+      - description: Project ID
+        in: path
+        name: projectId
+        required: true
+        type: string
+      - description: Story ID
+        in: path
+        name: storyId
+        required: true
+        type: string
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Items per page
+        in: query
+        name: pageSize
+        type: integer
+      - description: RSQL filter query
+        in: query
+        name: filter
+        type: string
+      - description: Sort query
+        in: query
+        name: sort
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.ActivitiesPage'
+      security:
+      - GatewayAuth: []
+      tags:
+      - Story Activities
+    post:
+      consumes:
+      - application/json
+      description: Records a new activity for a story (e.g., label added, state changed,
+        comment added)
+      parameters:
+      - description: Project ID
+        in: path
+        name: projectId
+        required: true
+        type: string
+      - description: Story ID
+        in: path
+        name: storyId
+        required: true
+        type: string
+      - description: Activity payload including eventType and optional data
+        in: body
+        name: body
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.StoryActivity'
+      security:
+      - GatewayAuth: []
+      tags:
+      - Story Activities
+  /v1/inri/projects/{projectId}/stories/{storyId}/labels:
+    get:
+      consumes:
+      - application/json
+      description: Returns all labels assigned to a story
+      parameters:
+      - description: Project ID
+        in: path
+        name: projectId
+        required: true
+        type: string
+      - description: Story ID
+        in: path
+        name: storyId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Label'
+            type: array
+      security:
+      - GatewayAuth: []
+      tags:
+      - Kanban Story Labels
+  /v1/inri/projects/{projectId}/stories/{storyId}/labels/{labelId}:
+    delete:
+      consumes:
+      - application/json
+      description: Removes a label from a story
+      parameters:
+      - description: Project ID
+        in: path
+        name: projectId
+        required: true
+        type: string
+      - description: Story ID
+        in: path
+        name: storyId
+        required: true
+        type: string
+      - description: Label ID
+        in: path
+        name: labelId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            type: string
+      security:
+      - GatewayAuth: []
+      tags:
+      - Kanban Story Labels
+    post:
+      consumes:
+      - application/json
+      description: Assigns a label to a story
+      parameters:
+      - description: Project ID
+        in: path
+        name: projectId
+        required: true
+        type: string
+      - description: Story ID
+        in: path
+        name: storyId
+        required: true
+        type: string
+      - description: Label ID
+        in: path
+        name: labelId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            type: string
+      security:
+      - GatewayAuth: []
+      tags:
+      - Kanban Story Labels
   /v1/inri/projects/accept-invitation:
     post:
       consumes:
