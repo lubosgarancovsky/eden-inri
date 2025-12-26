@@ -32,6 +32,7 @@ func (s *KanbanColumnService) FindByID(ctx context.Context, boardID, columnID uu
 func (s *KanbanColumnService) Insert(ctx context.Context, boardID uuid.UUID, colReq *model.KanbanColumnRequest) (*model.KanbanColumn, error) {
 	col := model.KanbanColumn{
 		BoardID:  boardID,
+		Key:      colReq.Key,
 		Name:     colReq.Name,
 		Type:     colReq.Type,
 		Position: colReq.Position,
@@ -45,6 +46,7 @@ func (s *KanbanColumnService) Update(ctx context.Context, boardID, columnID uuid
 	col := model.KanbanColumn{
 		ID:       columnID,
 		BoardID:  boardID,
+		Key:      colReq.Key,
 		Name:     colReq.Name,
 		Type:     colReq.Type,
 		Position: colReq.Position,
