@@ -11,7 +11,7 @@ type ProjectInvitation struct {
 	ProjectID  uuid.UUID   `json:"projectId"`
 	UserID     uuid.UUID   `json:"-"`
 	Role       ProjectRole `json:"role"`
-	Token      string      `json:"token"`
+	Token      string      `json:"_"`
 	InvitedBy  uuid.UUID   `json:"invitedBy"`
 	CreatedAt  time.Time   `json:"cratedAt"`
 	ExpiresAt  time.Time   `json:"expiresAt"`

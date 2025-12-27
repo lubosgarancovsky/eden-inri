@@ -84,6 +84,10 @@ func (s *ProjectInvitationService) Accept(ctx context.Context, userID uuid.UUID,
 		return nil, err
 	}
 
+	if invitation.ExpiresAt.Before(time.Now()) {
+		return nil, api_err.ErrForbidden.WithMessage("Invitation expired")
+	}
+
 	if _, err = s.pus.Insert(ctx, invitation.UserID, invitation.ProjectID, invitation.Role); err != nil {
 		return nil, err
 	}
