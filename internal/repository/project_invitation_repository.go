@@ -24,7 +24,7 @@ func (r *ProjectInvitationRepository) FindByToken(ctx context.Context, userID uu
 		WithContext(ctx).
 		Model(model.ProjectInvitation{}).
 		Select("*").
-		Where("token = ? AND user_id", token, userID).
+		Where("token = ? AND user_id = ?", token, userID).
 		First(&invitation).Error; err != nil {
 		return nil, err
 	}
