@@ -20,6 +20,7 @@ func CreateListingQuery(c *gin.Context, parser *rsql.Parser, filterMap map[strin
 	err := c.ShouldBindQuery(&qp)
 	if err != nil {
 		c.Error(api_err.Wrap(api_err.ErrBadRequest, err).WithMessage("Invalid query parameters"))
+		c.Abort()
 		return nil
 	}
 
@@ -45,12 +46,14 @@ func CreateListingQuery(c *gin.Context, parser *rsql.Parser, filterMap map[strin
 		ast, err := parser.Parse(qp.Filter)
 		if err != nil {
 			c.Error(api_err.Wrap(api_err.ErrBadRequest, err).WithMessage("Invalid filter parameter"))
+			c.Abort()
 			return nil
 		}
 
 		fil, err := filter.BuildFilter(ast, filterMap)
 		if err != nil {
 			c.Error(api_err.Wrap(api_err.ErrBadRequest, err).WithMessage("Invalid filter parameter"))
+			c.Abort()
 			return nil
 		}
 
@@ -61,6 +64,7 @@ func CreateListingQuery(c *gin.Context, parser *rsql.Parser, filterMap map[strin
 		srt, err := sort.BuildSort(qp.Sort, sortMap)
 		if err != nil {
 			c.Error(api_err.Wrap(api_err.ErrBadRequest, err).WithMessage("Invalid sort parameter"))
+			c.Abort()
 			return nil
 		}
 
@@ -74,12 +78,14 @@ func ExtractID(c *gin.Context, name string) uuid.UUID {
 	ID, ok := c.Params.Get(name)
 	if !ok {
 		c.Error(api_err.ErrParameterMissing.WithMessage(fmt.Sprintf("Path parameter %s is missing", name)))
+		c.Abort()
 		return uuid.Nil
 	}
 
 	UID, err := uuid.Parse(ID)
 	if err != nil {
 		c.Error(api_err.Wrap(api_err.ErrInvalidUUID.WithMessage(fmt.Sprintf("%s is not a valid UUID", ID)), err))
+		c.Abort()
 		return uuid.Nil
 	}
 

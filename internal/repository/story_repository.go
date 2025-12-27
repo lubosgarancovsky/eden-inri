@@ -32,17 +32,18 @@ func (r *StoryRepository) DB() *gorm.DB {
 	return r.db
 }
 
-func (r *StoryRepository) FindAll(ctx context.Context, projectID uuid.UUID, lq *list.ListingQuery) (*[]model.Story, int64, error) {
+func (r *StoryRepository) FindAll(ctx context.Context, projectID uuid.UUID, lq *list.ListingQuery) (*[]model.StoryListItem, int64, error) {
 	query := r.db.
 		WithContext(ctx).
 		Model(model.Story{}).
+		Preload("Assignee").
 		Where("project_id", projectID)
 
 	if lq.Filter != nil {
 		query = query.Where(lq.Filter.Query, lq.Filter.Args...)
 	}
 
-	items, total, err := helpers.List[model.Story](query, lq)
+	items, total, err := helpers.List[model.StoryListItem](query, lq)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -54,6 +55,8 @@ func (r *StoryRepository) FindByID(ctx context.Context, projectID, storyID uuid.
 	var story model.Story
 	err := r.db.
 		WithContext(ctx).
+		Preload("Assignee").
+		Preload("Creator").
 		Where("project_id = ? AND id = ?", projectID, storyID).
 		First(&story).
 		Error
