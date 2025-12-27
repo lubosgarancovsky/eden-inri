@@ -123,8 +123,7 @@ CREATE TABLE inri_kanban_columns (
     color     TEXT NOT NULL DEFAULT '#94a3b8',
     position  INTEGER NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    UNIQUE (board_id, key),
-    UNIQUE (board_id, position)
+    UNIQUE (board_id, key)
 );
 
 -- Kanban Stories
