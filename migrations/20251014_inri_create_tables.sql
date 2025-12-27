@@ -143,7 +143,6 @@ CREATE TABLE inri_stories (
     assignee_id UUID REFERENCES iam_users(id),
     priority    INTEGER NOT NULL DEFAULT 0,
     size        INTEGER,
-    estimate    INTERVAL,
     start_date  TIMESTAMPTZ,
     end_date    TIMESTAMPTZ,
     position    INTEGER NOT NULL,

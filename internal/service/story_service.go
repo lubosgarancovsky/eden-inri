@@ -23,13 +23,13 @@ func NewStoryService(repo *repository.StoryRepository, ps *ProjectService, pus *
 }
 
 // FindAll stories in a column
-func (s *StoryService) FindAll(ctx context.Context, projectID uuid.UUID, lq *list.ListingQuery) (*list.Page[model.Story], error) {
+func (s *StoryService) FindAll(ctx context.Context, projectID uuid.UUID, lq *list.ListingQuery) (*list.Page[model.StoryListItem], error) {
 	items, totalCount, err := s.repo.FindAll(ctx, projectID, lq)
 	if err != nil {
 		return nil, err
 	}
 
-	return &list.Page[model.Story]{
+	return &list.Page[model.StoryListItem]{
 		Items:      *items,
 		Page:       lq.Page,
 		PageSize:   lq.Limit,
@@ -43,19 +43,21 @@ func (s *StoryService) FindByID(ctx context.Context, projectID, storyID uuid.UUI
 }
 
 // Insert story
-func (s *StoryService) Insert(ctx context.Context, projectID uuid.UUID, req *model.StoryRequest) (*model.Story, error) {
+func (s *StoryService) Insert(ctx context.Context, userID, projectID uuid.UUID, req *model.StoryRequest) (*model.Story, error) {
 	story := &model.Story{
-		ProjectID:   projectID,
-		ColumnID:    req.ColumnID,
-		BoardID:     req.BoardID,
-		Title:       req.Title,
+		StoryListItem: model.StoryListItem{
+			ProjectID: projectID,
+			ColumnID:  req.ColumnID,
+			BoardID:   req.BoardID,
+			Title:     req.Title,
+			Kind:      req.Kind,
+			Priority:  req.Priority,
+			Size:      req.Size,
+		},
 		Description: req.Description,
-		Kind:        req.Kind,
-		Priority:    req.Priority,
-		Size:        req.Size,
-		Estimate:    req.Estimate,
 		StartDate:   req.StartDate,
 		EndDate:     req.EndDate,
+		CreatedBy:   userID,
 	}
 
 	err := s.repo.WithTx(ctx, func(txRepo *repository.StoryRepository) error {
@@ -90,15 +92,16 @@ func (s *StoryService) Insert(ctx context.Context, projectID uuid.UUID, req *mod
 // Update story
 func (s *StoryService) Update(ctx context.Context, projectID, storyID uuid.UUID, req *model.StoryRequest) (*model.Story, error) {
 	story := &model.Story{
-		ID:          storyID,
-		ProjectID:   projectID,
-		ColumnID:    req.ColumnID,
-		Title:       req.Title,
+		StoryListItem: model.StoryListItem{
+			ID:        storyID,
+			ProjectID: projectID,
+			ColumnID:  req.ColumnID,
+			Title:     req.Title,
+			Kind:      req.Kind,
+			Priority:  req.Priority,
+			Size:      req.Size,
+		},
 		Description: req.Description,
-		Kind:        req.Kind,
-		Priority:    req.Priority,
-		Size:        req.Size,
-		Estimate:    req.Estimate,
 		StartDate:   req.StartDate,
 		EndDate:     req.EndDate,
 	}

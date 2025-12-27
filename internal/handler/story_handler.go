@@ -41,7 +41,7 @@ type StoryHandler struct {
 }
 
 type StoryPage struct {
-	Items      []model.Story
+	Items      []model.StoryListItem
 	Page       int
 	PageSize   int
 	TotalCount int64
@@ -113,6 +113,7 @@ func (h *StoryHandler) FindByID(c *gin.Context) {
 // @security GatewayAuth
 func (h *StoryHandler) Insert(c *gin.Context) {
 	projectID := helpers.ExtractID(c, "projectId")
+	userID := helpers.GetUserContext(c).ID
 
 	var req model.StoryRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -120,7 +121,7 @@ func (h *StoryHandler) Insert(c *gin.Context) {
 		return
 	}
 
-	story, err := h.s.Insert(c.Request.Context(), projectID, &req)
+	story, err := h.s.Insert(c.Request.Context(), userID, projectID, &req)
 	if err != nil {
 		c.Error(err)
 		return
