@@ -16,10 +16,9 @@ type Label struct {
 }
 
 type LabelRequest struct {
-	ProjectID   *uuid.UUID `json:"projectId"`
-	Name        string     `json:"name"`
-	Description string     `json:"description"`
-	Color       string     `json:"color"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Color       string `json:"color"`
 }
 
 type StoryLabel struct {
