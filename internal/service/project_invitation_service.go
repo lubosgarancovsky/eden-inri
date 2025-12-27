@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"path"
 	"time"
 
 	"github.com/google/uuid"
@@ -102,6 +103,6 @@ func (s *ProjectInvitationService) Accept(ctx context.Context, userID uuid.UUID,
 }
 
 func (s *ProjectInvitationService) SendInvitationEmail(email string, template *model.ProjectInvitationTemplate) error {
-	templatePath := "templates/project-invitation.html"
+	templatePath := path.Join(s.cfg.TemplatesFolder, "project-invitation.html")
 	return s.es.SendTemplateEmail(email, "Eden - Project invitation", templatePath, template)
 }
