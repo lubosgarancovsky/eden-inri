@@ -107,7 +107,7 @@ func SetupRouter(r *gin.Engine, cfg *config.Config, db *gorm.DB) *gin.Engine {
 	labelService := service.NewLabelService(labelRepo, projectUserService)
 	labelHandelr := handler.NewLabelHandler(parser, labelService)
 
-	labels := protected.Group("/:projectId/labels")
+	labels := projects.Group("/:projectId/labels")
 	{
 		labels.GET("", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer, model.Guest), labelHandelr.FindAll)
 		labels.GET("/:labelId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer, model.Guest), labelHandelr.FindByID)
