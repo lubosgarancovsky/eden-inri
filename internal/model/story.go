@@ -20,7 +20,6 @@ const (
 type StoryListItem struct {
 	ID         uuid.UUID  `gorm:"primary_key;type:uuid;default:uuid_generate_v4()" json:"id"`
 	ProjectID  uuid.UUID  `json:"projectId"`
-	BoardID    uuid.UUID  `json:"boardId"`
 	ColumnID   uuid.UUID  `json:"columnId"`
 	Slug       string     `json:"slug"`
 	Title      string     `json:"title"`
@@ -37,14 +36,13 @@ type Story struct {
 	Description string     `json:"description"`
 	StartDate   *time.Time `json:"startDate"`
 	EndDate     *time.Time `json:"endDate"`
-	CreatedAt   time.Time  `json:"createdAt"`
+	CreatedAt   time.Time  `json:"createdAt" gorm:"<-:create"`
 	UpdatedAt   time.Time  `json:"updatedAt"`
-	CreatedBy   uuid.UUID  `json:"-" gorm:"column:created_by"`
+	CreatedBy   uuid.UUID  `json:"-" gorm:"column:created_by;<-:create"`
 	Creator     *User      `json:"creator" gorm:"foreignKey:CreatedBy;references:ID"`
 }
 
 type StoryRequest struct {
-	BoardID     uuid.UUID  `json:"boardId"`
 	ColumnID    uuid.UUID  `json:"columnId"`
 	Title       string     `json:"title"`
 	Description string     `json:"description"`

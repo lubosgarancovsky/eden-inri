@@ -48,7 +48,6 @@ func (s *StoryService) Insert(ctx context.Context, userID, projectID uuid.UUID, 
 		StoryListItem: model.StoryListItem{
 			ProjectID:  projectID,
 			ColumnID:   req.ColumnID,
-			BoardID:    req.BoardID,
 			AssigneeID: req.AssigneeID,
 			Title:      req.Title,
 			Kind:       req.Kind,
