@@ -16,10 +16,14 @@ func NewStoryLabelRepository(db *gorm.DB) *StoryLabelRepository {
 	return &StoryLabelRepository{db: db}
 }
 
-func (r *StoryLabelRepository) AssignLabel(ctx context.Context, storyID, labelID uuid.UUID) error {
-	storyLabel := model.StoryLabel{
-		StoryID: storyID,
-		LabelID: labelID,
+func (r *StoryLabelRepository) AssignLabel(ctx context.Context, projectID uuid.UUID, storyLabel *model.StoryLabel) error {
+	var label model.Label
+	if err := r.db.
+		WithContext(ctx).
+		Model(&model.Label{}).
+		Where("id = ? AND project_id = ?", storyLabel.LabelID, projectID).
+		First(&label).Error; err != nil {
+		return err
 	}
 
 	return r.db.

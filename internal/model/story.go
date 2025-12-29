@@ -57,6 +57,10 @@ type StoryRequest struct {
 	Position    int        `json:"position"`
 }
 
+type StoryLabelRequest struct {
+	LabelID uuid.UUID `json:"labelId"`
+}
+
 func (Story) TableName() string {
 	return "inri_stories"
 }

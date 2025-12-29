@@ -2,6 +2,7 @@ package handler
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/lubosgarancovsky/eden-inri/internal/model"
 	"github.com/lubosgarancovsky/eden-inri/internal/service"
 	"github.com/lubosgarancovsky/eden-inri/pkg/helpers"
 )
@@ -23,13 +24,20 @@ func NewStoryLabelHandler(s *service.StoryLabelService) *StoryLabelHandler {
 // @Param        storyId    path  string  true "Story ID"
 // @Param        labelId    path  string  true "Label ID"
 // @Success      204  {string} string "No Content"
-// @Router       /v1/inri/projects/{projectId}/stories/{storyId}/labels/{labelId} [post]
+// @Router       /v1/inri/projects/{projectId}/stories/{storyId}/labels [post]
 // @security GatewayAuth
 func (h *StoryLabelHandler) AssignLabel(c *gin.Context) {
+	projectID := helpers.ExtractID(c, "projectId")
 	storyID := helpers.ExtractID(c, "storyId")
-	labelID := helpers.ExtractID(c, "labelId")
 
-	if err := h.s.AssignLabel(c.Request.Context(), storyID, labelID); err != nil {
+	var input model.StoryLabelRequest
+	err := c.ShouldBindJSON(&input)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	if err := h.s.AssignLabel(c.Request.Context(), projectID, storyID, &input); err != nil {
 		c.Error(err)
 		return
 	}
