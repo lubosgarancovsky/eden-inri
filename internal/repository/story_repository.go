@@ -37,6 +37,7 @@ func (r *StoryRepository) FindAll(ctx context.Context, projectID uuid.UUID, lq *
 		WithContext(ctx).
 		Model(model.Story{}).
 		Preload("Assignee").
+		Select("*").
 		Where("project_id", projectID)
 
 	if lq.Filter != nil {
@@ -57,6 +58,7 @@ func (r *StoryRepository) FindByID(ctx context.Context, projectID, storyID uuid.
 		WithContext(ctx).
 		Preload("Assignee").
 		Preload("Creator").
+		Select("*").
 		Where("project_id = ? AND id = ?", projectID, storyID).
 		First(&story).
 		Error
@@ -68,6 +70,7 @@ func (r *StoryRepository) Insert(ctx context.Context, story *model.Story) (*mode
 	err := r.db.
 		WithContext(ctx).
 		Clauses(clause.Returning{}).
+		Select("*").
 		Create(story).
 		Error
 
@@ -78,6 +81,7 @@ func (r *StoryRepository) Update(ctx context.Context, story *model.Story) (*mode
 	err := r.db.
 		WithContext(ctx).
 		Clauses(clause.Returning{}).
+		Select("*").
 		Where("id = ?", story.ID).
 		Updates(story).
 		Error
