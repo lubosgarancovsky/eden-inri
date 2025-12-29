@@ -201,8 +201,8 @@ func SetupRouter(r *gin.Engine, cfg *config.Config, db *gorm.DB) *gin.Engine {
 	storyLabels := stories.Group("/:storyId/labels")
 	{
 		storyLabels.GET("", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer, model.Guest), storyLabelHandler.ListLabels)
-		storyLabels.GET("/:labelId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer), storyLabelHandler.AssignLabel)
-		storyLabels.POST("/:labelId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer), storyLabelHandler.UnassignLabel)
+		storyLabels.POST("", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer), storyLabelHandler.AssignLabel)
+		storyLabels.DELETE("/:labelId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer), storyLabelHandler.UnassignLabel)
 
 	}
 

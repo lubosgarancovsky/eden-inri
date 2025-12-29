@@ -18,8 +18,12 @@ func NewStoryLabelService(repo *repository.StoryLabelRepository, pus *ProjectUse
 	return &StoryLabelService{repo: repo, projectUserService: pus, kanbanService: ks}
 }
 
-func (s *StoryLabelService) AssignLabel(ctx context.Context, storyID, labelID uuid.UUID) error {
-	return s.repo.AssignLabel(ctx, storyID, labelID)
+func (s *StoryLabelService) AssignLabel(ctx context.Context, projectID, storyID uuid.UUID, input *model.StoryLabelRequest) error {
+	storyLabel := &model.StoryLabel{
+		StoryID: storyID,
+		LabelID: input.LabelID,
+	}
+	return s.repo.AssignLabel(ctx, projectID, storyLabel)
 }
 
 func (s *StoryLabelService) UnassignLabel(ctx context.Context, storyID, labelID uuid.UUID) error {
