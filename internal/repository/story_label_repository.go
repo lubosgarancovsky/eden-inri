@@ -44,7 +44,8 @@ func (r *StoryLabelRepository) ListLabels(ctx context.Context, storyID uuid.UUID
 	var labels []model.Label
 	err := r.db.
 		WithContext(ctx).
-		Joins("JOIN inri_kanban_story_labels sl ON sl.label_id = inri_kanban_label.id").
+		Model(&model.Label{}).
+		Joins("JOIN inri_story_labels sl ON sl.label_id = inri_labels.id").
 		Where("sl.story_id = ?", storyID).
 		Find(&labels).Error
 	return labels, err
