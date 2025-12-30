@@ -55,6 +55,10 @@ type StoryRequest struct {
 	Position    int        `json:"position"`
 }
 
+type StoryAssigneeRequest struct {
+	AssigneeID *uuid.UUID `json:"assigneeId"`
+}
+
 type StoryLabelRequest struct {
 	LabelID uuid.UUID `json:"labelId"`
 }

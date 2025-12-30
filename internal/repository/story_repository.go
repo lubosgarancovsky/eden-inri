@@ -104,3 +104,27 @@ func (r *StoryRepository) Delete(ctx context.Context, projectID, storyID uuid.UU
 
 	return nil
 }
+
+func (r *StoryRepository) GetAssignee(ctx context.Context, projectID, storyID uuid.UUID) (*model.User, error) {
+	var story model.Story
+	err := r.db.
+		WithContext(ctx).
+		Preload("Assignee").
+		Preload("Creator").
+		Select("*").
+		Where("project_id = ? AND id = ?", projectID, storyID).
+		First(&story).
+		Error
+
+	return story.Assignee, err
+}
+
+func (r *StoryRepository) ChangeAssignee(ctx context.Context, projectID, storyID uuid.UUID, assigneeID *uuid.UUID) error {
+	return r.db.
+		WithContext(ctx).
+		Clauses(clause.Returning{}).
+		Select("*").
+		Where("project_id = ? AND id = ?", projectID, storyID).
+		Update("assignee_id", assigneeID).
+		Error
+}
