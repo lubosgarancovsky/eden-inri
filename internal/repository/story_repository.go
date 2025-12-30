@@ -122,6 +122,7 @@ func (r *StoryRepository) GetAssignee(ctx context.Context, projectID, storyID uu
 func (r *StoryRepository) ChangeAssignee(ctx context.Context, projectID, storyID uuid.UUID, assigneeID *uuid.UUID) error {
 	return r.db.
 		WithContext(ctx).
+		Model(model.Story{}).
 		Clauses(clause.Returning{}).
 		Select("*").
 		Where("project_id = ? AND id = ?", projectID, storyID).
