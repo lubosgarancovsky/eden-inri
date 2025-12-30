@@ -180,6 +180,8 @@ func SetupRouter(r *gin.Engine, cfg *config.Config, db *gorm.DB) *gin.Engine {
 		stories.GET("/:storyId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer, model.Guest), storyHandler.FindByID)
 		stories.PUT("/:storyId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer), storyHandler.Update)
 		stories.DELETE("/:storyId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer), storyHandler.Delete)
+		stories.GET("/:storyId/assignee", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer, model.Guest), storyHandler.GetAssignee)
+		stories.PUT("/:storyId/assignee", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer), storyHandler.ChangeAssignee)
 	}
 
 	// Story activity
