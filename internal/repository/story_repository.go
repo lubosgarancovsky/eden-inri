@@ -81,7 +81,6 @@ func (r *StoryRepository) Update(ctx context.Context, story *model.Story) (*mode
 	err := r.db.
 		WithContext(ctx).
 		Clauses(clause.Returning{}).
-		Select("*").
 		Where("id = ?", story.ID).
 		Updates(story).
 		Error
@@ -123,7 +122,6 @@ func (r *StoryRepository) ChangeAssignee(ctx context.Context, projectID, storyID
 	return r.db.
 		WithContext(ctx).
 		Model(model.Story{}).
-		Clauses(clause.Returning{}).
 		Select("*").
 		Where("project_id = ? AND id = ?", projectID, storyID).
 		Update("assignee_id", assigneeID).
