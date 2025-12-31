@@ -123,7 +123,6 @@ func (r *ProjectRepository) Update(ctx context.Context, prj *model.Project) (*mo
 		WithContext(ctx).
 		Model(&prj).
 		Clauses(clause.Returning{}).
-		Select("*").
 		Where("id = ?", prj.ID).
 		Updates(map[string]interface{}{
 			"name":             prj.Name,
