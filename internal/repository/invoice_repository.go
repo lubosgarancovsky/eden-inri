@@ -70,7 +70,6 @@ func (r *InvoiceRepository) Update(ctx context.Context, inv *model.Invoice) (*mo
 		Model(model.Invoice{}).
 		Clauses(clause.Returning{}).
 		Where("user_id = ? AND id = ?", inv.UserID, inv.ID).
-		Select("*").
 		Updates(inv)
 
 	if result.Error != nil {

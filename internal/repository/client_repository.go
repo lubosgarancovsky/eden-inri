@@ -69,7 +69,6 @@ func (r *ClientRepository) Update(ctx context.Context, client *model.Client) (*m
 	result := r.db.
 		WithContext(ctx).
 		Clauses(clause.Returning{}).
-		Select("*").
 		Where("user_id = ? AND id = ?", client.UserID, client.ID).
 		Updates(&client)
 

@@ -181,3 +181,55 @@ func (h *StoryHandler) Delete(c *gin.Context) {
 
 	c.Status(204)
 }
+
+// GetAssignee @Summary      Get story assignee
+// @Description  Returns an assignee of a story
+// @Tags         Kanban Stories
+// @Accept       json
+// @Produce      json
+// @Param        storyId    path      string  true  "Story ID"
+// @Param        projectId   path      string  true  "Project ID"
+// @Success      200  {object} model.User
+// @Router       /v1/inri/projects/{projectId}/stories/{storyId}/assignee [get]
+// @security GatewayAuth
+func (h *StoryHandler) GetAssignee(c *gin.Context) {
+	projectID := helpers.ExtractID(c, "projectId")
+	storyID := helpers.ExtractID(c, "storyId")
+
+	user, err := h.s.GetAssignee(c.Request.Context(), projectID, storyID)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	c.JSON(200, user)
+}
+
+// ChangeAssignee @Summary      Change an assignee
+// @Description  Changes an assignee of a story
+// @Tags         Kanban Stories
+// @Accept       json
+// @Produce      json
+// @Param        storyId    path      string  true  "Story ID"
+// @Param        projectId   path      string  true  "Project ID"
+// @Success      200  {object} model.StoryAssigneeRequest
+// @Router       /v1/inri/projects/{projectId}/stories/{storyId}/assignee [put]
+// @security GatewayAuth
+func (h *StoryHandler) ChangeAssignee(c *gin.Context) {
+	projectID := helpers.ExtractID(c, "projectId")
+	storyID := helpers.ExtractID(c, "storyId")
+
+	var input model.StoryAssigneeRequest
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.Error(api_err.ErrBadRequest.WithMessage(err.Error()))
+		return
+	}
+
+	result, err := h.s.ChangeAssignee(c.Request.Context(), projectID, storyID, &input)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	c.JSON(200, result)
+}
