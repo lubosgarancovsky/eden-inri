@@ -25,9 +25,10 @@ type StoryListItem struct {
 	Title      string     `json:"title"`
 	Kind       StoryKind  `json:"kind"`
 	AssigneeID *uuid.UUID `json:"-"`
-	Priority   int        `json:"priority"`
-	Size       int        `json:"size"`
-	Position   int        `json:"position"`
+	Priority   int        `json:"priority" gorm:"not null;default:0"`
+	Size       *string    `json:"size"`
+	Estimate   *int       `json:"estimate" gorm:"not null;default:0"`
+	Position   int        `json:"position" gorm:"not null;default:0"`
 	Assignee   *User      `json:"assignee" gorm:"column:assignee_id"`
 }
 
@@ -49,7 +50,8 @@ type StoryRequest struct {
 	Kind        StoryKind  `json:"kind"`
 	AssigneeID  *uuid.UUID `json:"assigneeId"`
 	Priority    int        `json:"priority"`
-	Size        int        `json:"size"`
+	Size        *string    `json:"size"`
+	Estimate    *int       `json:"estimate"`
 	StartDate   *time.Time `json:"startDate"`
 	EndDate     *time.Time `json:"endDate"`
 	Position    int        `json:"position"`
