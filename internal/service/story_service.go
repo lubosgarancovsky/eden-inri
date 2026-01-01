@@ -116,3 +116,14 @@ func (s *StoryService) Update(ctx context.Context, projectID, storyID uuid.UUID,
 func (s *StoryService) Delete(ctx context.Context, projectID, storyID uuid.UUID) error {
 	return s.repo.Delete(ctx, projectID, storyID)
 }
+
+func (s *StoryService) GetAssignee(ctx context.Context, projectID, storyID uuid.UUID) (*model.User, error) {
+	return s.repo.GetAssignee(ctx, projectID, storyID)
+}
+
+func (s *StoryService) ChangeAssignee(ctx context.Context, projectID, storyID uuid.UUID, input *model.StoryAssigneeRequest) (*model.StoryAssigneeRequest, error) {
+	if err := s.repo.ChangeAssignee(ctx, projectID, storyID, input.AssigneeID); err != nil {
+		return nil, err
+	}
+	return input, nil
+}
