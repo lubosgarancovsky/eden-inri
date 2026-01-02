@@ -3,7 +3,9 @@ package service
 import (
 	"context"
 	"fmt"
+	"mime/multipart"
 
+	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/lubosgarancovsky/eden-inri/internal/model"
 	"github.com/lubosgarancovsky/eden-inri/internal/repository"
@@ -16,13 +18,14 @@ type StoryService struct {
 	projectService     *ProjectService
 	projectUserService *ProjectUserService
 	kanbanBoardService *KanbanBoardService
+	attachmentService  *AttachmentService
+	ModelName          string
 }
 
-func NewStoryService(repo *repository.StoryRepository, ps *ProjectService, pus *ProjectUserService, kbs *KanbanBoardService) *StoryService {
-	return &StoryService{repo: repo, projectService: ps, projectUserService: pus, kanbanBoardService: kbs}
+func NewStoryService(repo *repository.StoryRepository, ps *ProjectService, pus *ProjectUserService, kbs *KanbanBoardService, as *AttachmentService) *StoryService {
+	return &StoryService{repo: repo, projectService: ps, projectUserService: pus, kanbanBoardService: kbs, attachmentService: as, ModelName: "story"}
 }
 
-// FindAll stories in a column
 func (s *StoryService) FindAll(ctx context.Context, projectID uuid.UUID, lq *list.ListingQuery) (*list.Page[model.StoryListItem], error) {
 	items, totalCount, err := s.repo.FindAll(ctx, projectID, lq)
 	if err != nil {
@@ -37,12 +40,14 @@ func (s *StoryService) FindAll(ctx context.Context, projectID uuid.UUID, lq *lis
 	}, nil
 }
 
-// FindByID story
 func (s *StoryService) FindByID(ctx context.Context, projectID, storyID uuid.UUID) (*model.Story, error) {
 	return s.repo.FindByID(ctx, projectID, storyID)
 }
 
-// Insert story
+func (s *StoryService) FindBySlug(ctx context.Context, projectID uuid.UUID, slug string) (*model.Story, error) {
+	return s.repo.FindBySlug(ctx, projectID, slug)
+}
+
 func (s *StoryService) Insert(ctx context.Context, userID, projectID uuid.UUID, req *model.StoryRequest) (*model.Story, error) {
 	story := &model.Story{
 		StoryListItem: model.StoryListItem{
@@ -90,7 +95,6 @@ func (s *StoryService) Insert(ctx context.Context, userID, projectID uuid.UUID, 
 	return story, err
 }
 
-// Update story
 func (s *StoryService) Update(ctx context.Context, projectID, storyID uuid.UUID, req *model.StoryRequest) (*model.Story, error) {
 	story := &model.Story{
 		StoryListItem: model.StoryListItem{
@@ -112,7 +116,6 @@ func (s *StoryService) Update(ctx context.Context, projectID, storyID uuid.UUID,
 	return s.repo.Update(ctx, story)
 }
 
-// Delete story
 func (s *StoryService) Delete(ctx context.Context, projectID, storyID uuid.UUID) error {
 	return s.repo.Delete(ctx, projectID, storyID)
 }
@@ -126,4 +129,18 @@ func (s *StoryService) ChangeAssignee(ctx context.Context, projectID, storyID uu
 		return nil, err
 	}
 	return input, nil
+}
+
+func (s *StoryService) SaveAttachments(c *gin.Context, projectID uuid.UUID, storyID uuid.UUID, files []multipart.FileHeader) error {
+	for _, file := range files {
+		// ! projectID is passed instead of userID, so all members can access the list of attachments
+		if _, err := s.attachmentService.SaveAttachment(c, projectID, s.ModelName, storyID.String(), file); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (s *StoryService) ListAttachments(ctx context.Context, projectID uuid.UUID, storyID uuid.UUID) ([]*model.Attachment, error) {
+	return s.attachmentService.FindByModelID(ctx, projectID, storyID, s.ModelName)
 }

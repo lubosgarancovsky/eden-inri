@@ -66,6 +66,20 @@ func (r *StoryRepository) FindByID(ctx context.Context, projectID, storyID uuid.
 	return &story, err
 }
 
+func (r *StoryRepository) FindBySlug(ctx context.Context, projectID uuid.UUID, slug string) (*model.Story, error) {
+	var story model.Story
+	err := r.db.
+		WithContext(ctx).
+		Preload("Assignee").
+		Preload("Creator").
+		Select("*").
+		Where("project_id = ? AND slug = ?", projectID, slug).
+		First(&story).
+		Error
+
+	return &story, err
+}
+
 func (r *StoryRepository) Insert(ctx context.Context, story *model.Story) (*model.Story, error) {
 	err := r.db.
 		WithContext(ctx).

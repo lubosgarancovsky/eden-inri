@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"mime/multipart"
+
 	"github.com/gin-gonic/gin"
 	"github.com/lubosgarancovsky/eden-inri/internal/model"
 	"github.com/lubosgarancovsky/eden-inri/internal/service"
@@ -93,6 +95,29 @@ func (h *StoryHandler) FindByID(c *gin.Context) {
 	storyID := helpers.ExtractID(c, "storyId")
 
 	story, err := h.s.FindByID(c.Request.Context(), projectID, storyID)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	c.JSON(200, story)
+}
+
+// FindBySlug @Summary      Get story by slug
+// @Description  Returns a specific story by slug within a project
+// @Tags         Kanban Stories
+// @Accept       json
+// @Produce      json
+// @Param        projectId   path      string  true  "Project ID"
+// @Param        slug        path      string  true  "Story slug"
+// @Success      200  {object}  model.Story
+// @Router       /v1/inri/projects/{projectId}/stories/slug/{slug} [get]
+// @security GatewayAuth
+func (h *StoryHandler) FindBySlug(c *gin.Context) {
+	projectID := helpers.ExtractID(c, "projectId")
+	slug := c.Param("slug")
+
+	story, err := h.s.FindBySlug(c.Request.Context(), projectID, slug)
 	if err != nil {
 		c.Error(err)
 		return
@@ -226,6 +251,72 @@ func (h *StoryHandler) ChangeAssignee(c *gin.Context) {
 	}
 
 	result, err := h.s.ChangeAssignee(c.Request.Context(), projectID, storyID, &input)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	c.JSON(200, result)
+}
+
+// UploadAttachments @Summary Upload attachments to a story
+// @Description Upload multiple files as attachments for the given story
+// @Tags         Kanban Stories
+// @Accept       mpfd
+// @Produce      json
+// @Param        projectId   path      string  true  "Project ID"
+// @Param        storyId   path      string  true  "Story ID"
+// @Param files formData []file true "Files to upload"
+// @Success      204  {string}  string  "No Content"
+// @Router       /v1/inri/projects/{projectId}/stories/{storyId}/attachments [post]
+// @security GatewayAuth
+func (h *StoryHandler) UploadAttachments(c *gin.Context) {
+	projectID := helpers.ExtractID(c, "projectId")
+	storyID := helpers.ExtractID(c, "storyId")
+
+	if err := c.Request.ParseMultipartForm(32 << 20); err != nil { // 32MB default limit
+		c.Error(err)
+		return
+	}
+	form := c.Request.MultipartForm
+	var files []multipart.FileHeader
+	if fhs, ok := form.File["files"]; ok {
+		for _, fh := range fhs {
+			files = append(files, *fh)
+		}
+	}
+	if len(files) == 0 {
+		// also support single file key "file"
+		if f, err2 := c.FormFile("file"); err2 == nil && f != nil {
+			files = append(files, *f)
+		}
+	}
+
+	if len(files) == 0 {
+		c.Error(api_err.ErrBadRequest.WithMessage("no files provided"))
+		return
+	}
+
+	if err := h.s.SaveAttachments(c, projectID, storyID, files); err != nil {
+		c.Error(err)
+		return
+	}
+	c.Status(204)
+}
+
+// ListAttachments @Summary      List story attachments
+// @Description  Returns a list of attachments by story ID
+// @Tags         Kanban Stories
+// @Accept       json
+// @Produce      json
+// @Success      200  {object}   []model.Attachment
+// @Router       /v1/inri/projects/{projectId}/stories/{storyId}/attachments [get]
+// @security GatewayAuth
+func (h *StoryHandler) ListAttachments(c *gin.Context) {
+	projectID := helpers.ExtractID(c, "projectId")
+	storyID := helpers.ExtractID(c, "storyId")
+
+	result, err := h.s.ListAttachments(c.Request.Context(), projectID, storyID)
 	if err != nil {
 		c.Error(err)
 		return
