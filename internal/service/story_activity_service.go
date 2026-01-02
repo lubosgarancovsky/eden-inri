@@ -35,6 +35,22 @@ func (s *StoryActivityService) InsertActivity(ctx context.Context, userID, story
 	return s.repo.Insert(ctx, activity)
 }
 
+func (s *StoryActivityService) UpdateActivity(ctx context.Context, userID, storyID, activityID uuid.UUID, input *model.StoryActivityRequest) (*model.StoryActivity, error) {
+	activity := &model.StoryActivity{
+		ID:      activityID,
+		StoryID: storyID,
+		ActorID: userID,
+		Type:    input.Type,
+		Payload: input.Payload,
+	}
+
+	return s.repo.Update(ctx, activity)
+}
+
+func (s *StoryActivityService) DeleteActivity(ctx context.Context, userID, storyID, activityID uuid.UUID) error {
+	return s.repo.Delete(ctx, userID, storyID, activityID)
+}
+
 func (s *StoryActivityService) ListActivities(ctx context.Context, storyID uuid.UUID, lq *list.ListingQuery) (*list.Page[model.StoryActivity], error) {
 	items, totalCount, err := s.repo.ListActivities(ctx, storyID, lq)
 	if err != nil {

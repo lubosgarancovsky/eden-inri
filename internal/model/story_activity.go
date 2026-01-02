@@ -19,9 +19,10 @@ const (
 )
 
 type StoryActivity struct {
-	ID        uuid.UUID       `json:"id"`
+	ID        uuid.UUID       `gorm:"primary_key;type:uuid;default:uuid_generate_v4()" json:"id"`
 	StoryID   uuid.UUID       `json:"storyId"`
-	ActorID   uuid.UUID       `json:"actorId"`
+	ActorID   uuid.UUID       `json:"-"`
+	Actor     User            `json:"actor"`
 	Type      ActivityType    `json:"type"`
 	Payload   json.RawMessage `json:"payload" swaggertype:"object"`
 	CreatedAt time.Time       `json:"createdAt"`
