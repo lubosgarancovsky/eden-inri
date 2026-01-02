@@ -193,8 +193,6 @@ func SetupRouter(r *gin.Engine, cfg *config.Config, db *gorm.DB) *gin.Engine {
 		stories.GET("/:storyId/activities", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer, model.Guest), storyActivityHandler.ListActivities)
 		stories.POST("/:storyId/activities", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer), storyActivityHandler.InsertActivity)
 		stories.PUT("/:storyId/activities/:activityId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer), storyActivityHandler.UpdateActivity)
-		stories.DELETE("/:storyId/activities/:activityId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer), storyActivityHandler.DeleteActivity)
-
 	}
 
 	// Story labels

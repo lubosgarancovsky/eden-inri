@@ -86,7 +86,7 @@ func (h *StoryActivityHandler) UpdateActivity(c *gin.Context) {
 	activityID := helpers.ExtractID(c, "activityId")
 	userID := helpers.GetUserContext(c).ID
 
-	var req model.StoryActivityRequest
+	var req model.StoryActivityUpdateRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.Error(api_err.ErrBadRequest.WithMessage(err.Error()))
 		return
@@ -97,32 +97,7 @@ func (h *StoryActivityHandler) UpdateActivity(c *gin.Context) {
 		c.Error(err)
 		return
 	}
-	c.JSON(201, activity)
-}
-
-// DeleteActivity @Summary      Delete activity
-// @Description  Deletes an actitivty
-// @Tags         Story Activities
-// @Accept       json
-// @Produce      json
-// @Param        projectId  path  string  true "Project ID"
-// @Param        storyId    path  string  true "Story ID"
-// @Param        activityId    path  string  true "Activity ID"
-// @Param        body       body  map[string]interface{} true "Activity payload including eventType and optional data"
-// @Success      204  {string}  "No content"
-// @Router       /v1/inri/projects/{projectId}/stories/{storyId}/activities/{activityId} [delete]
-// @security GatewayAuth
-func (h *StoryActivityHandler) DeleteActivity(c *gin.Context) {
-	storyID := helpers.ExtractID(c, "storyId")
-	activityID := helpers.ExtractID(c, "activityId")
-	userID := helpers.GetUserContext(c).ID
-
-	if err := h.s.DeleteActivity(c.Request.Context(), userID, storyID, activityID); err != nil {
-		c.Error(err)
-		return
-	}
-
-	c.Status(204)
+	c.JSON(200, activity)
 }
 
 // ListActivities @Summary      List story activities
