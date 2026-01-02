@@ -40,14 +40,16 @@ func (r *StoryActivityRepository) Update(ctx context.Context, activity *model.St
 	return activity, err
 }
 
-func (r *StoryActivityRepository) Delete(ctx context.Context, userID, storyID, activityID uuid.UUID) error {
+func (r *StoryActivityRepository) FindByID(ctx context.Context, userID, storyID, activityID uuid.UUID) (*model.StoryActivity, error) {
+	var activity model.StoryActivity
 	err := r.db.
 		WithContext(ctx).
+		Model(&activity).
 		Where("story_id = ? AND actor_id = ? AND id = ?", storyID, userID, activityID).
-		Delete(model.StoryActivity{}).
+		Find(&activity).
 		Error
 
-	return err
+	return &activity, err
 }
 
 func (r *StoryActivityRepository) ListActivities(ctx context.Context, storyID uuid.UUID, lq *list.ListingQuery) ([]model.StoryActivity, int64, error) {

@@ -33,6 +33,10 @@ type StoryActivityRequest struct {
 	Payload json.RawMessage `json:"payload"`
 }
 
+type StoryActivityUpdateRequest struct {
+	Payload json.RawMessage `json:"payload"`
+}
+
 func (StoryActivity) TableName() string {
 	return "inri_story_activities"
 }
