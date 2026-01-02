@@ -169,7 +169,7 @@ func SetupRouter(r *gin.Engine, cfg *config.Config, db *gorm.DB) *gin.Engine {
 
 	// Stories
 	storyRepo := repository.NewStoryRepository(db)
-	storyService := service.NewStoryService(storyRepo, projectService, projectUserService, kanbanService)
+	storyService := service.NewStoryService(storyRepo, projectService, projectUserService, kanbanService, attachmentService)
 	storyHandler := handler.NewStoryHandler(parser, storyService)
 
 	stories := projects.Group("/:projectId/stories")
@@ -177,11 +177,14 @@ func SetupRouter(r *gin.Engine, cfg *config.Config, db *gorm.DB) *gin.Engine {
 	{
 		stories.GET("", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer, model.Guest), storyHandler.FindAll)
 		stories.POST("", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer), storyHandler.Insert)
+		stories.GET("/slug/:slug", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer, model.Guest), storyHandler.FindBySlug)
 		stories.GET("/:storyId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer, model.Guest), storyHandler.FindByID)
 		stories.PUT("/:storyId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer), storyHandler.Update)
 		stories.DELETE("/:storyId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer), storyHandler.Delete)
 		stories.GET("/:storyId/assignee", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer, model.Guest), storyHandler.GetAssignee)
 		stories.PUT("/:storyId/assignee", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer), storyHandler.ChangeAssignee)
+		stories.POST("/:storyId/attachments", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer), storyHandler.UploadAttachments)
+		stories.GET("/:storyId/attachments", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer, model.Guest), storyHandler.ListAttachments)
 	}
 
 	// Story activity
