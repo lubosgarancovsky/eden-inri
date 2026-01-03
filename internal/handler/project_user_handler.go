@@ -12,20 +12,20 @@ import (
 
 var ProjectUserListConfig = &types.ListConfig{
 	Filter: map[string]string{
-		"projectId":     "project_id",
-		"userId":        "user_id",
-		"role":          "role",
-		"joinedAt":      "joined_at",
-		"userFirstName": "User.first_name",
-		"userLastName":  "User.first_name",
-		"userEmail":     "User.email",
-		"userUsername":  "User.username",
+		"projectId": "project_id",
+		"userId":    "user_id",
+		"role":      "role",
+		"joinedAt":  "joined_at",
+		"firstName": "u.first_name",
+		"lastName":  "u.first_name",
+		"email":     "u.email",
+		"username":  "u.username",
 	},
 	Sort: map[string]string{
-		"role":          "role",
-		"joinedAt":      "joined_at",
-		"userFirstName": "User.first_name",
-		"userLastName":  "User.first_name",
+		"role":      "role",
+		"joinedAt":  "joined_at",
+		"firstName": "u.first_name",
+		"lastName":  "u.first_name",
 	},
 }
 
