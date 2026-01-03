@@ -70,9 +70,13 @@ func (s *ProjectService) Delete(ctx context.Context, projectID uuid.UUID) error 
 }
 
 func (s *ProjectService) SaveAttachments(c *gin.Context, projectID uuid.UUID, files []multipart.FileHeader) error {
+	owner, err := s.projectUserService.GetOwner(c, projectID)
+	if err != nil {
+		return err
+	}
+
 	for _, file := range files {
-		// Pass in projectID instead of userID as second param, to allow other members to list the attachments
-		if _, err := s.attachmentService.SaveAttachment(c, projectID, s.ModelName, projectID.String(), file); err != nil {
+		if _, err := s.attachmentService.SaveAttachment(c, owner.UserID, s.ModelName, projectID.String(), file); err != nil {
 			return err
 		}
 	}
@@ -80,9 +84,40 @@ func (s *ProjectService) SaveAttachments(c *gin.Context, projectID uuid.UUID, fi
 }
 
 func (s *ProjectService) ListAttachments(ctx context.Context, projectID uuid.UUID) ([]*model.Attachment, error) {
-	// Second parameter is projectID instead of required userID
-	// projectID is a common determinant so every member can see all uploaded attachments, instead of just their own
-	return s.attachmentService.FindByModelID(ctx, projectID, projectID, s.ModelName)
+	owner, err := s.projectUserService.GetOwner(ctx, projectID)
+	if err != nil {
+		return []*model.Attachment{}, err
+	}
+
+	return s.attachmentService.FindByModelID(ctx, owner.UserID, projectID, s.ModelName)
+}
+
+func (s *ProjectService) DownloadAttachment(c *gin.Context, projectID, attachmentID uuid.UUID) error {
+	ctx := c.Request.Context()
+
+	owner, err := s.projectUserService.GetOwner(ctx, projectID)
+	if err != nil {
+		return err
+	}
+
+	attachment, err := s.attachmentService.FindByID(ctx, owner.UserID, attachmentID)
+	if err != nil {
+		return err
+	}
+
+	path := s.attachmentService.GetFilePath(attachment)
+	c.FileAttachment(path, attachment.OriginalName)
+
+	return nil
+}
+
+func (s *ProjectService) DeleteAttachment(ctx context.Context, projectID, attachmentID uuid.UUID) error {
+	owner, err := s.projectUserService.GetOwner(ctx, projectID)
+	if err != nil {
+		return err
+	}
+
+	return s.attachmentService.Delete(ctx, owner.UserID, attachmentID)
 }
 
 func (s *ProjectService) Favourite(ctx context.Context, userID, projectID uuid.UUID) (*model.Project, error) {

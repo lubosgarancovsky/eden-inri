@@ -10,7 +10,7 @@ type Attachment struct {
 	ID           uuid.UUID `gorm:"primary_key;type:uuid;default:uuid_generate_v4()" json:"id"`
 	UserID       uuid.UUID `json:"-"`
 	Model        string    `json:"model"`
-	ModelID      string    `json:"modelID"`
+	ModelID      string    `json:"modelId"`
 	OriginalName string    `json:"originalName"`
 	ServerName   string    `json:"serverName"`
 	MimeType     string    `json:"mimeType"`

@@ -131,10 +131,14 @@ func (s *StoryService) ChangeAssignee(ctx context.Context, projectID, storyID uu
 	return input, nil
 }
 
-func (s *StoryService) SaveAttachments(c *gin.Context, projectID uuid.UUID, storyID uuid.UUID, files []multipart.FileHeader) error {
+func (s *StoryService) SaveAttachments(ctx *gin.Context, projectID uuid.UUID, storyID uuid.UUID, files []multipart.FileHeader) error {
+	owner, err := s.projectUserService.GetOwner(ctx, projectID)
+	if err != nil {
+		return err
+	}
+
 	for _, file := range files {
-		// ! projectID is passed instead of userID, so all members can access the list of attachments
-		if _, err := s.attachmentService.SaveAttachment(c, projectID, s.ModelName, storyID.String(), file); err != nil {
+		if _, err := s.attachmentService.SaveAttachment(ctx, owner.UserID, s.ModelName, storyID.String(), file); err != nil {
 			return err
 		}
 	}
@@ -142,5 +146,38 @@ func (s *StoryService) SaveAttachments(c *gin.Context, projectID uuid.UUID, stor
 }
 
 func (s *StoryService) ListAttachments(ctx context.Context, projectID uuid.UUID, storyID uuid.UUID) ([]*model.Attachment, error) {
-	return s.attachmentService.FindByModelID(ctx, projectID, storyID, s.ModelName)
+	owner, err := s.projectUserService.GetOwner(ctx, projectID)
+	if err != nil {
+		return []*model.Attachment{}, err
+	}
+
+	return s.attachmentService.FindByModelID(ctx, owner.UserID, storyID, s.ModelName)
+}
+
+func (s *StoryService) DownloadAttachment(c *gin.Context, projectID, attachmentID uuid.UUID) error {
+	ctx := c.Request.Context()
+
+	owner, err := s.projectUserService.GetOwner(ctx, projectID)
+	if err != nil {
+		return err
+	}
+
+	attachment, err := s.attachmentService.FindByID(ctx, owner.UserID, attachmentID)
+	if err != nil {
+		return err
+	}
+
+	path := s.attachmentService.GetFilePath(attachment)
+	c.FileAttachment(path, attachment.OriginalName)
+
+	return nil
+}
+
+func (s *StoryService) DeleteAttachment(ctx context.Context, projectID, attachmentID uuid.UUID) error {
+	owner, err := s.projectUserService.GetOwner(ctx, projectID)
+	if err != nil {
+		return err
+	}
+
+	return s.attachmentService.Delete(ctx, owner.UserID, attachmentID)
 }
