@@ -97,23 +97,27 @@ func SetupRouter(r *gin.Engine, cfg *config.Config, db *gorm.DB) *gin.Engine {
 		projects.POST("", projectHandler.Create)
 		projects.PUT("/:projectId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin), projectHandler.Update)
 		projects.DELETE("/:projectId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner), projectHandler.Delete)
+		projects.POST("/:projectId/favourite", projectHandler.Favourite)
+
+		// Project attachments
 		projects.POST("/:projectId/attachments", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin), projectHandler.UploadAttachments)
 		projects.GET("/:projectId/attachments", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer, model.Guest), projectHandler.ListAttachments)
-		projects.POST("/:projectId/favourite", projectHandler.Favourite)
+		projects.GET("/:projectId/attachments/:attachmentId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer, model.Guest), projectHandler.DownloadAttachment)
+		projects.DELETE("/:projectId/attachments/:attachmentId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin), projectHandler.DeleteAttachment)
 	}
 
 	// Labels
 	labelRepo := repository.NewLabelRepository(db)
 	labelService := service.NewLabelService(labelRepo, projectUserService)
-	labelHandelr := handler.NewLabelHandler(parser, labelService)
+	labelHandler := handler.NewLabelHandler(parser, labelService)
 
 	labels := projects.Group("/:projectId/labels")
 	{
-		labels.GET("", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer, model.Guest), labelHandelr.FindAll)
-		labels.GET("/:labelId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer, model.Guest), labelHandelr.FindByID)
-		labels.POST("", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin), labelHandelr.Insert)
-		labels.PUT("/:labelId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin), labelHandelr.Update)
-		labels.DELETE("/:labelId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin), labelHandelr.Delete)
+		labels.GET("", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer, model.Guest), labelHandler.FindAll)
+		labels.GET("/:labelId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer, model.Guest), labelHandler.FindByID)
+		labels.POST("", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin), labelHandler.Insert)
+		labels.PUT("/:labelId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin), labelHandler.Update)
+		labels.DELETE("/:labelId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin), labelHandler.Delete)
 	}
 
 	// Kanban boards
@@ -183,8 +187,12 @@ func SetupRouter(r *gin.Engine, cfg *config.Config, db *gorm.DB) *gin.Engine {
 		stories.DELETE("/:storyId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer), storyHandler.Delete)
 		stories.GET("/:storyId/assignee", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer, model.Guest), storyHandler.GetAssignee)
 		stories.PUT("/:storyId/assignee", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer), storyHandler.ChangeAssignee)
+
+		// Story attachments
 		stories.POST("/:storyId/attachments", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer), storyHandler.UploadAttachments)
 		stories.GET("/:storyId/attachments", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer, model.Guest), storyHandler.ListAttachments)
+		stories.GET("/:storyId/attachments/:attachmentId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer, model.Guest), storyHandler.DownloadAttachment)
+		stories.DELETE("/:storyId/attachments/:attachmentId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer), storyHandler.DeleteAttachment)
 	}
 
 	// Story activity

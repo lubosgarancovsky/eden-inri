@@ -90,3 +90,7 @@ func (s *ProjectUserService) RequireRole(actual model.ProjectRole, allowed ...mo
 	}
 	return api_err.ErrForbidden
 }
+
+func (s *ProjectUserService) GetOwner(ctx context.Context, projectID uuid.UUID) (*model.ProjectUser, error) {
+	return s.r.GetOwner(ctx, projectID)
+}

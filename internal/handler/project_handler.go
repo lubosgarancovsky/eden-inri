@@ -198,6 +198,44 @@ func (h *ProjectHandler) ListAttachments(c *gin.Context) {
 	c.JSON(200, result)
 }
 
+// DownloadAttachment @Summary     Download attachment
+// @Description  Downloads an attachment by ID
+// @Tags         Projects
+// @Accept       json
+// @Produce      json
+// @Success      200  {object}   []model.Attachment
+// @Router       /v1/inri/projects/{projectId}/attachments/{attachmentId} [get]
+// @security GatewayAuth
+func (h *ProjectHandler) DownloadAttachment(c *gin.Context) {
+	projectID := helpers.ExtractID(c, "projectId")
+	attachmentID := helpers.ExtractID(c, "attachmentId")
+
+	if err := h.s.DownloadAttachment(c, projectID, attachmentID); err != nil {
+		c.Error(err)
+		return
+	}
+}
+
+// DeleteAttachment @Summary      Delete attachment
+// @Description  Deletes an attachment from the project
+// @Tags         Projects
+// @Accept       json
+// @Produce      json
+// @Success      204  {string}   "No content"
+// @Router       /v1/inri/projects/{projectId}/attachments/{attachmentId} [delete]
+// @security GatewayAuth
+func (h *ProjectHandler) DeleteAttachment(c *gin.Context) {
+	projectID := helpers.ExtractID(c, "projectId")
+	attachmentID := helpers.ExtractID(c, "attachmentId")
+
+	if err := h.s.DeleteAttachment(c.Request.Context(), projectID, attachmentID); err != nil {
+		c.Error(err)
+		return
+	}
+
+	c.Status(204)
+}
+
 // Favourite @Summary      Add/Remove from favorites
 // @Description  Toggles the is_starred flag in a project for current user
 // @Tags         Projects

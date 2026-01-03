@@ -324,3 +324,41 @@ func (h *StoryHandler) ListAttachments(c *gin.Context) {
 
 	c.JSON(200, result)
 }
+
+// DownloadAttachment @Summary     Download attachment
+// @Description  Downloads an attachment by ID
+// @Tags         Kanban Stories
+// @Accept       json
+// @Produce      json
+// @Success      200  {object}   []model.Attachment
+// @Router       /v1/inri/projects/{projectId}/stories/{storyId}/attachments/{attachmentId} [get]
+// @security GatewayAuth
+func (h *StoryHandler) DownloadAttachment(c *gin.Context) {
+	projectID := helpers.ExtractID(c, "projectId")
+	attachmentID := helpers.ExtractID(c, "attachmentId")
+
+	if err := h.s.DownloadAttachment(c, projectID, attachmentID); err != nil {
+		c.Error(err)
+		return
+	}
+}
+
+// DeleteAttachment @Summary      Delete attachment
+// @Description  Deletes an attachment from the project
+// @Tags         Kanban Stories
+// @Accept       json
+// @Produce      json
+// @Success      204  {string}   "No content"
+// @Router       /v1/inri/projects/{projectId}/stories/{storyId}/attachments/{attachmentId} [delete]
+// @security GatewayAuth
+func (h *StoryHandler) DeleteAttachment(c *gin.Context) {
+	projectID := helpers.ExtractID(c, "projectId")
+	attachmentID := helpers.ExtractID(c, "attachmentId")
+
+	if err := h.s.DeleteAttachment(c.Request.Context(), projectID, attachmentID); err != nil {
+		c.Error(err)
+		return
+	}
+
+	c.Status(204)
+}

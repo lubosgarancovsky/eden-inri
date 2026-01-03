@@ -138,3 +138,13 @@ func (r *ProjectUserRepository) Favourite(
 
 	return &projectUser, err
 }
+
+func (r *ProjectUserRepository) GetOwner(ctx context.Context, projectID uuid.UUID) (*model.ProjectUser, error) {
+	var projectUser model.ProjectUser
+	err := r.db.WithContext(ctx).
+		Where("project_id = ? AND role = ?", projectID, model.Owner).
+		First(&projectUser).
+		Error
+
+	return &projectUser, err
+}
