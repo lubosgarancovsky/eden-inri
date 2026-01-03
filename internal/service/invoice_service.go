@@ -43,6 +43,10 @@ func (s *InvoiceService) Delete(ctx context.Context, userID uuid.UUID, invoiceID
 	return s.r.Delete(ctx, userID, invoiceID)
 }
 
+func (s *InvoiceService) TotalRevenue(ctx context.Context, userID uuid.UUID) (float64, error) {
+	return s.r.TotalRevenue(ctx, userID)
+}
+
 func (s *InvoiceService) SaveAttachments(c *gin.Context, userID uuid.UUID, invoiceID uuid.UUID, files []multipart.FileHeader) error {
 	for _, file := range files {
 		_, err := s.attachmentService.SaveAttachment(c, userID, s.ModelName, invoiceID.String(), file)

@@ -66,6 +66,7 @@ func SetupRouter(r *gin.Engine, cfg *config.Config, db *gorm.DB) *gin.Engine {
 	invoices := protected.Group("/invoices")
 	{
 		invoices.GET("", invHandler.FindAll)
+		invoices.GET("/revenue", invHandler.TotalRevenue)
 		invoices.GET("/:invoiceId", invHandler.FindByID)
 		invoices.POST("", invHandler.Create)
 		invoices.PUT("/:invoiceId", invHandler.Update)
