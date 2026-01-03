@@ -18,6 +18,8 @@ var ProjectUserListConfig = &types.ListConfig{
 		"joinedAt":      "joined_at",
 		"userFirstName": "User.first_name",
 		"userLastName":  "User.first_name",
+		"userEmail":     "User.email",
+		"userUsername":  "User.username",
 	},
 	Sort: map[string]string{
 		"role":          "role",
