@@ -97,3 +97,18 @@ func (r *InvoiceRepository) Delete(ctx context.Context, userID, invoiceID uuid.U
 	}
 	return nil
 }
+
+// TotalRevenue returns the sum of totals for all invoices that are paid and not canceled for the given user
+func (r *InvoiceRepository) TotalRevenue(ctx context.Context, userID uuid.UUID) (float64, error) {
+	var total float64
+	err := r.db.
+		WithContext(ctx).
+		Model(&model.Invoice{}).
+		Where("user_id = ? AND paid_at IS NOT NULL AND is_canceled = false", userID).
+		Select("COALESCE(SUM(total), 0)").
+		Scan(&total).Error
+	if err != nil {
+		return 0, err
+	}
+	return total, nil
+}

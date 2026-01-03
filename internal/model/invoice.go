@@ -41,6 +41,10 @@ type InvoiceRequest struct {
 	ExternalLink  string     `json:"externalLink"`
 }
 
+type TotalRevenueResponse struct {
+	Total float64 `json:"total"`
+}
+
 func (i *Invoice) TableName() string {
 	return "inri_invoice"
 }

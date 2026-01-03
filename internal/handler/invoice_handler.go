@@ -184,3 +184,21 @@ func (h *InvoiceHandler) ListAttachments(c *gin.Context) {
 
 	c.JSON(200, result)
 }
+
+// TotalRevenue @Summary      Get total revenue
+// @Description  Returns the total revenue of all invoices that are paid and not canceled
+// @Tags         Invoices
+// @Accept       json
+// @Produce      json
+// @Success      200  {object}   TotalRevenueResponse
+// @Router       /v1/inri/invoices/revenue [get]
+// @security GatewayAuth
+func (h *InvoiceHandler) TotalRevenue(c *gin.Context) {
+	userID := helpers.GetUserContext(c).ID
+	total, err := h.s.TotalRevenue(c.Request.Context(), userID)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+	c.JSON(200, model.TotalRevenueResponse{Total: total})
+}
