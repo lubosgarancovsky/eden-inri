@@ -26,10 +26,10 @@ func (r *ProjectUserRepository) FindAll(
 	projectID uuid.UUID,
 	lq *list.ListingQuery,
 ) (*[]model.ProjectUser, int64, error) {
-	query := r.db.
-		WithContext(ctx).
+	query := r.db.WithContext(ctx).
 		Model(&model.ProjectUser{}).
 		Preload("User").
+		Joins(`JOIN iam_users u ON u.id = inri_project_users.user_id`).
 		Where("project_id = ?", projectID)
 
 	if lq.Filter != nil {
@@ -49,6 +49,7 @@ func (r *ProjectUserRepository) FindByID(ctx context.Context, projectID, userID 
 	err := r.db.
 		WithContext(ctx).
 		Model(&projectUser).
+		Preload("User").
 		Where("project_id = ? AND user_id = ?", projectID, userID).
 		First(&projectUser).Error
 
