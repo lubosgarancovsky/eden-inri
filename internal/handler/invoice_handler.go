@@ -202,3 +202,21 @@ func (h *InvoiceHandler) TotalRevenue(c *gin.Context) {
 	}
 	c.JSON(200, model.TotalRevenueResponse{Total: total})
 }
+
+// RevenueGraph @Summary      Get monthly revenue graph
+// @Description  Returns last 12 months aggregated by issuedAt month (UTC). Potential = non-canceled totals; Actual = paid and non-canceled totals.
+// @Tags         Invoices
+// @Accept       json
+// @Produce      json
+// @Success      200  {object}   model.RevenueGraphResponse
+// @Router       /v1/inri/invoices/revenue/graph [get]
+// @security GatewayAuth
+func (h *InvoiceHandler) RevenueGraph(c *gin.Context) {
+	userID := helpers.GetUserContext(c).ID
+	points, err := h.s.RevenueGraph(c.Request.Context(), userID)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+	c.JSON(200, model.RevenueGraphResponse{Points: points})
+}

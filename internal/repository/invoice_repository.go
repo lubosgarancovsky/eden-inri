@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/lubosgarancovsky/eden-inri/internal/model"
@@ -111,4 +112,43 @@ func (r *InvoiceRepository) TotalRevenue(ctx context.Context, userID uuid.UUID) 
 		return 0, err
 	}
 	return total, nil
+}
+
+// MonthlyRevenue aggregates potential and actual revenue per month for the given user
+// - potential: sum(total) of non-canceled invoices
+// - actual: sum(total) of non-canceled AND paid invoices
+// Grouped by issued_at month in UTC in the range [from, to)
+func (r *InvoiceRepository) MonthlyRevenue(ctx context.Context, userID uuid.UUID, from, to time.Time) ([]model.RevenueGraphPoint, error) {
+	// Note: using to_char(date_trunc('month', issued_at), 'YYYY-MM') for key
+	type row struct {
+		Month     string  `gorm:"column:month"`
+		Potential float64 `gorm:"column:potential"`
+		Actual    float64 `gorm:"column:actual"`
+	}
+
+	var rows []row
+	// Build the query explicitly to control select and grouping
+	err := r.db.WithContext(ctx).
+		Table((&model.Invoice{}).TableName()).
+		Where("user_id = ? AND issued_at >= ? AND issued_at < ?", userID, from, to).
+		Select("to_char(date_trunc('month', issued_at AT TIME ZONE 'UTC'), 'YYYY-MM') as month, " +
+			"COALESCE(SUM(CASE WHEN is_canceled = false THEN total ELSE 0 END), 0) as potential, " +
+			"COALESCE(SUM(CASE WHEN is_canceled = false AND paid_at IS NOT NULL THEN total ELSE 0 END), 0) as actual").
+		Group("month").
+		Order("month").
+		Scan(&rows).Error
+	if err != nil {
+		return nil, err
+	}
+
+	// Map to model points
+	points := make([]model.RevenueGraphPoint, 0, len(rows))
+	for _, r := range rows {
+		points = append(points, model.RevenueGraphPoint{
+			Month:     r.Month,
+			Actual:    r.Actual,
+			Potential: r.Potential,
+		})
+	}
+	return points, nil
 }

@@ -45,6 +45,18 @@ type TotalRevenueResponse struct {
 	Total float64 `json:"total"`
 }
 
+// RevenueGraphPoint represents aggregated revenue for a particular month
+type RevenueGraphPoint struct {
+	Month     string  `json:"month"`
+	Actual    float64 `json:"actual"`
+	Potential float64 `json:"potential"`
+}
+
+// RevenueGraphResponse is a wrapper for graph points
+type RevenueGraphResponse struct {
+	Points []RevenueGraphPoint `json:"points"`
+}
+
 func (i *Invoice) TableName() string {
 	return "inri_invoice"
 }
