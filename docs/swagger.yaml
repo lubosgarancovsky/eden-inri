@@ -578,6 +578,8 @@ definitions:
     properties:
       assignee:
         $ref: '#/definitions/model.User'
+      boardId:
+        type: string
       columnId:
         type: string
       createdAt:
@@ -651,6 +653,8 @@ definitions:
     properties:
       assignee:
         $ref: '#/definitions/model.User'
+      boardId:
+        type: string
       columnId:
         type: string
       estimate:
@@ -2215,11 +2219,6 @@ paths:
       - application/json
       description: Returns all stories for a column
       parameters:
-      - description: Kanban board ID
-        in: path
-        name: kanbanId
-        required: true
-        type: string
       - description: Column ID
         in: path
         name: columnId
@@ -2766,6 +2765,43 @@ paths:
       - GatewayAuth: []
       tags:
       - Project invitations
+  /v1/inri/stories:
+    get:
+      consumes:
+      - application/json
+      description: Returns all stories that are assigned to the caller
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Items per page
+        in: query
+        name: pageSize
+        type: integer
+      - description: RSQL filter query
+        in: query
+        name: filter
+        type: string
+      - description: Sort query
+        in: query
+        name: sort
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/handler.StoryPage'
+            type: array
+      security:
+      - GatewayAuth: []
+      tags:
+      - Kanban Stories
 securityDefinitions:
   GatewayAuth:
     description: Injected by API Gateway. Do not use in production.

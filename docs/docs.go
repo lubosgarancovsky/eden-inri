@@ -2433,13 +2433,6 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Kanban board ID",
-                        "name": "kanbanId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
                         "description": "Column ID",
                         "name": "columnId",
                         "in": "path",
@@ -3245,6 +3238,64 @@ const docTemplate = `{
                         "description": "No Content",
                         "schema": {
                             "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/inri/stories": {
+            "get": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
+                "description": "Returns all stories that are assigned to the caller",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Kanban Stories"
+                ],
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Items per page",
+                        "name": "pageSize",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "RSQL filter query",
+                        "name": "filter",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort query",
+                        "name": "sort",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/handler.StoryPage"
+                            }
                         }
                     }
                 }
@@ -4124,6 +4175,9 @@ const docTemplate = `{
                 "assignee": {
                     "$ref": "#/definitions/model.User"
                 },
+                "boardId": {
+                    "type": "string"
+                },
                 "columnId": {
                     "type": "string"
                 },
@@ -4229,6 +4283,9 @@ const docTemplate = `{
             "properties": {
                 "assignee": {
                     "$ref": "#/definitions/model.User"
+                },
+                "boardId": {
+                    "type": "string"
                 },
                 "columnId": {
                     "type": "string"

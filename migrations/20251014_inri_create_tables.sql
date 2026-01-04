@@ -134,6 +134,7 @@ CREATE TYPE inri_story_kind AS ENUM (
 CREATE TABLE inri_stories (
     id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     project_id  UUID NOT NULL REFERENCES inri_projects(id) ON DELETE CASCADE,
+    board_id    UUID NOT NULL REFERENCES inri_kanban_boards(id) ON DELETE CASCADE,
     column_id   UUID REFERENCES inri_kanban_columns(id) ON DELETE SET NULL,
     slug        TEXT NOT NULL,
     title       TEXT NOT NULL,
