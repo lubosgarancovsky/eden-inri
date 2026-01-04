@@ -21,7 +21,7 @@ type StoryListItem struct {
 	ID         uuid.UUID  `gorm:"primary_key;type:uuid;default:uuid_generate_v4()" json:"id"`
 	ProjectID  uuid.UUID  `gorm:"type:uuid;not null" json:"projectId"`
 	ColumnID   uuid.UUID  `gorm:"type:uuid;not null" json:"columnId"`
-	BoardID    uuid.UUID  `gorm:"type:uuid;not null"`
+	BoardID    uuid.UUID  `gorm:"type:uuid;not null" json:"boardId"`
 	Slug       string     `json:"slug"`
 	Title      string     `json:"title"`
 	Kind       StoryKind  `json:"kind"`
