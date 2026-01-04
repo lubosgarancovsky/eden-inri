@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"mime/multipart"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -80,10 +81,10 @@ func (s *StoryService) Insert(ctx context.Context, userID, projectID uuid.UUID, 
 			Priority:   req.Priority,
 			Size:       req.Size,
 			Estimate:   req.Estimate,
+			StartDate:  req.StartDate,
+			EndDate:    req.EndDate,
 		},
 		Description: req.Description,
-		StartDate:   req.StartDate,
-		EndDate:     req.EndDate,
 		CreatedBy:   userID,
 	}
 
@@ -128,10 +129,11 @@ func (s *StoryService) Update(ctx context.Context, projectID, storyID uuid.UUID,
 			Priority:   req.Priority,
 			Size:       req.Size,
 			Estimate:   req.Estimate,
+			StartDate:  req.StartDate,
+			EndDate:    req.EndDate,
+			UpdatedAt:  time.Now(),
 		},
 		Description: req.Description,
-		StartDate:   req.StartDate,
-		EndDate:     req.EndDate,
 	}
 
 	return s.repo.Update(ctx, story)
