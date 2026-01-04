@@ -121,7 +121,7 @@ func (s *ProjectService) DeleteAttachment(ctx context.Context, projectID, attach
 }
 
 func (s *ProjectService) Favourite(ctx context.Context, userID, projectID uuid.UUID) (*model.Project, error) {
-	prj, err := s.r.FindByID(ctx, projectID, userID)
+	prj, err := s.r.FindByID(ctx, userID, projectID)
 	if err != nil {
 		return nil, err
 	}

@@ -16,10 +16,12 @@ import (
 
 func SetupRouter(r *gin.Engine, cfg *config.Config, db *gorm.DB) *gin.Engine {
 	parser := rsql.New()
-	v1 := r.Group("/v1/inri", middleware.ErrorMiddleware())
+	v1 := r.Group("/v1/inri", middleware.ErrorMiddleware(), middleware.AppStateValidationMiddleware(db))
 	protected := v1.Group("", middleware.AuthMiddleware())
 
 	v1.GET("/internal/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
+	// TODO: Create better health service and make app unhealthy if db == nil
 	v1.GET("/internal/health", func(c *gin.Context) {
 		c.JSON(200, gin.H{"status": "ok"})
 	})
