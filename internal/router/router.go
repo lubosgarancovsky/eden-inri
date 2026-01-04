@@ -101,7 +101,7 @@ func SetupRouter(r *gin.Engine, cfg *config.Config, db *gorm.DB) *gin.Engine {
 		projects.POST("", projectHandler.Create)
 		projects.PUT("/:projectId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin), projectHandler.Update)
 		projects.DELETE("/:projectId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner), projectHandler.Delete)
-		projects.POST("/:projectId/favourite", projectHandler.Favourite)
+		projects.PUT("/:projectId/favourite", projectHandler.Favourite)
 
 		// Project attachments
 		projects.POST("/:projectId/attachments", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin), projectHandler.UploadAttachments)

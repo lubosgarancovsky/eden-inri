@@ -190,7 +190,7 @@ func (h *InvoiceHandler) ListAttachments(c *gin.Context) {
 // @Tags         Invoices
 // @Accept       json
 // @Produce      json
-// @Success      200  {object}   TotalRevenueResponse
+// @Success      200  {object}   model.TotalRevenueResponse
 // @Router       /v1/inri/invoices/revenue [get]
 // @security GatewayAuth
 func (h *InvoiceHandler) TotalRevenue(c *gin.Context) {
