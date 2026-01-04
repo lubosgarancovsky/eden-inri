@@ -18,11 +18,14 @@ import (
 func main() {
 	r := gin.Default()
 	cfg := config.LoadConfig()
-	dbconn := db.ConnectDB(cfg.DBUrl)
+	dbconn, err := db.ConnectDB(cfg.DBUrl)
+	if err != nil {
+		log.Println("DB unavailable, starting without DB:", err)
+	}
 
 	router.SetupRouter(r, cfg, dbconn)
 
-	err := r.Run(fmt.Sprintf(":%d", cfg.Port))
+	err = r.Run(fmt.Sprintf(":%d", cfg.Port))
 	if err != nil {
 		log.Fatal(err)
 	}
