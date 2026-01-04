@@ -78,7 +78,7 @@ CREATE TABLE IF NOT EXISTS inri_projects (
 -- Project Documents
 CREATE TABLE IF NOT EXISTS inri_project_documents (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    project_id UUID NOT NULL,
+    project_id UUID NOT NULL references inri_projects(id) ON DELETE CASCADE,
     name TEXT,
     content TEXT,
     tags TEXT[],
