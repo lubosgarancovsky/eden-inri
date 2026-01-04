@@ -128,7 +128,7 @@ definitions:
     properties:
       items:
         items:
-          $ref: '#/definitions/model.Story'
+          $ref: '#/definitions/model.StoryListItem'
         type: array
       page:
         type: integer
@@ -169,7 +169,7 @@ definitions:
         type: string
       model:
         type: string
-      modelID:
+      modelId:
         type: string
       originalName:
         type: string
@@ -380,6 +380,8 @@ definitions:
     properties:
       boardId:
         type: string
+      color:
+        type: string
       createdAt:
         type: string
       id:
@@ -395,6 +397,8 @@ definitions:
     type: object
   model.KanbanColumnRequest:
     properties:
+      color:
+        type: string
       key:
         type: string
       name:
@@ -426,8 +430,6 @@ definitions:
       description:
         type: string
       name:
-        type: string
-      projectId:
         type: string
     type: object
   model.Project:
@@ -492,6 +494,8 @@ definitions:
     type: object
   model.ProjectInvitation:
     properties:
+      _:
+        type: string
       acceptedAt:
         type: string
       cratedAt:
@@ -506,8 +510,6 @@ definitions:
         type: string
       role:
         $ref: '#/definitions/model.ProjectRole'
-      token:
-        type: string
     type: object
   model.ProjectInvitationRequest:
     properties:
@@ -556,16 +558,32 @@ definitions:
       user:
         $ref: '#/definitions/model.User'
     type: object
+  model.RevenueGraphPoint:
+    properties:
+      actual:
+        type: number
+      month:
+        type: string
+      potential:
+        type: number
+    type: object
+  model.RevenueGraphResponse:
+    properties:
+      points:
+        items:
+          $ref: '#/definitions/model.RevenueGraphPoint'
+        type: array
+    type: object
   model.Story:
     properties:
-      assigneeId:
-        type: string
-      boardId:
-        type: string
+      assignee:
+        $ref: '#/definitions/model.User'
       columnId:
         type: string
       createdAt:
         type: string
+      creator:
+        $ref: '#/definitions/model.User'
       description:
         type: string
       endDate:
@@ -583,7 +601,7 @@ definitions:
       projectId:
         type: string
       size:
-        type: integer
+        type: string
       slug:
         type: string
       startDate:
@@ -595,8 +613,8 @@ definitions:
     type: object
   model.StoryActivity:
     properties:
-      actorId:
-        type: string
+      actor:
+        $ref: '#/definitions/model.User'
       createdAt:
         type: string
       id:
@@ -607,6 +625,11 @@ definitions:
         type: string
       type:
         $ref: '#/definitions/model.ActivityType'
+    type: object
+  model.StoryAssigneeRequest:
+    properties:
+      assigneeId:
+        type: string
     type: object
   model.StoryKind:
     enum:
@@ -624,11 +647,34 @@ definitions:
     - StoryTask
     - StoryDesign
     - StoryPlanning
+  model.StoryListItem:
+    properties:
+      assignee:
+        $ref: '#/definitions/model.User'
+      columnId:
+        type: string
+      estimate:
+        type: integer
+      id:
+        type: string
+      kind:
+        $ref: '#/definitions/model.StoryKind'
+      position:
+        type: integer
+      priority:
+        type: integer
+      projectId:
+        type: string
+      size:
+        type: string
+      slug:
+        type: string
+      title:
+        type: string
+    type: object
   model.StoryRequest:
     properties:
       assigneeId:
-        type: string
-      boardId:
         type: string
       columnId:
         type: string
@@ -645,11 +691,16 @@ definitions:
       priority:
         type: integer
       size:
-        type: integer
+        type: string
       startDate:
         type: string
       title:
         type: string
+    type: object
+  model.TotalRevenueResponse:
+    properties:
+      total:
+        type: number
     type: object
   model.UpdateProjectUserRequest:
     properties:
@@ -658,6 +709,12 @@ definitions:
     type: object
   model.User:
     properties:
+      avatarMime:
+        type: string
+      avatarVersion:
+        type: integer
+      color:
+        type: string
       email:
         type: string
       firstName:
@@ -1223,6 +1280,40 @@ paths:
       - GatewayAuth: []
       tags:
       - Invoices
+  /v1/inri/invoices/revenue:
+    get:
+      consumes:
+      - application/json
+      description: Returns the total revenue of all invoices that are paid and not
+        canceled
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.TotalRevenueResponse'
+      security:
+      - GatewayAuth: []
+      tags:
+      - Invoices
+  /v1/inri/invoices/revenue/graph:
+    get:
+      consumes:
+      - application/json
+      description: Returns last 12 months aggregated by issuedAt month (UTC). Potential
+        = non-canceled totals; Actual = paid and non-canceled totals.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.RevenueGraphResponse'
+      security:
+      - GatewayAuth: []
+      tags:
+      - Invoices
   /v1/inri/projects:
     get:
       consumes:
@@ -1281,15 +1372,15 @@ paths:
       tags:
       - Projects
   /v1/inri/projects/:projectId/favourite:
-    post:
+    put:
       consumes:
       - application/json
       description: Toggles the is_starred flag in a project for current user
       produces:
       - application/json
       responses:
-        "201":
-          description: Created
+        "200":
+          description: OK
           schema:
             $ref: '#/definitions/model.Project'
       security:
@@ -1409,6 +1500,39 @@ paths:
           description: No Content
           schema:
             type: string
+      security:
+      - GatewayAuth: []
+      tags:
+      - Projects
+  /v1/inri/projects/{projectId}/attachments/{attachmentId}:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes an attachment from the project
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No content
+          schema:
+            type: string
+      security:
+      - GatewayAuth: []
+      tags:
+      - Projects
+    get:
+      consumes:
+      - application/json
+      description: Downloads an attachment by ID
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Attachment'
+            type: array
       security:
       - GatewayAuth: []
       tags:
@@ -2323,6 +2447,183 @@ paths:
       - GatewayAuth: []
       tags:
       - Story Activities
+  /v1/inri/projects/{projectId}/stories/{storyId}/activities/{activityId}:
+    put:
+      consumes:
+      - application/json
+      description: Allows edition of activities like comments
+      parameters:
+      - description: Project ID
+        in: path
+        name: projectId
+        required: true
+        type: string
+      - description: Story ID
+        in: path
+        name: storyId
+        required: true
+        type: string
+      - description: Activity ID
+        in: path
+        name: activityId
+        required: true
+        type: string
+      - description: Activity payload including eventType and optional data
+        in: body
+        name: body
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.StoryActivity'
+      security:
+      - GatewayAuth: []
+      tags:
+      - Story Activities
+  /v1/inri/projects/{projectId}/stories/{storyId}/assignee:
+    get:
+      consumes:
+      - application/json
+      description: Returns an assignee of a story
+      parameters:
+      - description: Story ID
+        in: path
+        name: storyId
+        required: true
+        type: string
+      - description: Project ID
+        in: path
+        name: projectId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.User'
+      security:
+      - GatewayAuth: []
+      tags:
+      - Kanban Stories
+    put:
+      consumes:
+      - application/json
+      description: Changes an assignee of a story
+      parameters:
+      - description: Story ID
+        in: path
+        name: storyId
+        required: true
+        type: string
+      - description: Project ID
+        in: path
+        name: projectId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.StoryAssigneeRequest'
+      security:
+      - GatewayAuth: []
+      tags:
+      - Kanban Stories
+  /v1/inri/projects/{projectId}/stories/{storyId}/attachments:
+    get:
+      consumes:
+      - application/json
+      description: Returns a list of attachments by story ID
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Attachment'
+            type: array
+      security:
+      - GatewayAuth: []
+      tags:
+      - Kanban Stories
+    post:
+      consumes:
+      - multipart/form-data
+      description: Upload multiple files as attachments for the given story
+      parameters:
+      - description: Project ID
+        in: path
+        name: projectId
+        required: true
+        type: string
+      - description: Story ID
+        in: path
+        name: storyId
+        required: true
+        type: string
+      - collectionFormat: csv
+        description: Files to upload
+        in: formData
+        items:
+          type: file
+        name: files
+        required: true
+        type: array
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            type: string
+      security:
+      - GatewayAuth: []
+      tags:
+      - Kanban Stories
+  /v1/inri/projects/{projectId}/stories/{storyId}/attachments/{attachmentId}:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes an attachment from the project
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No content
+          schema:
+            type: string
+      security:
+      - GatewayAuth: []
+      tags:
+      - Kanban Stories
+    get:
+      consumes:
+      - application/json
+      description: Downloads an attachment by ID
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Attachment'
+            type: array
+      security:
+      - GatewayAuth: []
+      tags:
+      - Kanban Stories
   /v1/inri/projects/{projectId}/stories/{storyId}/labels:
     get:
       consumes:
@@ -2348,6 +2649,37 @@ paths:
             items:
               $ref: '#/definitions/model.Label'
             type: array
+      security:
+      - GatewayAuth: []
+      tags:
+      - Kanban Story Labels
+    post:
+      consumes:
+      - application/json
+      description: Assigns a label to a story
+      parameters:
+      - description: Project ID
+        in: path
+        name: projectId
+        required: true
+        type: string
+      - description: Story ID
+        in: path
+        name: storyId
+        required: true
+        type: string
+      - description: Label ID
+        in: path
+        name: labelId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            type: string
       security:
       - GatewayAuth: []
       tags:
@@ -2384,37 +2716,33 @@ paths:
       - GatewayAuth: []
       tags:
       - Kanban Story Labels
-    post:
+  /v1/inri/projects/{projectId}/stories/slug/{slug}:
+    get:
       consumes:
       - application/json
-      description: Assigns a label to a story
+      description: Returns a specific story by slug within a project
       parameters:
       - description: Project ID
         in: path
         name: projectId
         required: true
         type: string
-      - description: Story ID
+      - description: Story slug
         in: path
-        name: storyId
-        required: true
-        type: string
-      - description: Label ID
-        in: path
-        name: labelId
+        name: slug
         required: true
         type: string
       produces:
       - application/json
       responses:
-        "204":
-          description: No Content
+        "200":
+          description: OK
           schema:
-            type: string
+            $ref: '#/definitions/model.Story'
       security:
       - GatewayAuth: []
       tags:
-      - Kanban Story Labels
+      - Kanban Stories
   /v1/inri/projects/accept-invitation:
     post:
       consumes:

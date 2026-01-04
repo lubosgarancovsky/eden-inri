@@ -707,6 +707,60 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/inri/invoices/revenue": {
+            "get": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
+                "description": "Returns the total revenue of all invoices that are paid and not canceled",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Invoices"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.TotalRevenueResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/inri/invoices/revenue/graph": {
+            "get": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
+                "description": "Returns last 12 months aggregated by issuedAt month (UTC). Potential = non-canceled totals; Actual = paid and non-canceled totals.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Invoices"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.RevenueGraphResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/inri/invoices/{invoiceId}": {
             "get": {
                 "security": [
@@ -987,7 +1041,7 @@ const docTemplate = `{
             }
         },
         "/v1/inri/projects/:projectId/favourite": {
-            "post": {
+            "put": {
                 "security": [
                     {
                         "GatewayAuth": []
@@ -1004,8 +1058,8 @@ const docTemplate = `{
                     "Projects"
                 ],
                 "responses": {
-                    "201": {
-                        "description": "Created",
+                    "200": {
+                        "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/model.Project"
                         }
@@ -1232,6 +1286,61 @@ const docTemplate = `{
                 "responses": {
                     "204": {
                         "description": "No Content",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/inri/projects/{projectId}/attachments/{attachmentId}": {
+            "get": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
+                "description": "Downloads an attachment by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Projects"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.Attachment"
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
+                "description": "Deletes an attachment from the project",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Projects"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content",
                         "schema": {
                             "type": "string"
                         }
@@ -2419,6 +2528,49 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/inri/projects/{projectId}/stories/slug/{slug}": {
+            "get": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
+                "description": "Returns a specific story by slug within a project",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Kanban Stories"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project ID",
+                        "name": "projectId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Story slug",
+                        "name": "slug",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Story"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/inri/projects/{projectId}/stories/{storyId}": {
             "get": {
                 "security": [
@@ -2673,6 +2825,287 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/inri/projects/{projectId}/stories/{storyId}/activities/{activityId}": {
+            "put": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
+                "description": "Allows edition of activities like comments",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Story Activities"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project ID",
+                        "name": "projectId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Story ID",
+                        "name": "storyId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Activity ID",
+                        "name": "activityId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Activity payload including eventType and optional data",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.StoryActivity"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/inri/projects/{projectId}/stories/{storyId}/assignee": {
+            "get": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
+                "description": "Returns an assignee of a story",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Kanban Stories"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Story ID",
+                        "name": "storyId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Project ID",
+                        "name": "projectId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.User"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
+                "description": "Changes an assignee of a story",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Kanban Stories"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Story ID",
+                        "name": "storyId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Project ID",
+                        "name": "projectId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.StoryAssigneeRequest"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/inri/projects/{projectId}/stories/{storyId}/attachments": {
+            "get": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
+                "description": "Returns a list of attachments by story ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Kanban Stories"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.Attachment"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
+                "description": "Upload multiple files as attachments for the given story",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Kanban Stories"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project ID",
+                        "name": "projectId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Story ID",
+                        "name": "storyId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "file"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "Files to upload",
+                        "name": "files",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/inri/projects/{projectId}/stories/{storyId}/attachments/{attachmentId}": {
+            "get": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
+                "description": "Downloads an attachment by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Kanban Stories"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.Attachment"
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "GatewayAuth": []
+                    }
+                ],
+                "description": "Deletes an attachment from the project",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Kanban Stories"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/inri/projects/{projectId}/stories/{storyId}/labels": {
             "get": {
                 "security": [
@@ -2717,9 +3150,7 @@ const docTemplate = `{
                         }
                     }
                 }
-            }
-        },
-        "/v1/inri/projects/{projectId}/stories/{storyId}/labels/{labelId}": {
+            },
             "post": {
                 "security": [
                     {
@@ -2767,7 +3198,9 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
+            }
+        },
+        "/v1/inri/projects/{projectId}/stories/{storyId}/labels/{labelId}": {
             "delete": {
                 "security": [
                     {
@@ -3013,7 +3446,7 @@ const docTemplate = `{
                 "items": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/model.Story"
+                        "$ref": "#/definitions/model.StoryListItem"
                     }
                 },
                 "page": {
@@ -3070,7 +3503,7 @@ const docTemplate = `{
                 "model": {
                     "type": "string"
                 },
-                "modelID": {
+                "modelId": {
                     "type": "string"
                 },
                 "originalName": {
@@ -3389,6 +3822,9 @@ const docTemplate = `{
                 "boardId": {
                     "type": "string"
                 },
+                "color": {
+                    "type": "string"
+                },
                 "createdAt": {
                     "type": "string"
                 },
@@ -3412,6 +3848,9 @@ const docTemplate = `{
         "model.KanbanColumnRequest": {
             "type": "object",
             "properties": {
+                "color": {
+                    "type": "string"
+                },
                 "key": {
                     "type": "string"
                 },
@@ -3459,9 +3898,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "name": {
-                    "type": "string"
-                },
-                "projectId": {
                     "type": "string"
                 }
             }
@@ -3562,6 +3998,9 @@ const docTemplate = `{
         "model.ProjectInvitation": {
             "type": "object",
             "properties": {
+                "_": {
+                    "type": "string"
+                },
                 "acceptedAt": {
                     "type": "string"
                 },
@@ -3582,9 +4021,6 @@ const docTemplate = `{
                 },
                 "role": {
                     "$ref": "#/definitions/model.ProjectRole"
-                },
-                "token": {
-                    "type": "string"
                 }
             }
         },
@@ -3657,20 +4093,45 @@ const docTemplate = `{
                 }
             }
         },
+        "model.RevenueGraphPoint": {
+            "type": "object",
+            "properties": {
+                "actual": {
+                    "type": "number"
+                },
+                "month": {
+                    "type": "string"
+                },
+                "potential": {
+                    "type": "number"
+                }
+            }
+        },
+        "model.RevenueGraphResponse": {
+            "type": "object",
+            "properties": {
+                "points": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.RevenueGraphPoint"
+                    }
+                }
+            }
+        },
         "model.Story": {
             "type": "object",
             "properties": {
-                "assigneeId": {
-                    "type": "string"
-                },
-                "boardId": {
-                    "type": "string"
+                "assignee": {
+                    "$ref": "#/definitions/model.User"
                 },
                 "columnId": {
                     "type": "string"
                 },
                 "createdAt": {
                     "type": "string"
+                },
+                "creator": {
+                    "$ref": "#/definitions/model.User"
                 },
                 "description": {
                     "type": "string"
@@ -3697,7 +4158,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "size": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "slug": {
                     "type": "string"
@@ -3716,8 +4177,8 @@ const docTemplate = `{
         "model.StoryActivity": {
             "type": "object",
             "properties": {
-                "actorId": {
-                    "type": "string"
+                "actor": {
+                    "$ref": "#/definitions/model.User"
                 },
                 "createdAt": {
                     "type": "string"
@@ -3733,6 +4194,14 @@ const docTemplate = `{
                 },
                 "type": {
                     "$ref": "#/definitions/model.ActivityType"
+                }
+            }
+        },
+        "model.StoryAssigneeRequest": {
+            "type": "object",
+            "properties": {
+                "assigneeId": {
+                    "type": "string"
                 }
             }
         },
@@ -3755,13 +4224,48 @@ const docTemplate = `{
                 "StoryPlanning"
             ]
         },
+        "model.StoryListItem": {
+            "type": "object",
+            "properties": {
+                "assignee": {
+                    "$ref": "#/definitions/model.User"
+                },
+                "columnId": {
+                    "type": "string"
+                },
+                "estimate": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "kind": {
+                    "$ref": "#/definitions/model.StoryKind"
+                },
+                "position": {
+                    "type": "integer"
+                },
+                "priority": {
+                    "type": "integer"
+                },
+                "projectId": {
+                    "type": "string"
+                },
+                "size": {
+                    "type": "string"
+                },
+                "slug": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
         "model.StoryRequest": {
             "type": "object",
             "properties": {
                 "assigneeId": {
-                    "type": "string"
-                },
-                "boardId": {
                     "type": "string"
                 },
                 "columnId": {
@@ -3786,13 +4290,21 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "size": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "startDate": {
                     "type": "string"
                 },
                 "title": {
                     "type": "string"
+                }
+            }
+        },
+        "model.TotalRevenueResponse": {
+            "type": "object",
+            "properties": {
+                "total": {
+                    "type": "number"
                 }
             }
         },
@@ -3807,6 +4319,15 @@ const docTemplate = `{
         "model.User": {
             "type": "object",
             "properties": {
+                "avatarMime": {
+                    "type": "string"
+                },
+                "avatarVersion": {
+                    "type": "integer"
+                },
+                "color": {
+                    "type": "string"
+                },
                 "email": {
                     "type": "string"
                 },
