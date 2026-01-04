@@ -141,6 +141,7 @@ func (s *ProjectService) buildPayload(input *model.ProjectRequest) *model.Projec
 		Description:    input.Description,
 		Status:         input.Status,
 		Tags:           input.Tags,
+		Slug:           input.Slug,
 		UpdatedAt:      time.Now(),
 		LastActivityAt: time.Now(),
 	}
