@@ -16,6 +16,8 @@ import (
 // @in header
 // @name X-User-ID
 func main() {
+	fmt.Println("▗▄▄▄▖▗▄▄▄ ▗▄▄▄▖▗▖  ▗▖        ▗▄▄▄▖▗▖  ▗▖▗▄▄▖ ▗▄▄▄▖\n▐▌   ▐▌  █▐▌   ▐▛▚▖▐▌          █  ▐▛▚▖▐▌▐▌ ▐▌  █  \n▐▛▀▀▘▐▌  █▐▛▀▀▘▐▌ ▝▜▌          █  ▐▌ ▝▜▌▐▛▀▚▖  █  \n▐▙▄▄▖▐▙▄▄▀▐▙▄▄▖▐▌  ▐▌        ▗▄█▄▖▐▌  ▐▌▐▌ ▐▌▗▄█▄▖\n                                                  \n                                                  \n                                                  \n")
+
 	r := gin.Default()
 	cfg := config.LoadConfig()
 	dbconn, err := db.ConnectDB(cfg.DBUrl)
