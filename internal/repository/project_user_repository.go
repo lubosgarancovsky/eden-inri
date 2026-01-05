@@ -44,7 +44,7 @@ func (r *ProjectUserRepository) FindAll(
 	return &members, total, nil
 }
 
-func (r *ProjectUserRepository) FindByID(ctx context.Context, projectID, userID uuid.UUID) (*model.ProjectUser, error) {
+func (r *ProjectUserRepository) FindByID(ctx context.Context, userID, projectID uuid.UUID) (*model.ProjectUser, error) {
 	var projectUser model.ProjectUser
 	err := r.db.
 		WithContext(ctx).

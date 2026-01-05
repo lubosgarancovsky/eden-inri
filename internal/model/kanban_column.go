@@ -16,7 +16,7 @@ const (
 
 type KanbanColumn struct {
 	ID        uuid.UUID  `gorm:"primary_key;type:uuid;default:uuid_generate_v4()" json:"id"`
-	BoardID   uuid.UUID  `json:"boardId"`
+	BoardID   uuid.UUID  `gorm:"type:uuid;not null" json:"boardId"`
 	Key       string     `json:"key"`
 	Name      string     `json:"name"`
 	Type      ColumnType `json:"type"`

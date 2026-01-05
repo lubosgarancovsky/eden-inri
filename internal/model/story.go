@@ -19,28 +19,29 @@ const (
 
 type StoryListItem struct {
 	ID         uuid.UUID  `gorm:"primary_key;type:uuid;default:uuid_generate_v4()" json:"id"`
-	ProjectID  uuid.UUID  `json:"projectId"`
-	ColumnID   uuid.UUID  `json:"columnId"`
+	ProjectID  uuid.UUID  `gorm:"type:uuid;not null" json:"projectId"`
+	ColumnID   uuid.UUID  `gorm:"type:uuid;not null" json:"columnId"`
+	BoardID    uuid.UUID  `gorm:"type:uuid;not null" json:"boardId"`
 	Slug       string     `json:"slug"`
 	Title      string     `json:"title"`
 	Kind       StoryKind  `json:"kind"`
-	AssigneeID *uuid.UUID `json:"-"`
+	AssigneeID *uuid.UUID `gorm:"type:uuid;not null" json:"-"`
 	Priority   int        `json:"priority" gorm:"not null;default:0"`
 	Size       *string    `json:"size"`
 	Estimate   *int       `json:"estimate" gorm:"not null;default:0"`
 	Position   int        `json:"position" gorm:"not null;default:0"`
 	Assignee   *User      `json:"assignee" gorm:"column:assignee_id"`
+	CreatedAt  time.Time  `json:"createdAt" gorm:"<-:create"`
+	UpdatedAt  time.Time  `json:"updatedAt"`
+	StartDate  *time.Time `json:"startDate"`
+	EndDate    *time.Time `json:"endDate"`
 }
 
 type Story struct {
 	StoryListItem
-	Description string     `json:"description"`
-	StartDate   *time.Time `json:"startDate"`
-	EndDate     *time.Time `json:"endDate"`
-	CreatedAt   time.Time  `json:"createdAt" gorm:"<-:create"`
-	UpdatedAt   time.Time  `json:"updatedAt"`
-	CreatedBy   uuid.UUID  `json:"-" gorm:"column:created_by;<-:create"`
-	Creator     *User      `json:"creator" gorm:"foreignKey:CreatedBy;references:ID"`
+	Description string    `json:"description"`
+	CreatedBy   uuid.UUID `json:"" gorm:"column:created_by;<-:create"`
+	Creator     *User     `json:"creator" gorm:"foreignKey:CreatedBy;references:ID"`
 }
 
 type StoryRequest struct {

@@ -76,3 +76,15 @@ func (r *KanbanColumnRepository) Delete(ctx context.Context, boardID, columnID u
 	}
 	return nil
 }
+
+// GetBoardID returns a board ID of a column
+func (r *KanbanColumnRepository) GetBoardID(ctx context.Context, columnID uuid.UUID) (*uuid.UUID, error) {
+	var col model.KanbanColumn
+	err := r.db.
+		WithContext(ctx).
+		Where("id = ?", columnID).
+		First(&col).
+		Error
+
+	return &col.BoardID, err
+}

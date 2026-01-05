@@ -101,7 +101,7 @@ func SetupRouter(r *gin.Engine, cfg *config.Config, db *gorm.DB) *gin.Engine {
 		projects.POST("", projectHandler.Create)
 		projects.PUT("/:projectId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin), projectHandler.Update)
 		projects.DELETE("/:projectId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner), projectHandler.Delete)
-		projects.POST("/:projectId/favourite", projectHandler.Favourite)
+		projects.PUT("/:projectId/favourite", projectHandler.Favourite)
 
 		// Project attachments
 		projects.POST("/:projectId/attachments", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin), projectHandler.UploadAttachments)
@@ -177,12 +177,13 @@ func SetupRouter(r *gin.Engine, cfg *config.Config, db *gorm.DB) *gin.Engine {
 
 	// Stories
 	storyRepo := repository.NewStoryRepository(db)
-	storyService := service.NewStoryService(storyRepo, projectService, projectUserService, kanbanService, attachmentService)
+	storyService := service.NewStoryService(storyRepo, projectService, projectUserService, kanbanService, kanbanColumnsService, attachmentService)
 	storyHandler := handler.NewStoryHandler(parser, storyService)
 
 	stories := projects.Group("/:projectId/stories")
 
 	{
+		protected.GET("/stories", storyHandler.FindAllAssigned)
 		stories.GET("", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer, model.Guest), storyHandler.FindAll)
 		stories.POST("", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer), storyHandler.Insert)
 		stories.GET("/slug/:slug", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer, model.Guest), storyHandler.FindBySlug)
