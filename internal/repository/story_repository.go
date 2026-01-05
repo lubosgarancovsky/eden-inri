@@ -32,13 +32,32 @@ func (r *StoryRepository) DB() *gorm.DB {
 	return r.db
 }
 
+func (r *StoryRepository) FindAllAssigned(ctx context.Context, userID uuid.UUID, lq *list.ListingQuery) (*[]model.StoryListItem, int64, error) {
+	query := r.db.
+		WithContext(ctx).
+		Model(model.Story{}).
+		Preload("Assignee").
+		Select("*").
+		Where("assignee_id = ?", userID)
+
+	if lq.Filter != nil {
+		query = query.Where(lq.Filter.Query, lq.Filter.Args...)
+	}
+
+	items, total, err := helpers.List[model.StoryListItem](query, lq)
+	if err != nil {
+		return nil, 0, err
+	}
+	return &items, total, nil
+}
+
 func (r *StoryRepository) FindAll(ctx context.Context, projectID uuid.UUID, lq *list.ListingQuery) (*[]model.StoryListItem, int64, error) {
 	query := r.db.
 		WithContext(ctx).
 		Model(model.Story{}).
 		Preload("Assignee").
 		Select("*").
-		Where("project_id", projectID)
+		Where("project_id = ?", projectID)
 
 	if lq.Filter != nil {
 		query = query.Where(lq.Filter.Query, lq.Filter.Args...)

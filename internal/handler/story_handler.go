@@ -16,8 +16,8 @@ var StoryListConfig = types.ListConfig{
 	Filter: map[string]string{
 		"id":         "id",
 		"projectId":  "project_id",
-		"boardId":    "board_id",
 		"columnId":   "column_id",
+		"boardId":    "board_id",
 		"slug":       "slug",
 		"title":      "title",
 		"kind":       "kind",
@@ -53,12 +53,36 @@ func NewStoryHandler(p *rsql.Parser, s *service.StoryService) *StoryHandler {
 	return &StoryHandler{s: s, parser: p}
 }
 
+// FindAllAssigned @Summary      List stories assigned to current user
+// @Description  Returns all stories that are assigned to the caller
+// @Tags         Kanban Stories
+// @Accept       json
+// @Produce      json
+// @Param        page      query     int     false  "Page number"     default(1)
+// @Param        pageSize  query     int     false  "Items per page"  default(10)
+// @Param        filter      query     string     false  "RSQL filter query"
+// @Param        sort  query     string     false  "Sort query"
+// @Success      200  {array}  StoryPage
+// @Router       /v1/inri/stories [get]
+// @security GatewayAuth
+func (h *StoryHandler) FindAllAssigned(c *gin.Context) {
+	lq := helpers.CreateListingQuery(c, h.parser, StoryListConfig.Filter, StoryListConfig.Sort)
+	userID := helpers.GetUserContext(c).ID
+
+	stories, err := h.s.FindAllAssigned(c.Request.Context(), userID, lq)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	c.JSON(200, stories)
+}
+
 // FindAll @Summary      List stories in a column
 // @Description  Returns all stories for a column
 // @Tags         Kanban Stories
 // @Accept       json
 // @Produce      json
-// @Param        kanbanId   path      string  true  "Kanban board ID"
 // @Param        columnId   path      string  true  "Column ID"
 // @Param        page      query     int     false  "Page number"     default(1)
 // @Param        pageSize  query     int     false  "Items per page"  default(10)

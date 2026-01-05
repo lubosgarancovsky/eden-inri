@@ -61,3 +61,7 @@ func (s *KanbanColumnService) Update(ctx context.Context, boardID, columnID uuid
 func (s *KanbanColumnService) Delete(ctx context.Context, boardID, columnID uuid.UUID) error {
 	return s.repo.Delete(ctx, boardID, columnID)
 }
+
+func (s *KanbanColumnService) GetBoardID(ctx context.Context, columnID uuid.UUID) (*uuid.UUID, error) {
+	return s.repo.GetBoardID(ctx, columnID)
+}

@@ -241,8 +241,8 @@ func (h *ProjectHandler) DeleteAttachment(c *gin.Context) {
 // @Tags         Projects
 // @Accept       json
 // @Produce      json
-// @Success      201  {object}  model.Project
-// @Router       /v1/inri/projects/:projectId/favourite [post]
+// @Success      200  {object}  model.Project
+// @Router       /v1/inri/projects/:projectId/favourite [put]
 // @security GatewayAuth
 func (h *ProjectHandler) Favourite(c *gin.Context) {
 	userID := helpers.GetUserContext(c).ID

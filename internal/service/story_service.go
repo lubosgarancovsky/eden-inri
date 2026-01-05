@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"mime/multipart"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -14,16 +15,31 @@ import (
 )
 
 type StoryService struct {
-	repo               *repository.StoryRepository
-	projectService     *ProjectService
-	projectUserService *ProjectUserService
-	kanbanBoardService *KanbanBoardService
-	attachmentService  *AttachmentService
-	ModelName          string
+	repo                *repository.StoryRepository
+	projectService      *ProjectService
+	projectUserService  *ProjectUserService
+	kanbanBoardService  *KanbanBoardService
+	kanbanColumnService *KanbanColumnService
+	attachmentService   *AttachmentService
+	ModelName           string
 }
 
-func NewStoryService(repo *repository.StoryRepository, ps *ProjectService, pus *ProjectUserService, kbs *KanbanBoardService, as *AttachmentService) *StoryService {
-	return &StoryService{repo: repo, projectService: ps, projectUserService: pus, kanbanBoardService: kbs, attachmentService: as, ModelName: "story"}
+func NewStoryService(repo *repository.StoryRepository, ps *ProjectService, pus *ProjectUserService, kbs *KanbanBoardService, kcs *KanbanColumnService, as *AttachmentService) *StoryService {
+	return &StoryService{repo: repo, projectService: ps, projectUserService: pus, kanbanBoardService: kbs, kanbanColumnService: kcs, attachmentService: as, ModelName: "story"}
+}
+
+func (s *StoryService) FindAllAssigned(ctx context.Context, userID uuid.UUID, lq *list.ListingQuery) (*list.Page[model.StoryListItem], error) {
+	items, totalCount, err := s.repo.FindAllAssigned(ctx, userID, lq)
+	if err != nil {
+		return nil, err
+	}
+
+	return &list.Page[model.StoryListItem]{
+		Items:      *items,
+		Page:       lq.Page,
+		PageSize:   lq.Limit,
+		TotalCount: totalCount,
+	}, nil
 }
 
 func (s *StoryService) FindAll(ctx context.Context, projectID uuid.UUID, lq *list.ListingQuery) (*list.Page[model.StoryListItem], error) {
@@ -49,24 +65,30 @@ func (s *StoryService) FindBySlug(ctx context.Context, projectID uuid.UUID, slug
 }
 
 func (s *StoryService) Insert(ctx context.Context, userID, projectID uuid.UUID, req *model.StoryRequest) (*model.Story, error) {
+	boardID, err := s.kanbanColumnService.GetBoardID(ctx, req.ColumnID)
+	if err != nil {
+		return nil, err
+	}
+
 	story := &model.Story{
 		StoryListItem: model.StoryListItem{
 			ProjectID:  projectID,
 			ColumnID:   req.ColumnID,
+			BoardID:    *boardID,
 			AssigneeID: req.AssigneeID,
 			Title:      req.Title,
 			Kind:       req.Kind,
 			Priority:   req.Priority,
 			Size:       req.Size,
 			Estimate:   req.Estimate,
+			StartDate:  req.StartDate,
+			EndDate:    req.EndDate,
 		},
 		Description: req.Description,
-		StartDate:   req.StartDate,
-		EndDate:     req.EndDate,
 		CreatedBy:   userID,
 	}
 
-	err := s.repo.WithTx(ctx, func(txRepo *repository.StoryRepository) error {
+	err = s.repo.WithTx(ctx, func(txRepo *repository.StoryRepository) error {
 		var project model.Project
 
 		if err := txRepo.DB().
@@ -107,10 +129,11 @@ func (s *StoryService) Update(ctx context.Context, projectID, storyID uuid.UUID,
 			Priority:   req.Priority,
 			Size:       req.Size,
 			Estimate:   req.Estimate,
+			StartDate:  req.StartDate,
+			EndDate:    req.EndDate,
+			UpdatedAt:  time.Now(),
 		},
 		Description: req.Description,
-		StartDate:   req.StartDate,
-		EndDate:     req.EndDate,
 	}
 
 	return s.repo.Update(ctx, story)
