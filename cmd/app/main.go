@@ -1,8 +1,12 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
+	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/lubosgarancovsky/eden-inri/docs"
@@ -27,8 +31,22 @@ func main() {
 
 	router.SetupRouter(r, cfg, dbconn)
 
-	err = r.Run(fmt.Sprintf(":%d", cfg.Port))
-	if err != nil {
-		log.Fatal(err)
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+
+	go func() {
+		if err := r.Run(fmt.Sprintf(":%d", cfg.Port)); err != nil {
+			log.Println(err)
+			stop()
+		}
+	}()
+
+	<-ctx.Done() // wait for shutdown signal
+
+	log.Println("shutting down")
+
+	if dbconn != nil {
+		sqlDB, _ := dbconn.DB()
+		sqlDB.Close()
 	}
 }
