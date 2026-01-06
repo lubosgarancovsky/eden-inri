@@ -34,7 +34,7 @@ systemctl --user stop container-$SERVICE_NAME.service
 systemctl --user disable container-$SERVICE_NAME.service
 
 echo "-- Building the service image"
-podman-compose up -d --build --no-recreate
+podman-compose up -d --build --force-recreate
 
 echo "-- Generating systemd unit"
 podman generate systemd --name $SERVICE_NAME --files --new
