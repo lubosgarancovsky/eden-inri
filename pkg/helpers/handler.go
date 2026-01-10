@@ -6,7 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/lubosgarancovsky/eden-inri/internal/model"
+	"github.com/lubosgarancovsky/eden-inri/internal/models"
 	"github.com/lubosgarancovsky/eden-inri/pkg/types"
 	"github.com/lubosgarancovsky/go-kit/api_err"
 	"github.com/lubosgarancovsky/go-kit/filter"
@@ -92,9 +92,9 @@ func ExtractID(c *gin.Context, name string) uuid.UUID {
 	return UID
 }
 
-func GetUserContext(c *gin.Context) *model.UserContext {
+func GetUserContext(c *gin.Context) *models.UserContext {
 	user, _ := c.Get("user")
-	return user.(*model.UserContext)
+	return user.(*models.UserContext)
 }
 
 func HandleList[T any](c *gin.Context, parser *rsql.Parser, config types.ListConfig, fn func(ctx context.Context, userID uuid.UUID, lq *list.ListingQuery) (*[]T, int64, error)) {

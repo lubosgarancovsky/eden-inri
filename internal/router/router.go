@@ -2,19 +2,22 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/lubosgarancovsky/eden-inri/internal/config"
-	"github.com/lubosgarancovsky/eden-inri/internal/handler"
+	"github.com/lubosgarancovsky/eden-inri/config"
+	"github.com/lubosgarancovsky/eden-inri/internal/handlers"
 	"github.com/lubosgarancovsky/eden-inri/internal/middleware"
-	"github.com/lubosgarancovsky/eden-inri/internal/model"
-	"github.com/lubosgarancovsky/eden-inri/internal/repository"
-	"github.com/lubosgarancovsky/eden-inri/internal/service"
+	"github.com/lubosgarancovsky/eden-inri/internal/models"
+	"github.com/lubosgarancovsky/eden-inri/internal/repositories"
+	"github.com/lubosgarancovsky/eden-inri/internal/services"
 	"github.com/lubosgarancovsky/go-kit/rsql"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"gorm.io/gorm"
 )
 
-func SetupRouter(r *gin.Engine, cfg *config.Config, db *gorm.DB) *gin.Engine {
+func SetupRouter(r *gin.Engine, db *gorm.DB) *gin.Engine {
+	// TODO: Remove after migrating to GlobalConfig ( temp )
+	cfg := config.GlobalConfig
+
 	parser := rsql.New()
 	v1 := r.Group("/v1/inri", middleware.ErrorMiddleware(), middleware.AppStateValidationMiddleware(db))
 	protected := v1.Group("", middleware.AuthMiddleware())
@@ -26,17 +29,17 @@ func SetupRouter(r *gin.Engine, cfg *config.Config, db *gorm.DB) *gin.Engine {
 		c.JSON(200, gin.H{"status": "ok"})
 	})
 
-	emailService := service.NewEmailService(cfg)
+	emailService := services.NewEmailService(cfg)
 
 	// Attachments
-	attachmentRepo := repository.NewAttachmentRepository(db)
-	attachmentService := service.NewAttachmentService(cfg, attachmentRepo)
-	attachmentHandler := handler.NewAttachmentHandler(parser, attachmentService)
+	attachmentRepo := repositories.NewAttachmentRepository(db)
+	attachmentService := services.NewAttachmentService(cfg, attachmentRepo)
+	attachmentHandler := handlers.NewAttachmentHandler(parser, attachmentService)
 
 	// Contact persons
-	cpRepo := repository.NewContactPersonRepository(db)
-	cpService := service.NewContactPersonService(cpRepo)
-	cpHandler := handler.NewContactPersonHandler(parser, cpService)
+	cpRepo := repositories.NewContactPersonRepository(db)
+	cpService := services.NewContactPersonService(cpRepo)
+	cpHandler := handlers.NewContactPersonHandler(parser, cpService)
 
 	clients := protected.Group("/clients")
 	contactPersons := clients.Group("/:clientId/contact-persons")
@@ -49,9 +52,9 @@ func SetupRouter(r *gin.Engine, cfg *config.Config, db *gorm.DB) *gin.Engine {
 	}
 
 	// Clients
-	clientRepo := repository.NewClientRepository(db)
-	clientService := service.NewClientService(clientRepo)
-	clientHandler := handler.NewClientHandler(parser, clientService)
+	clientRepo := repositories.NewClientRepository(db)
+	clientService := services.NewClientService(clientRepo)
+	clientHandler := handlers.NewClientHandler(parser, clientService)
 	{
 		clients.GET("", clientHandler.FindAll)
 		clients.GET("/:clientId", clientHandler.FindByID)
@@ -61,9 +64,9 @@ func SetupRouter(r *gin.Engine, cfg *config.Config, db *gorm.DB) *gin.Engine {
 	}
 
 	// Invoices
-	invRepo := repository.NewInvoiceRepository(db)
-	invService := service.NewInvoiceService(invRepo, attachmentService)
-	invHandler := handler.NewInvoiceHandler(parser, invService)
+	invRepo := repositories.NewInvoiceRepository(db)
+	invService := services.NewInvoiceService(invRepo, attachmentService)
+	invHandler := handlers.NewInvoiceHandler(parser, invService)
 
 	invoices := protected.Group("/invoices")
 	{
@@ -79,77 +82,77 @@ func SetupRouter(r *gin.Engine, cfg *config.Config, db *gorm.DB) *gin.Engine {
 	}
 
 	// Project users
-	projectUserRepo := repository.NewProjectUserRepository(db)
-	projectUserService := service.NewProjectUserService(projectUserRepo)
-	projectUserHandler := handler.NewProjectUserHandler(parser, projectUserService)
+	projectUserRepo := repositories.NewProjectUserRepository(db)
+	projectUserService := services.NewProjectUserService(projectUserRepo)
+	projectUserHandler := handlers.NewProjectUserHandler(parser, projectUserService)
 
 	projects := protected.Group("/projects")
 	{
-		projects.GET("/:projectId/members", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer, model.Guest), projectUserHandler.FindAll)
-		projects.PUT("/:projectId/members/:memberId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin), projectUserHandler.Update)
-		projects.DELETE("/:projectId/members/:memberId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin), projectUserHandler.Delete)
+		projects.GET("/:projectId/members", middleware.ProjectRoleMiddleware(projectUserService, models.Owner, models.Admin, models.Developer, models.Guest), projectUserHandler.FindAll)
+		projects.PUT("/:projectId/members/:memberId", middleware.ProjectRoleMiddleware(projectUserService, models.Owner, models.Admin), projectUserHandler.Update)
+		projects.DELETE("/:projectId/members/:memberId", middleware.ProjectRoleMiddleware(projectUserService, models.Owner, models.Admin), projectUserHandler.Delete)
 	}
 
 	// Projects
-	projectRepo := repository.NewProjectRepository(db)
-	projectService := service.NewProjectService(projectRepo, attachmentService, projectUserService)
-	projectHandler := handler.NewProjectHandler(parser, projectService)
+	projectRepo := repositories.NewProjectRepository(db)
+	projectService := services.NewProjectService(projectRepo, attachmentService, projectUserService)
+	projectHandler := handlers.NewProjectHandler(parser, projectService)
 
 	{
 		projects.GET("", projectHandler.FindAll)
 		projects.GET("/:projectId", projectHandler.FindByID)
 		projects.POST("", projectHandler.Create)
-		projects.PUT("/:projectId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin), projectHandler.Update)
-		projects.DELETE("/:projectId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner), projectHandler.Delete)
+		projects.PUT("/:projectId", middleware.ProjectRoleMiddleware(projectUserService, models.Owner, models.Admin), projectHandler.Update)
+		projects.DELETE("/:projectId", middleware.ProjectRoleMiddleware(projectUserService, models.Owner), projectHandler.Delete)
 		projects.PUT("/:projectId/favourite", projectHandler.Favourite)
 
 		// Project attachments
-		projects.POST("/:projectId/attachments", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin), projectHandler.UploadAttachments)
-		projects.GET("/:projectId/attachments", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer, model.Guest), projectHandler.ListAttachments)
-		projects.GET("/:projectId/attachments/:attachmentId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer, model.Guest), projectHandler.DownloadAttachment)
-		projects.DELETE("/:projectId/attachments/:attachmentId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin), projectHandler.DeleteAttachment)
+		projects.POST("/:projectId/attachments", middleware.ProjectRoleMiddleware(projectUserService, models.Owner, models.Admin), projectHandler.UploadAttachments)
+		projects.GET("/:projectId/attachments", middleware.ProjectRoleMiddleware(projectUserService, models.Owner, models.Admin, models.Developer, models.Guest), projectHandler.ListAttachments)
+		projects.GET("/:projectId/attachments/:attachmentId", middleware.ProjectRoleMiddleware(projectUserService, models.Owner, models.Admin, models.Developer, models.Guest), projectHandler.DownloadAttachment)
+		projects.DELETE("/:projectId/attachments/:attachmentId", middleware.ProjectRoleMiddleware(projectUserService, models.Owner, models.Admin), projectHandler.DeleteAttachment)
 	}
 
 	// Labels
-	labelRepo := repository.NewLabelRepository(db)
-	labelService := service.NewLabelService(labelRepo, projectUserService)
-	labelHandler := handler.NewLabelHandler(parser, labelService)
+	labelRepo := repositories.NewLabelRepository(db)
+	labelService := services.NewLabelService(labelRepo, projectUserService)
+	labelHandler := handlers.NewLabelHandler(parser, labelService)
 
 	labels := projects.Group("/:projectId/labels")
 	{
-		labels.GET("", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer, model.Guest), labelHandler.FindAll)
-		labels.GET("/:labelId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer, model.Guest), labelHandler.FindByID)
-		labels.POST("", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin), labelHandler.Insert)
-		labels.PUT("/:labelId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin), labelHandler.Update)
-		labels.DELETE("/:labelId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin), labelHandler.Delete)
+		labels.GET("", middleware.ProjectRoleMiddleware(projectUserService, models.Owner, models.Admin, models.Developer, models.Guest), labelHandler.FindAll)
+		labels.GET("/:labelId", middleware.ProjectRoleMiddleware(projectUserService, models.Owner, models.Admin, models.Developer, models.Guest), labelHandler.FindByID)
+		labels.POST("", middleware.ProjectRoleMiddleware(projectUserService, models.Owner, models.Admin), labelHandler.Insert)
+		labels.PUT("/:labelId", middleware.ProjectRoleMiddleware(projectUserService, models.Owner, models.Admin), labelHandler.Update)
+		labels.DELETE("/:labelId", middleware.ProjectRoleMiddleware(projectUserService, models.Owner, models.Admin), labelHandler.Delete)
 	}
 
 	// Kanban boards
-	kanbanRepo := repository.NewKanbanBoardRepository(db)
-	kanbanService := service.NewKanbanBoardService(kanbanRepo, projectUserService)
-	kanbanHandler := handler.NewKanbanBoardHandler(kanbanService, parser)
+	kanbanRepo := repositories.NewKanbanBoardRepository(db)
+	kanbanService := services.NewKanbanBoardService(kanbanRepo, projectUserService)
+	kanbanHandler := handlers.NewKanbanBoardHandler(kanbanService, parser)
 
 	kanban := projects.Group("/:projectId/kanban")
 	{
-		kanban.GET("", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer, model.Guest), kanbanHandler.FindAll)
-		kanban.POST("", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin), kanbanHandler.Insert)
-		kanban.PUT("/:kanbanId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin), kanbanHandler.Update)
-		kanban.GET("/:kanbanId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer, model.Guest), kanbanHandler.FindByID)
-		kanban.DELETE("/:kanbanId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin), kanbanHandler.Delete)
+		kanban.GET("", middleware.ProjectRoleMiddleware(projectUserService, models.Owner, models.Admin, models.Developer, models.Guest), kanbanHandler.FindAll)
+		kanban.POST("", middleware.ProjectRoleMiddleware(projectUserService, models.Owner, models.Admin), kanbanHandler.Insert)
+		kanban.PUT("/:kanbanId", middleware.ProjectRoleMiddleware(projectUserService, models.Owner, models.Admin), kanbanHandler.Update)
+		kanban.GET("/:kanbanId", middleware.ProjectRoleMiddleware(projectUserService, models.Owner, models.Admin, models.Developer, models.Guest), kanbanHandler.FindByID)
+		kanban.DELETE("/:kanbanId", middleware.ProjectRoleMiddleware(projectUserService, models.Owner, models.Admin), kanbanHandler.Delete)
 	}
 
 	// Project Documents
-	projectDocRepo := repository.NewProjectDocumentRepository(db)
-	projectDocService := service.NewProjectDocumentService(projectDocRepo, projectUserService)
-	projectDocHandler := handler.NewProjectDocumentHandler(parser, projectDocService)
+	projectDocRepo := repositories.NewProjectDocumentRepository(db)
+	projectDocService := services.NewProjectDocumentService(projectDocRepo, projectUserService)
+	projectDocHandler := handlers.NewProjectDocumentHandler(parser, projectDocService)
 
 	projectDocuments := projects.Group(":projectId/documents")
 	{
-		projectDocuments.GET("", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer, model.Guest), projectDocHandler.FindAll)
-		projectDocuments.GET("/:documentId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer, model.Guest), projectDocHandler.FindByID)
-		projectDocuments.POST("", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer), projectDocHandler.Create)
-		projectDocuments.PUT("/:documentId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer), projectDocHandler.Update)
-		projectDocuments.DELETE("/:documentId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer), projectDocHandler.Delete)
+		projectDocuments.GET("", middleware.ProjectRoleMiddleware(projectUserService, models.Owner, models.Admin, models.Developer, models.Guest), projectDocHandler.FindAll)
+		projectDocuments.GET("/:documentId", middleware.ProjectRoleMiddleware(projectUserService, models.Owner, models.Admin, models.Developer, models.Guest), projectDocHandler.FindByID)
+		projectDocuments.POST("", middleware.ProjectRoleMiddleware(projectUserService, models.Owner, models.Admin, models.Developer), projectDocHandler.Create)
+		projectDocuments.PUT("/:documentId", middleware.ProjectRoleMiddleware(projectUserService, models.Owner, models.Admin, models.Developer), projectDocHandler.Update)
+		projectDocuments.DELETE("/:documentId", middleware.ProjectRoleMiddleware(projectUserService, models.Owner, models.Admin, models.Developer), projectDocHandler.Delete)
 	}
 
 	// Attachments
@@ -162,74 +165,74 @@ func SetupRouter(r *gin.Engine, cfg *config.Config, db *gorm.DB) *gin.Engine {
 	}
 
 	// Kanban columns
-	kanbanColumnsRepo := repository.NewKanbanColumnRepository(db)
-	kanbanColumnsService := service.NewKanbanColumnService(kanbanColumnsRepo, projectUserService, kanbanService)
-	kanbanColumnsHandler := handler.NewKanbanColumnHandler(kanbanColumnsService)
+	kanbanColumnsRepo := repositories.NewKanbanColumnRepository(db)
+	kanbanColumnsService := services.NewKanbanColumnService(kanbanColumnsRepo, projectUserService, kanbanService)
+	kanbanColumnsHandler := handlers.NewKanbanColumnHandler(kanbanColumnsService)
 
 	column := kanban.Group("/:kanbanId/columns")
 	{
-		column.GET("", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer, model.Guest), kanbanColumnsHandler.FindAll)
-		column.GET("/:columnId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer, model.Guest), kanbanColumnsHandler.FindByID)
-		column.POST("", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer, model.Guest), kanbanColumnsHandler.Insert)
-		column.PUT("/:columnId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer, model.Guest), kanbanColumnsHandler.Update)
-		column.DELETE("/:columnId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer, model.Guest), kanbanColumnsHandler.Delete)
+		column.GET("", middleware.ProjectRoleMiddleware(projectUserService, models.Owner, models.Admin, models.Developer, models.Guest), kanbanColumnsHandler.FindAll)
+		column.GET("/:columnId", middleware.ProjectRoleMiddleware(projectUserService, models.Owner, models.Admin, models.Developer, models.Guest), kanbanColumnsHandler.FindByID)
+		column.POST("", middleware.ProjectRoleMiddleware(projectUserService, models.Owner, models.Admin, models.Developer, models.Guest), kanbanColumnsHandler.Insert)
+		column.PUT("/:columnId", middleware.ProjectRoleMiddleware(projectUserService, models.Owner, models.Admin, models.Developer, models.Guest), kanbanColumnsHandler.Update)
+		column.DELETE("/:columnId", middleware.ProjectRoleMiddleware(projectUserService, models.Owner, models.Admin, models.Developer, models.Guest), kanbanColumnsHandler.Delete)
 	}
 
 	// Stories
-	storyRepo := repository.NewStoryRepository(db)
-	storyService := service.NewStoryService(storyRepo, projectService, projectUserService, kanbanService, kanbanColumnsService, attachmentService)
-	storyHandler := handler.NewStoryHandler(parser, storyService)
+	storyRepo := repositories.NewStoryRepository(db)
+	storyService := services.NewStoryService(storyRepo, projectService, projectUserService, kanbanService, kanbanColumnsService, attachmentService)
+	storyHandler := handlers.NewStoryHandler(parser, storyService)
 
 	stories := projects.Group("/:projectId/stories")
 
 	{
 		protected.GET("/stories", storyHandler.FindAllAssigned)
-		stories.GET("", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer, model.Guest), storyHandler.FindAll)
-		stories.POST("", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer), storyHandler.Insert)
-		stories.GET("/slug/:slug", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer, model.Guest), storyHandler.FindBySlug)
-		stories.GET("/:storyId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer, model.Guest), storyHandler.FindByID)
-		stories.PUT("/:storyId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer), storyHandler.Update)
-		stories.DELETE("/:storyId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer), storyHandler.Delete)
-		stories.GET("/:storyId/assignee", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer, model.Guest), storyHandler.GetAssignee)
-		stories.PUT("/:storyId/assignee", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer), storyHandler.ChangeAssignee)
+		stories.GET("", middleware.ProjectRoleMiddleware(projectUserService, models.Owner, models.Admin, models.Developer, models.Guest), storyHandler.FindAll)
+		stories.POST("", middleware.ProjectRoleMiddleware(projectUserService, models.Owner, models.Admin, models.Developer), storyHandler.Insert)
+		stories.GET("/slug/:slug", middleware.ProjectRoleMiddleware(projectUserService, models.Owner, models.Admin, models.Developer, models.Guest), storyHandler.FindBySlug)
+		stories.GET("/:storyId", middleware.ProjectRoleMiddleware(projectUserService, models.Owner, models.Admin, models.Developer, models.Guest), storyHandler.FindByID)
+		stories.PUT("/:storyId", middleware.ProjectRoleMiddleware(projectUserService, models.Owner, models.Admin, models.Developer), storyHandler.Update)
+		stories.DELETE("/:storyId", middleware.ProjectRoleMiddleware(projectUserService, models.Owner, models.Admin, models.Developer), storyHandler.Delete)
+		stories.GET("/:storyId/assignee", middleware.ProjectRoleMiddleware(projectUserService, models.Owner, models.Admin, models.Developer, models.Guest), storyHandler.GetAssignee)
+		stories.PUT("/:storyId/assignee", middleware.ProjectRoleMiddleware(projectUserService, models.Owner, models.Admin, models.Developer), storyHandler.ChangeAssignee)
 
 		// Story attachments
-		stories.POST("/:storyId/attachments", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer), storyHandler.UploadAttachments)
-		stories.GET("/:storyId/attachments", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer, model.Guest), storyHandler.ListAttachments)
-		stories.GET("/:storyId/attachments/:attachmentId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer, model.Guest), storyHandler.DownloadAttachment)
-		stories.DELETE("/:storyId/attachments/:attachmentId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer), storyHandler.DeleteAttachment)
+		stories.POST("/:storyId/attachments", middleware.ProjectRoleMiddleware(projectUserService, models.Owner, models.Admin, models.Developer), storyHandler.UploadAttachments)
+		stories.GET("/:storyId/attachments", middleware.ProjectRoleMiddleware(projectUserService, models.Owner, models.Admin, models.Developer, models.Guest), storyHandler.ListAttachments)
+		stories.GET("/:storyId/attachments/:attachmentId", middleware.ProjectRoleMiddleware(projectUserService, models.Owner, models.Admin, models.Developer, models.Guest), storyHandler.DownloadAttachment)
+		stories.DELETE("/:storyId/attachments/:attachmentId", middleware.ProjectRoleMiddleware(projectUserService, models.Owner, models.Admin, models.Developer), storyHandler.DeleteAttachment)
 	}
 
 	// Story activity
-	storyActivityRepo := repository.NewStoryActivityRepository(db)
-	storyActivityService := service.NewStoryActivityService(storyActivityRepo, projectUserService)
-	storyActivityHandler := handler.NewStoryActivityHandler(parser, storyActivityService)
+	storyActivityRepo := repositories.NewStoryActivityRepository(db)
+	storyActivityService := services.NewStoryActivityService(storyActivityRepo, projectUserService)
+	storyActivityHandler := handlers.NewStoryActivityHandler(parser, storyActivityService)
 
 	{
-		stories.GET("/:storyId/activities", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer, model.Guest), storyActivityHandler.ListActivities)
-		stories.POST("/:storyId/activities", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer), storyActivityHandler.InsertActivity)
-		stories.PUT("/:storyId/activities/:activityId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer), storyActivityHandler.UpdateActivity)
+		stories.GET("/:storyId/activities", middleware.ProjectRoleMiddleware(projectUserService, models.Owner, models.Admin, models.Developer, models.Guest), storyActivityHandler.ListActivities)
+		stories.POST("/:storyId/activities", middleware.ProjectRoleMiddleware(projectUserService, models.Owner, models.Admin, models.Developer), storyActivityHandler.InsertActivity)
+		stories.PUT("/:storyId/activities/:activityId", middleware.ProjectRoleMiddleware(projectUserService, models.Owner, models.Admin, models.Developer), storyActivityHandler.UpdateActivity)
 	}
 
 	// Story labels
-	storyLabelRepo := repository.NewStoryLabelRepository(db)
-	storyLabelService := service.NewStoryLabelService(storyLabelRepo, projectUserService, kanbanService)
-	storyLabelHandler := handler.NewStoryLabelHandler(storyLabelService)
+	storyLabelRepo := repositories.NewStoryLabelRepository(db)
+	storyLabelService := services.NewStoryLabelService(storyLabelRepo, projectUserService, kanbanService)
+	storyLabelHandler := handlers.NewStoryLabelHandler(storyLabelService)
 
 	storyLabels := stories.Group("/:storyId/labels")
 	{
-		storyLabels.GET("", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer, model.Guest), storyLabelHandler.ListLabels)
-		storyLabels.POST("", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer), storyLabelHandler.AssignLabel)
-		storyLabels.DELETE("/:labelId", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin, model.Developer), storyLabelHandler.UnassignLabel)
+		storyLabels.GET("", middleware.ProjectRoleMiddleware(projectUserService, models.Owner, models.Admin, models.Developer, models.Guest), storyLabelHandler.ListLabels)
+		storyLabels.POST("", middleware.ProjectRoleMiddleware(projectUserService, models.Owner, models.Admin, models.Developer), storyLabelHandler.AssignLabel)
+		storyLabels.DELETE("/:labelId", middleware.ProjectRoleMiddleware(projectUserService, models.Owner, models.Admin, models.Developer), storyLabelHandler.UnassignLabel)
 
 	}
 
 	// Project invitation
-	invitationRepo := repository.NewProjectInvitationRepository(db)
-	invitationService := service.NewProjectInvitationService(cfg, invitationRepo, projectService, projectUserService, emailService)
-	invitationHandler := handler.NewProjectInvitationsHandler(invitationService)
+	invitationRepo := repositories.NewProjectInvitationRepository(db)
+	invitationService := services.NewProjectInvitationService(cfg, invitationRepo, projectService, projectUserService, emailService)
+	invitationHandler := handlers.NewProjectInvitationsHandler(invitationService)
 	{
-		projects.POST("/:projectId/invite", middleware.ProjectRoleMiddleware(projectUserService, model.Owner, model.Admin), invitationHandler.Create)
+		projects.POST("/:projectId/invite", middleware.ProjectRoleMiddleware(projectUserService, models.Owner, models.Admin), invitationHandler.Create)
 		projects.POST("/accept-invitation", invitationHandler.Accept)
 	}
 
