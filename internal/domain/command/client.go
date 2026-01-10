@@ -8,7 +8,6 @@ import (
 )
 
 type CreateClientCommand struct {
-	ID           uuid.UUID
 	UserID       uuid.UUID
 	ClientType   string
 	ContractType string
@@ -26,6 +25,30 @@ type CreateClientCommand struct {
 
 func (c *CreateClientCommand) ToDomain() *entity.Client {
 	return &entity.Client{
+		ID:           uuid.New(),
+		UserID:       c.UserID,
+		ClientType:   entity.ClientType(c.ClientType),
+		ContractType: entity.ClientContractType(c.ContractType),
+		Name:         c.Name,
+		Description:  c.Description,
+		TaxNumber:    c.TaxNumber,
+		Address:      c.Address,
+		Tags:         c.Tags,
+		HourRate:     c.HourRate,
+		StartedAt:    c.StartedAt,
+		FinishedAt:   c.FinishedAt,
+		CreatedAt:    c.CreatedAt,
+		UpdatedAt:    c.UpdatedAt,
+	}
+}
+
+type UpdateClientCommand struct {
+	ID uuid.UUID
+	CreateClientCommand
+}
+
+func (c *UpdateClientCommand) ToDomain() *entity.Client {
+	return &entity.Client{
 		ID:           c.ID,
 		UserID:       c.UserID,
 		ClientType:   entity.ClientType(c.ClientType),
@@ -41,4 +64,9 @@ func (c *CreateClientCommand) ToDomain() *entity.Client {
 		CreatedAt:    c.CreatedAt,
 		UpdatedAt:    c.UpdatedAt,
 	}
+}
+
+type DeleteClientCommand struct {
+	ID     uuid.UUID
+	UserID uuid.UUID
 }

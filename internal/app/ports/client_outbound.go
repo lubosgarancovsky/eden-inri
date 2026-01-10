@@ -5,6 +5,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/lubosgarancovsky/eden-inri/internal/domain/entity"
+	go_kit "github.com/lubosgarancovsky/go-kit"
 )
 
 type PersistClientPort interface {
@@ -14,6 +15,6 @@ type PersistClientPort interface {
 }
 
 type QueryClientPort interface {
-	FindByID(ctx context.Context, clientID uuid.UUID) (*entity.Client, error)
-	List(ctx context.Context, offset, limit int) ([]entity.Client, int, error)
+	FindByID(ctx context.Context, userID, clientID uuid.UUID) (*entity.Client, error)
+	List(ctx context.Context, userID uuid.UUID, lq *go_kit.ListingQuery) (*[]entity.Client, int64, error)
 }
