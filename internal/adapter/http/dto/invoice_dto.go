@@ -7,6 +7,7 @@ import (
 )
 
 type CreateInvoiceReq struct {
+	UserID        uuid.UUID  `header:"X-User-ID"`
 	Name          string     `json:"name" binding:"required,min=3,max=100"`
 	Note          string     `json:"note"`
 	ExternalID    string     `json:"externalId"`
@@ -22,6 +23,7 @@ type CreateInvoiceReq struct {
 }
 
 type UpdateInvoiceReq struct {
+	UserID    uuid.UUID `header:"X-User-ID"`
 	InvoiceID uuid.UUID `uri:"invoiceId" binding:"required"`
 	CreateInvoiceReq
 }
@@ -42,4 +44,13 @@ type InvoiceRes struct {
 	Client        ClientRes  `json:"client"`
 	CreatedAt     time.Time  `json:"createdAt"`
 	UpdatedAt     time.Time  `json:"updatedAt"`
+}
+
+type FindInvoiceByIDReq struct {
+	UserID    uuid.UUID `header:"X-User-ID"`
+	InvoiceID uuid.UUID `uri:"invoiceId" binding:"required,uuid"`
+}
+
+type ListInvoicesReq struct {
+	UserID uuid.UUID `header:"X-User-ID"`
 }
