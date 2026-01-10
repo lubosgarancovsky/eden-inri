@@ -15,14 +15,4 @@ type ProjectLabelRes struct {
 	CreatedAt   time.Time `json:"createdAt"`
 }
 
-type CreateLabelReq struct {
-	Name        string `json:"name" binding:"required"`
-	Description string `json:"description"`
-	Color       string `json:"color" binding:"required"`
-}
-
-type UpdateLabelReq struct {
-	Name        string `json:"name" binding:"required"`
-	Description string `json:"description"`
-	Color       string `json:"color" binding:"required"`
-}
+// Deprecated: use dto.CreateLabelReq and dto.UpdateLabelReq in label_dto.go

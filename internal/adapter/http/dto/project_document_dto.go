@@ -17,16 +17,25 @@ type ProjectDocumentRes struct {
 }
 
 type CreateProjectDocumentReq struct {
-	ProjectID string   `uri:"projectId"`
-	Name      string   `json:"name"`
-	Content   string   `json:"content"`
-	Tags      []string `json:"tags"`
+	ProjectID uuid.UUID `uri:"projectId" binding:"required,uuid"`
+	Name      string    `json:"name" binding:"required,min=1,max=100"`
+	Content   string    `json:"content"`
+	Tags      []string  `json:"tags"`
 }
 
 type UpdateProjectDocumentReq struct {
-	ID        string   `uri:"projectDocumentId"`
-	ProjectID string   `uri:"projectId"`
-	Name      string   `json:"name"`
-	Content   string   `json:"content"`
-	Tags      []string `json:"tags"`
+	DocumentID uuid.UUID `uri:"documentId" binding:"required,uuid"`
+	ProjectID  uuid.UUID `uri:"projectId" binding:"required,uuid"`
+	Name       string    `json:"name" binding:"required,min=1,max=100"`
+	Content    string    `json:"content"`
+	Tags       []string  `json:"tags"`
+}
+
+type FindProjectDocumentByIDReq struct {
+	ProjectID  uuid.UUID `uri:"projectId" binding:"required,uuid"`
+	DocumentID uuid.UUID `uri:"documentId" binding:"required,uuid"`
+}
+
+type ListProjectDocumentsReq struct {
+	ProjectID uuid.UUID `uri:"projectId" binding:"required,uuid"`
 }
