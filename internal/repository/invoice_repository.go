@@ -68,7 +68,7 @@ func (r *InvoiceRepository) Insert(ctx context.Context, inv *model.Invoice) (*mo
 func (r *InvoiceRepository) Update(ctx context.Context, inv *model.Invoice) (*model.Invoice, error) {
 	result := r.db.
 		WithContext(ctx).
-		Model(model.Invoice{}).
+		Model(&model.Invoice{}).
 		Clauses(clause.Returning{}).
 		Where("user_id = ? AND id = ?", inv.UserID, inv.ID).
 		Updates(inv)
