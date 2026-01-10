@@ -6,6 +6,8 @@ import (
 	"github.com/lubosgarancovsky/go-kit/cfg"
 )
 
+var GlobalConfig *Config
+
 type Config struct {
 	Port               int    `field:"PORT" default:"9092"`
 	DBUrl              string `field:"DB_URL"`
@@ -18,11 +20,11 @@ type Config struct {
 	InvitationUrl      string `field:"INVITATION_URL"`
 }
 
-func LoadConfig() *Config {
+func Init() {
 	var appConfig Config
 	if err := cfg.LoadEnv(&appConfig, ".env", ".env.local"); err != nil {
 		log.Fatal("Failed to load config from .env file", err)
 	}
 
-	return &appConfig
+	GlobalConfig = &appConfig
 }

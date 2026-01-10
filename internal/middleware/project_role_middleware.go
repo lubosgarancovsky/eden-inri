@@ -2,12 +2,12 @@ package middleware
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/lubosgarancovsky/eden-inri/internal/model"
-	"github.com/lubosgarancovsky/eden-inri/internal/service"
+	"github.com/lubosgarancovsky/eden-inri/internal/models"
+	"github.com/lubosgarancovsky/eden-inri/internal/services"
 	"github.com/lubosgarancovsky/eden-inri/pkg/helpers"
 )
 
-func ProjectRoleMiddleware(projectUserService *service.ProjectUserService, allowed ...model.ProjectRole) gin.HandlerFunc {
+func ProjectRoleMiddleware(projectUserService *services.ProjectUserService, allowed ...models.ProjectRole) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		projectID := helpers.ExtractID(c, "projectId")
 		userID := helpers.GetUserContext(c).ID
