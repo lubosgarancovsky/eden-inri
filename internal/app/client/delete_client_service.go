@@ -3,8 +3,8 @@ package client
 import (
 	"context"
 
-	"github.com/google/uuid"
 	"github.com/lubosgarancovsky/eden-inri/internal/app/ports"
+	"github.com/lubosgarancovsky/eden-inri/internal/domain/command"
 )
 
 var _ ports.DeleteClientUseCase = (*DeleteClientService)(nil)
@@ -17,6 +17,6 @@ func NewDeleteClientService(repository ports.PersistClientPort) *DeleteClientSer
 	return &DeleteClientService{repository}
 }
 
-func (c *DeleteClientService) Execute(ctx context.Context, userID, projectID uuid.UUID) error {
-	return c.repository.Delete(ctx, userID, projectID)
+func (c *DeleteClientService) Execute(ctx context.Context, cmd *command.DeleteClientCommand) error {
+	return c.repository.Delete(ctx, cmd.UserID, cmd.ID)
 }

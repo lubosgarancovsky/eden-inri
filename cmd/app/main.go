@@ -8,11 +8,12 @@ import (
 	"os/signal"
 	"syscall"
 
-	_ "github.com/lubosgarancovsky/eden-inri/docs"
+	//_ "github.com/lubosgarancovsky/eden-inri/docs"
 	"github.com/lubosgarancovsky/eden-inri/internal/adapter/http"
 	"github.com/lubosgarancovsky/eden-inri/internal/adapter/repository/postgres"
 	"github.com/lubosgarancovsky/eden-inri/internal/app"
 	"github.com/lubosgarancovsky/eden-inri/internal/config"
+	go_kit "github.com/lubosgarancovsky/go-kit"
 )
 
 var ServiceName = "inri-service"
@@ -24,14 +25,15 @@ var ServiceName = "inri-service"
 func main() {
 	fmt.Println("███████╗██████╗ ███████╗███╗   ██╗      ██╗███╗   ██╗██████╗ ██╗\n██╔════╝██╔══██╗██╔════╝████╗  ██║      ██║████╗  ██║██╔══██╗██║\n█████╗  ██║  ██║█████╗  ██╔██╗ ██║█████╗██║██╔██╗ ██║██████╔╝██║\n██╔══╝  ██║  ██║██╔══╝  ██║╚██╗██║╚════╝██║██║╚██╗██║██╔══██╗██║\n███████╗██████╔╝███████╗██║ ╚████║      ██║██║ ╚████║██║  ██║██║\n╚══════╝╚═════╝ ╚══════╝╚═╝  ╚═══╝      ╚═╝╚═╝  ╚═══╝╚═╝  ╚═╝╚═╝\n                                                                ")
 
-	config.Init()
+	config.Init(ServiceName)
 
 	dbconn, err := postgres.ConnectDB(config.GlobalConfig.DBUrl)
 	if err != nil {
 		log.Println("DB unavailable, starting without DB:", err)
 	}
 
-	container := app.NewContainer(dbconn)
+	rsqlParser := go_kit.NewRSQLParser()
+	container := app.NewContainer(dbconn, rsqlParser)
 	r := http.NewServerRoute(container)
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)

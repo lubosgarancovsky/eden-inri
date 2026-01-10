@@ -4,48 +4,132 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/lubosgarancovsky/eden-inri/internal/adapter/http/converter"
 	"github.com/lubosgarancovsky/eden-inri/internal/adapter/http/dto"
+	"github.com/lubosgarancovsky/eden-inri/internal/adapter/http/handle"
 	"github.com/lubosgarancovsky/eden-inri/internal/adapter/http/validator"
 	"github.com/lubosgarancovsky/eden-inri/internal/app/ports"
+	"github.com/lubosgarancovsky/go-kit"
 )
 
 type ClientHandler struct {
-	createClientUC ports.CreateClientUseCase
-	updateClientUC ports.UpdateClientUseCase
-	deleteClientUC ports.DeleteClientUseCase
+	createClientUC   ports.CreateClientUseCase
+	updateClientUC   ports.UpdateClientUseCase
+	deleteClientUC   ports.DeleteClientUseCase
+	findClientByIDUC ports.FindClientByIDUseCase
+	listClientsUC    ports.ListClientsUseCase
+	parser           *go_kit.Parser
 }
 
 func NewClientHandler(
 	createClientUC ports.CreateClientUseCase,
 	updateClientUC ports.UpdateClientUseCase,
 	deleteClientUC ports.DeleteClientUseCase,
+	findClientByIDUC ports.FindClientByIDUseCase,
+	listClientsUC ports.ListClientsUseCase,
+	parser *go_kit.Parser,
 ) *ClientHandler {
 	return &ClientHandler{
 		createClientUC,
 		updateClientUC,
 		deleteClientUC,
+		findClientByIDUC,
+		listClientsUC,
+		parser,
 	}
 }
 
-func (h *ClientHandler) Create(c *gin.Context) {
-	body := &dto.CreateClientReq{}
+type ClientListingAttributes struct {
+	Name         string `rsql:"filter,sort"`
+	ClientType   string `rsql:"filter"`
+	ContractType string `rsql:"filter"`
+	CreatedAt    string `rsql:"filter,sort"`
+	StartedAt    string `rsql:"filter,sort"`
+	FinishedAt   string `rsql:"filter,sort"`
+}
 
-	if err := validator.BindAndValidate(c, body); err != nil {
-		// TODO: Return actual error
-		c.JSON(404, gin.H{
-			"status": "handler fn ERROR",
-		})
+func (h *ClientHandler) List(c *gin.Context) {
+	listingQuery := handle.ListingQuery(c, h.parser, &ClientListingAttributes{})
+
+	req := &dto.ListClientsReq{}
+	if err := validator.BindAndValidate(c, req); err != nil {
+		handle.Error(c, err)
 		return
 	}
 
-	created, err := h.createClientUC.Execute(c.Request.Context(), body.ToCommand())
+	clients, total, err := h.listClientsUC.Execute(c.Request.Context(), converter.ToListClientsQuery(req, listingQuery))
 	if err != nil {
-		// TODO: Return actual error
-		c.JSON(4500, gin.H{
-			"status": "handler fn ERROR",
-		})
+		handle.Error(c, err)
 		return
 	}
 
-	c.JSON(http.StatusCreated, dto.ToClientResponse(created))
+	handle.Page(c, listingQuery, total, converter.ToClientListResponse(clients))
+}
+
+func (h *ClientHandler) FindByID(c *gin.Context) {
+	req := &dto.FindClientByIDReq{}
+
+	if err := validator.BindAndValidate(c, req); err != nil {
+		handle.Error(c, err)
+		return
+	}
+
+	client, err := h.findClientByIDUC.Execute(c.Request.Context(), converter.ToFindClientByIDQuery(req))
+	if err != nil {
+		handle.Error(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, converter.ToClientResponse(client))
+}
+
+func (h *ClientHandler) Create(c *gin.Context) {
+	req := &dto.CreateClientReq{}
+
+	if err := validator.BindAndValidate(c, req); err != nil {
+		handle.Error(c, err)
+		return
+	}
+
+	created, err := h.createClientUC.Execute(c.Request.Context(), converter.ToCreateClientCommand(req))
+	if err != nil {
+		handle.Error(c, err)
+		return
+	}
+
+	c.JSON(http.StatusCreated, converter.ToClientResponse(created))
+}
+
+func (h *ClientHandler) Update(c *gin.Context) {
+	req := &dto.UpdateClientReq{}
+
+	if err := validator.BindAndValidate(c, req); err != nil {
+		handle.Error(c, err)
+		return
+	}
+
+	updated, err := h.updateClientUC.Execute(c.Request.Context(), converter.ToUpdateClientCommand(req))
+	if err != nil {
+		handle.Error(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, converter.ToClientResponse(updated))
+}
+
+func (h *ClientHandler) Delete(c *gin.Context) {
+	req := &dto.DeleteClientReq{}
+
+	if err := validator.BindAndValidate(c, req); err != nil {
+		handle.Error(c, err)
+		return
+	}
+
+	err := h.deleteClientUC.Execute(c.Request.Context(), converter.ToDeleteClientCommand(req))
+	if err != nil {
+		handle.Error(c, err)
+		return
+	}
+
+	c.Status(http.StatusNoContent)
 }

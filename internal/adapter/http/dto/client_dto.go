@@ -4,8 +4,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/lubosgarancovsky/eden-inri/internal/domain/command"
-	"github.com/lubosgarancovsky/eden-inri/internal/domain/entity"
 )
 
 type CreateClientReq struct {
@@ -24,8 +22,22 @@ type CreateClientReq struct {
 
 type UpdateClientReq struct {
 	UserID   uuid.UUID `header:"X-User-ID"`
-	ClientID string    `uri:"clientId" binding:"required"`
+	ClientID uuid.UUID `uri:"clientId" binding:"required"`
 	CreateClientReq
+}
+
+type DeleteClientReq struct {
+	UserID   uuid.UUID `header:"X-User-ID"`
+	ClientID uuid.UUID `uri:"clientId" binding:"required"`
+}
+
+type FindClientByIDReq struct {
+	UserID uuid.UUID `header:"X-User-ID"`
+	ID     uuid.UUID `uri:"clientId" binding:"required"`
+}
+
+type ListClientsReq struct {
+	UserID uuid.UUID `header:"X-User-ID"`
 }
 
 type ClientRes struct {
@@ -42,42 +54,4 @@ type ClientRes struct {
 	FinishedAt   *time.Time `json:"finishedAt"`
 	CreatedAt    time.Time  `json:"createdAt"`
 	UpdatedAt    time.Time  `json:"updatedAt"`
-}
-
-func (*ClientRes) TableName() string {
-	return "inri_clients"
-}
-
-func (r *CreateClientReq) ToCommand() *command.CreateClientCommand {
-	cmd := &command.CreateClientCommand{}
-	cmd.UserID = r.UserID
-	cmd.ClientType = r.ClientType
-	cmd.ContractType = r.ContractType
-	cmd.Name = r.Name
-	cmd.Description = r.Description
-	cmd.TaxNumber = r.TaxNumber
-	cmd.Address = r.Address
-	cmd.Tags = r.Tags
-	cmd.HourRate = r.HourRate
-	cmd.StartedAt = r.StartedAt
-	cmd.FinishedAt = r.FinishedAt
-	return cmd
-}
-
-func ToClientResponse(client *entity.Client) *ClientRes {
-	return &ClientRes{
-		ID:           client.ID,
-		ClientType:   string(client.ClientType),
-		ContractType: string(client.ContractType),
-		Name:         client.Name,
-		Description:  client.Description,
-		TaxNumber:    client.TaxNumber,
-		Address:      client.Address,
-		Tags:         client.Tags,
-		HourRate:     client.HourRate,
-		StartedAt:    client.StartedAt,
-		FinishedAt:   client.FinishedAt,
-		CreatedAt:    client.CreatedAt,
-		UpdatedAt:    client.UpdatedAt,
-	}
 }
