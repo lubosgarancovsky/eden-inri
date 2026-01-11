@@ -35,6 +35,52 @@ func NewServerRoute(c *app.Container) *gin.Engine {
 			invoices.GET("/:invoiceId", c.InvoiceHandler.FindByID)
 			invoices.GET("", c.InvoiceHandler.List)
 		}
+
+		projects := protected.Group("/projects")
+		{
+			projects.POST("", c.ProjectHandler.Create)
+			projects.PUT("/:projectId", c.ProjectHandler.Update)
+			projects.DELETE("/:projectId", c.ProjectHandler.Delete)
+			projects.GET("/:projectId", c.ProjectHandler.FindByID)
+			projects.GET("", c.ProjectHandler.List)
+			projects.POST("/:projectId/favourite", c.ProjectHandler.Favourite)
+
+			labels := projects.Group("/:projectId/labels")
+			{
+				labels.POST("", c.ProjectLabelHandler.Create)
+				labels.PUT("/:labelId", c.ProjectLabelHandler.Update)
+				labels.DELETE("/:labelId", c.ProjectLabelHandler.Delete)
+				labels.GET("/:labelId", c.ProjectLabelHandler.FindByID)
+				labels.GET("", c.ProjectLabelHandler.List)
+			}
+
+			documents := projects.Group("/:projectId/documents")
+			{
+				documents.POST("", c.ProjectDocumentHandler.Create)
+				documents.PUT("/:documentId", c.ProjectDocumentHandler.Update)
+				documents.DELETE("/:documentId", c.ProjectDocumentHandler.Delete)
+				documents.GET("/:documentId", c.ProjectDocumentHandler.FindByID)
+				documents.GET("", c.ProjectDocumentHandler.List)
+			}
+
+			boards := projects.Group("/:projectId/boards")
+			{
+				boards.POST("", c.KanbanBoardHandler.Create)
+				boards.PUT("/:boardId", c.KanbanBoardHandler.Update)
+				boards.DELETE("/:boardId", c.KanbanBoardHandler.Delete)
+				boards.GET("/:boardId", c.KanbanBoardHandler.FindByID)
+				boards.GET("", c.KanbanBoardHandler.List)
+
+				columns := boards.Group("/:boardId/columns")
+				{
+					columns.POST("", c.KanbanColumnHandler.Create)
+					columns.PUT("/:columnId", c.KanbanColumnHandler.Update)
+					columns.DELETE("/:columnId", c.KanbanColumnHandler.Delete)
+					columns.GET("/:columnId", c.KanbanColumnHandler.FindByID)
+					columns.GET("", c.KanbanColumnHandler.List)
+				}
+			}
+		}
 	}
 
 	return router
