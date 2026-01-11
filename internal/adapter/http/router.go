@@ -25,6 +25,15 @@ func NewServerRoute(c *app.Container) *gin.Engine {
 			clients.DELETE("/:clientId", c.ClientHandler.Delete)
 			clients.GET("/:clientId", c.ClientHandler.FindByID)
 			clients.GET("", c.ClientHandler.List)
+
+			contactPersons := clients.Group("/:clientId/contact-persons")
+			{
+				contactPersons.POST("", c.ContactPersonHandler.Create)
+				contactPersons.PUT("/:contactPersonId", c.ContactPersonHandler.Update)
+				contactPersons.DELETE("/:contactPersonId", c.ContactPersonHandler.Delete)
+				contactPersons.GET("/:contactPersonId", c.ContactPersonHandler.FindByID)
+				contactPersons.GET("", c.ContactPersonHandler.List)
+			}
 		}
 
 		invoices := protected.Group("/invoices")

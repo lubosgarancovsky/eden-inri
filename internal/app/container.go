@@ -4,6 +4,7 @@ import (
 	"github.com/lubosgarancovsky/eden-inri/internal/adapter/http/handler"
 	"github.com/lubosgarancovsky/eden-inri/internal/adapter/repository/postgres"
 	"github.com/lubosgarancovsky/eden-inri/internal/app/client"
+	"github.com/lubosgarancovsky/eden-inri/internal/app/contact_person"
 	"github.com/lubosgarancovsky/eden-inri/internal/app/invoice"
 	"github.com/lubosgarancovsky/eden-inri/internal/app/kanban_board"
 	"github.com/lubosgarancovsky/eden-inri/internal/app/kanban_column"
@@ -28,6 +29,7 @@ type Container struct {
 	projectDocumentRepository *postgres.ProjectDocumentRepository
 	kanbanBoardRepository     *postgres.KanbanBoardRepository
 	kanbanColumnRepository    *postgres.KanbanColumnRepository
+	contactPersonRepository   *postgres.ContactPersonRepository
 
 	// -- Client services --
 	listClientsService    *client.ListClientsService
@@ -78,6 +80,13 @@ type Container struct {
 	updateKanbanColumnService *kanban_column.UpdateKanbanColumnService
 	deleteKanbanColumnService *kanban_column.DeleteKanbanColumnService
 
+	// Contact Person services
+	listContactPersonsService    *contact_person.ListContactPersonsService
+	findContactPersonByIDService *contact_person.FindContactPersonByIDService
+	createContactPersonService   *contact_person.CreateContactPersonService
+	updateContactPersonService   *contact_person.UpdateContactPersonService
+	deleteContactPersonService   *contact_person.DeleteContactPersonService
+
 	// -- Handlers --
 	ClientHandler          *handler.ClientHandler
 	InvoiceHandler         *handler.InvoiceHandler
@@ -86,6 +95,7 @@ type Container struct {
 	ProjectDocumentHandler *handler.ProjectDocumentHandler
 	KanbanBoardHandler     *handler.KanbanBoardHandler
 	KanbanColumnHandler    *handler.KanbanColumnHandler
+	ContactPersonHandler   *handler.ContactPersonHandler
 }
 
 func NewContainer(db *gorm.DB, parser *go_kit.Parser) *Container {
@@ -111,6 +121,7 @@ func (c *Container) initRepositories() {
 	c.projectDocumentRepository = postgres.NewProjectDocumentRepository(c.db)
 	c.kanbanBoardRepository = postgres.NewKanbanBoardRepository(c.db)
 	c.kanbanColumnRepository = postgres.NewKanbanColumnRepository(c.db)
+	c.contactPersonRepository = postgres.NewContactPersonRepository(c.db)
 }
 
 func (c *Container) initServices() {
@@ -162,6 +173,13 @@ func (c *Container) initServices() {
 	c.updateKanbanColumnService = kanban_column.NewUpdateKanbanColumnService(c.kanbanColumnRepository, c.projectUserRepository)
 	c.deleteKanbanColumnService = kanban_column.NewDeleteKanbanColumnService(c.kanbanColumnRepository, c.projectUserRepository)
 	c.listKanbanColumnsService = kanban_column.NewListKanbanColumnsService(c.kanbanColumnRepository, c.projectUserRepository)
+
+	// Contact Person services
+	c.createContactPersonService = contact_person.NewCreateContactPersonService(c.contactPersonRepository)
+	c.updateContactPersonService = contact_person.NewUpdateContactPersonService(c.contactPersonRepository)
+	c.deleteContactPersonService = contact_person.NewDeleteContactPersonService(c.contactPersonRepository)
+	c.findContactPersonByIDService = contact_person.NewFindContactPersonByIDService(c.contactPersonRepository)
+	c.listContactPersonsService = contact_person.NewListContactPersonsService(c.contactPersonRepository)
 }
 
 func (c *Container) initHandlers() {
@@ -172,4 +190,5 @@ func (c *Container) initHandlers() {
 	c.ProjectDocumentHandler = handler.NewProjectDocumentHandler(c.createProjectDocumentService, c.updateProjectDocumentService, c.deleteProjectDocumentService, c.findProjectDocumentByIDService, c.listProjectDocumentsService, c.parser)
 	c.KanbanBoardHandler = handler.NewKanbanBoardHandler(c.createKanbanBoardService, c.updateKanbanBoardService, c.deleteKanbanBoardService, c.findKanbanBoardByIDService, c.listKanbanBoardsService, c.parser)
 	c.KanbanColumnHandler = handler.NewKanbanColumnHandler(c.createKanbanColumnService, c.updateKanbanColumnService, c.deleteKanbanColumnService, c.listKanbanColumnsService)
+	c.ContactPersonHandler = handler.NewContactPersonHandler(c.createContactPersonService, c.updateContactPersonService, c.deleteContactPersonService, c.findContactPersonByIDService, c.listContactPersonsService, c.parser)
 }
