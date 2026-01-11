@@ -10,9 +10,9 @@ import (
 
 var _ ports.ListInvoicesUseCase = (*ListInvoicesService)(nil)
 
-type ListInvoicesService struct{ repo ports.QueryInvoicePort }
+type ListInvoicesService struct{ repo ports.PersistInvoicePort }
 
-func NewListInvoicesService(repo ports.QueryInvoicePort) *ListInvoicesService {
+func NewListInvoicesService(repo ports.PersistInvoicePort) *ListInvoicesService {
 	return &ListInvoicesService{repo}
 }
 

@@ -52,6 +52,7 @@ type UpdateInvoiceCommand struct {
 
 func (c *UpdateInvoiceCommand) Apply(inv *entity.Invoice) {
 	inv.Name = c.Name
+	inv.ClientID = c.ClientID
 	inv.Description = c.Description
 	inv.ExternalID = c.ExternalID
 	inv.ExternalLink = c.ExternalLink

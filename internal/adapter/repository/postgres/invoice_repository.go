@@ -8,14 +8,10 @@ import (
 	"github.com/google/uuid"
 	"github.com/lubosgarancovsky/eden-inri/internal/adapter/repository/postgres/mapper"
 	"github.com/lubosgarancovsky/eden-inri/internal/adapter/repository/postgres/model"
-	"github.com/lubosgarancovsky/eden-inri/internal/app/ports"
 	"github.com/lubosgarancovsky/eden-inri/internal/domain/entity"
-	go_kit "github.com/lubosgarancovsky/go-kit"
+	"github.com/lubosgarancovsky/go-kit"
 	"gorm.io/gorm"
 )
-
-var _ ports.QueryInvoicePort = (*InvoiceRepository)(nil)
-var _ ports.PersistInvoicePort = (*InvoiceRepository)(nil)
 
 type InvoiceRepository struct{ db *gorm.DB }
 
@@ -58,13 +54,20 @@ func (r *InvoiceRepository) Create(ctx context.Context, inv *entity.Invoice) err
 
 func (r *InvoiceRepository) Update(ctx context.Context, inv *entity.Invoice) error {
 	db := GetDB(ctx, r.db)
-	res := db.Model(&model.Invoice{}).Where("id = ? AND user_id = ?", inv.ID, inv.UserID).Updates(mapper.InvoiceFromDomain(inv))
+
+	res := db.
+		Model(&model.Invoice{}).
+		Where("id = ?", inv.ID).
+		Where("user_id = ?", inv.UserID).
+		Updates(mapper.InvoiceFromDomain(inv))
+
 	if res.Error != nil {
 		return go_kit.Wrap(go_kit.ErrInternalServer, res.Error)
 	}
 	if res.RowsAffected == 0 {
 		return go_kit.ErrNotFound.WithMessage(fmt.Sprintf("invoice %s not found", inv.ID))
 	}
+
 	return nil
 }
 
