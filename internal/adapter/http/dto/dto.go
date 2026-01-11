@@ -10,3 +10,7 @@ type BaseDto interface {
 type UserIDDto interface {
 	GetUserID() uuid.UUID
 }
+
+type UserIDDtoStruct struct {
+	UserID string
+}

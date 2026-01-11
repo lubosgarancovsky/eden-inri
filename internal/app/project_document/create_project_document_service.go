@@ -6,17 +6,28 @@ import (
 	"github.com/lubosgarancovsky/eden-inri/internal/app/ports"
 	"github.com/lubosgarancovsky/eden-inri/internal/domain/command"
 	"github.com/lubosgarancovsky/eden-inri/internal/domain/entity"
+	app_error "github.com/lubosgarancovsky/eden-inri/internal/domain/error"
 )
 
 type CreateProjectDocumentService struct {
-	repo ports.PersistProjectDocumentPort
+	repo         ports.PersistProjectDocumentPort
+	isMemberRepo ports.IsProjectMemberPort
 }
 
-func NewCreateProjectDocumentService(repo ports.PersistProjectDocumentPort) *CreateProjectDocumentService {
-	return &CreateProjectDocumentService{repo: repo}
+func NewCreateProjectDocumentService(repo ports.PersistProjectDocumentPort, isMemberRepo ports.IsProjectMemberPort) *CreateProjectDocumentService {
+	return &CreateProjectDocumentService{repo: repo, isMemberRepo: isMemberRepo}
 }
 
 func (s *CreateProjectDocumentService) Execute(ctx context.Context, cmd *command.CreateProjectDocumentCommand) (*entity.ProjectDocument, error) {
+	isMember, err := s.isMemberRepo.IsMember(ctx, cmd.UserID, cmd.ProjectID)
+	if err != nil {
+		return nil, err
+	}
+
+	if !isMember {
+		return nil, app_error.ErrNotAMember
+	}
+
 	doc := cmd.ToDomain()
 	if err := s.repo.Create(ctx, doc); err != nil {
 		return nil, err

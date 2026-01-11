@@ -29,5 +29,11 @@ func (c *UpdateClientService) Execute(ctx context.Context, cmd *command.UpdateCl
 	if err = c.repository.Update(ctx, client); err != nil {
 		return nil, err
 	}
-	return client, nil
+
+	updated, err := c.repository.FindByID(ctx, cmd.UserID, cmd.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	return updated, nil
 }

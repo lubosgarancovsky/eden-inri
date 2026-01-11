@@ -10,7 +10,7 @@ import (
 type CreateProjectCommand struct {
 	UserID      uuid.UUID
 	Name        string
-	Description string
+	Description *string
 	Status      string
 	Tags        []string
 	Slug        string
@@ -24,6 +24,8 @@ func (c *CreateProjectCommand) ToDomain() *entity.Project {
 		Status:         c.Status,
 		Tags:           c.Tags,
 		Slug:           c.Slug,
+		Role:           entity.ProjectRoleOwner,
+		IsStarred:      false,
 		CreatedAt:      time.Now(),
 		UpdatedAt:      time.Now(),
 		LastActivityAt: time.Now(),
@@ -32,8 +34,9 @@ func (c *CreateProjectCommand) ToDomain() *entity.Project {
 
 type UpdateProjectCommand struct {
 	ID          uuid.UUID
+	UserID      uuid.UUID
 	Name        string
-	Description string
+	Description *string
 	Status      string
 	Tags        []string
 	Slug        string
@@ -46,4 +49,9 @@ func (c *UpdateProjectCommand) Apply(e *entity.Project) {
 	e.Tags = c.Tags
 	e.Slug = c.Slug
 	e.UpdatedAt = time.Now()
+}
+
+type DeleteProjectCommand struct {
+	ID     uuid.UUID
+	UserID uuid.UUID
 }

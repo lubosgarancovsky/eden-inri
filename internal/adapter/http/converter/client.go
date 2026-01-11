@@ -1,6 +1,7 @@
 package converter
 
 import (
+	"github.com/google/uuid"
 	"github.com/lubosgarancovsky/eden-inri/internal/adapter/http/dto"
 	"github.com/lubosgarancovsky/eden-inri/internal/domain/command"
 	"github.com/lubosgarancovsky/eden-inri/internal/domain/entity"
@@ -8,7 +9,7 @@ import (
 
 func ToCreateClientCommand(input *dto.CreateClientReq) *command.CreateClientCommand {
 	return &command.CreateClientCommand{
-		UserID:       input.UserID,
+		UserID:       uuid.MustParse(input.UserID),
 		ClientType:   input.ClientType,
 		ContractType: input.ContractType,
 		Name:         input.Name,
@@ -24,9 +25,9 @@ func ToCreateClientCommand(input *dto.CreateClientReq) *command.CreateClientComm
 
 func ToUpdateClientCommand(input *dto.UpdateClientReq) *command.UpdateClientCommand {
 	return &command.UpdateClientCommand{
-		ID: input.ClientID,
+		ID: uuid.MustParse(input.ClientID),
 		CreateClientCommand: command.CreateClientCommand{
-			UserID:       input.UserID,
+			UserID:       uuid.MustParse(input.UserID),
 			ClientType:   input.ClientType,
 			ContractType: input.ContractType,
 			Name:         input.Name,

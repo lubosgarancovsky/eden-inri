@@ -5,17 +5,28 @@ import (
 
 	"github.com/lubosgarancovsky/eden-inri/internal/app/ports"
 	"github.com/lubosgarancovsky/eden-inri/internal/domain/entity"
+	app_error "github.com/lubosgarancovsky/eden-inri/internal/domain/error"
 	"github.com/lubosgarancovsky/eden-inri/internal/domain/query"
 )
 
 type ListProjectDocumentsService struct {
-	repo ports.PersistProjectDocumentPort
+	repo         ports.PersistProjectDocumentPort
+	isMemberRepo ports.IsProjectMemberPort
 }
 
-func NewListProjectDocumentsService(repo ports.PersistProjectDocumentPort) *ListProjectDocumentsService {
-	return &ListProjectDocumentsService{repo: repo}
+func NewListProjectDocumentsService(repo ports.PersistProjectDocumentPort, isMemberRepo ports.IsProjectMemberPort) *ListProjectDocumentsService {
+	return &ListProjectDocumentsService{repo: repo, isMemberRepo: isMemberRepo}
 }
 
-func (s *ListProjectDocumentsService) Execute(ctx context.Context, q *query.ListProjectScopedQuery) (*[]entity.ProjectDocument, int64, error) {
+func (s *ListProjectDocumentsService) Execute(ctx context.Context, q *query.ListProjectDocumentsQuery) (*[]entity.ProjectDocument, int64, error) {
+	isMember, err := s.isMemberRepo.IsMember(ctx, q.UserID, q.ProjectID)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	if !isMember {
+		return nil, 0, app_error.ErrNotAMember
+	}
+
 	return s.repo.List(ctx, q.ProjectID, q.ListingQuery)
 }

@@ -17,13 +17,13 @@ type UpdateProjectLabelUseCase interface {
 }
 
 type DeleteProjectLabelUseCase interface {
-	Execute(ctx context.Context, cmd *command.DeleteProjectScopedCommand) error
+	Execute(ctx context.Context, cmd *command.DeleteProjectLabelCommand) error
 }
 
 type FindProjectLabelByIDUseCase interface {
-	Execute(ctx context.Context, query *query.FindByIDProjectScopedQuery) (*entity.ProjectLabel, error)
+	Execute(ctx context.Context, query *query.FindProjectLabelByIDQuery) (*entity.ProjectLabel, error)
 }
 
 type ListProjectLabelsUseCase interface {
-	Execute(ctx context.Context, query *query.ListProjectScopedQuery) (*[]entity.ProjectLabel, int64, error)
+	Execute(ctx context.Context, query *query.ListProjectLabelsQuery) (*[]entity.ProjectLabel, int64, error)
 }

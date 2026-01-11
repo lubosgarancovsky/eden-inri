@@ -10,7 +10,7 @@ type ClientType string
 
 var (
 	ClientIndividual   ClientType = "INDIVIDUAL"
-	ClientOrganisation ClientType = "ORGANISATION"
+	ClientOrganisation ClientType = "ORGANIZATION"
 )
 
 type ClientContractType string

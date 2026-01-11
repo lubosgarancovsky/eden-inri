@@ -17,13 +17,13 @@ type UpdateKanbanBoardUseCase interface {
 }
 
 type DeleteKanbanBoardUseCase interface {
-	Execute(ctx context.Context, cmd *command.DeleteProjectScopedCommand) error
+	Execute(ctx context.Context, cmd *command.DeleteKanbanBoardCommand) error
 }
 
 type FindKanbanBoardByIDUseCase interface {
-	Execute(ctx context.Context, query *query.FindByIDProjectScopedQuery) (*entity.KanbanBoard, error)
+	Execute(ctx context.Context, query *query.FindByIDKanbanBoardQuery) (*entity.KanbanBoard, error)
 }
 
 type ListKanbanBoardsUseCase interface {
-	Execute(ctx context.Context, query *query.ListProjectScopedQuery) (*[]entity.KanbanBoard, int64, error)
+	Execute(ctx context.Context, query *query.ListKanbanBoardQuery) (*[]entity.KanbanBoard, int64, error)
 }

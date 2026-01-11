@@ -7,23 +7,42 @@ import (
 )
 
 type CreateProjectReq struct {
-	UserID      uuid.UUID `header:"X-User-ID" binding:"required"`
-	Name        string    `json:"name" binding:"required"`
-	Description string    `json:"description"`
-	Status      string    `json:"status"`
-	Tags        []string  `json:"tags"`
-	Slug        string    `json:"slug"`
+	UserID      string   `header:"X-User-ID"`
+	Name        string   `json:"name"`
+	Description *string  `json:"description"`
+	Status      string   `json:"status"`
+	Tags        []string `json:"tags"`
+	Slug        string   `json:"slug"`
 }
 
 type UpdateProjectReq struct {
-	ID uuid.UUID `uri:"projectId" binding:"required"`
+	ID string `uri:"projectId"`
 	CreateProjectReq
+}
+
+type FavouriteProjectReq struct {
+	UserID    string `header:"X-User-ID"`
+	ProjectID string `uri:"projectId"`
+}
+
+type FindProjectByIDReq struct {
+	UserID    string `header:"X-User-ID"`
+	ProjectID string `uri:"projectId"`
+}
+
+type DeleteProjectReq struct {
+	UserID    string `header:"X-User-ID"`
+	ProjectID string `uri:"projectId"`
+}
+
+type ListProjectsReq struct {
+	UserID string `header:"X-User-ID"`
 }
 
 type ProjectRes struct {
 	ID             uuid.UUID `json:"id"`
 	Name           string    `json:"name"`
-	Description    string    `json:"description"`
+	Description    *string   `json:"description"`
 	Status         string    `json:"status"`
 	Tags           []string  `json:"tags"`
 	Slug           string    `json:"slug"`
@@ -33,51 +52,4 @@ type ProjectRes struct {
 	StorySequence  int       `json:"storySequence"`
 	Role           string    `json:"role"`
 	IsStarred      bool      `json:"isStarred"`
-}
-
-type FavouriteProjectReq struct {
-	UserID    uuid.UUID `header:"X-User-ID"`
-	ProjectID uuid.UUID `uri:"projectId" binding:"required"`
-}
-
-func (r FavouriteProjectReq) GetID() uuid.UUID {
-	return r.ProjectID
-}
-
-func (r FavouriteProjectReq) GetUserID() uuid.UUID {
-	return r.UserID
-}
-
-type FindProjectByIDReq struct {
-	UserID    uuid.UUID `header:"X-User-ID"`
-	ProjectID uuid.UUID `uri:"projectId" binding:"required"`
-}
-
-func (r FindProjectByIDReq) GetID() uuid.UUID {
-	return r.ProjectID
-}
-
-func (r FindProjectByIDReq) GetUserID() uuid.UUID {
-	return r.UserID
-}
-
-type DeleteProjectReq struct {
-	UserID    uuid.UUID `header:"X-User-ID"`
-	ProjectID uuid.UUID `uri:"projectId" binding:"required"`
-}
-
-func (r DeleteProjectReq) GetID() uuid.UUID {
-	return r.ProjectID
-}
-
-func (r DeleteProjectReq) GetUserID() uuid.UUID {
-	return r.UserID
-}
-
-type ListProjectsReq struct {
-	UserID uuid.UUID `header:"X-User-ID" binding:"required"`
-}
-
-func (r ListProjectsReq) GetUserID() uuid.UUID {
-	return r.UserID
 }

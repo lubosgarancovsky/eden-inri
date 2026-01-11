@@ -23,6 +23,7 @@ type Container struct {
 	clientRepository          *postgres.ClientRepository
 	invoiceRepository         *postgres.InvoiceRepository
 	projectRepository         *postgres.ProjectRepository
+	projectUserRepository     *postgres.ProjectUserRepository
 	projectLabelRepository    *postgres.ProjectLabelRepository
 	projectDocumentRepository *postgres.ProjectDocumentRepository
 	kanbanBoardRepository     *postgres.KanbanBoardRepository
@@ -72,11 +73,10 @@ type Container struct {
 	deleteKanbanBoardService   *kanban_board.DeleteKanbanBoardService
 
 	// Kanban Column services
-	listKanbanColumnsService    *kanban_column.ListKanbanColumnsService
-	findKanbanColumnByIDService *kanban_column.FindKanbanColumnByIDService
-	createKanbanColumnService   *kanban_column.CreateKanbanColumnService
-	updateKanbanColumnService   *kanban_column.UpdateKanbanColumnService
-	deleteKanbanColumnService   *kanban_column.DeleteKanbanColumnService
+	listKanbanColumnsService  *kanban_column.ListKanbanColumnsService
+	createKanbanColumnService *kanban_column.CreateKanbanColumnService
+	updateKanbanColumnService *kanban_column.UpdateKanbanColumnService
+	deleteKanbanColumnService *kanban_column.DeleteKanbanColumnService
 
 	// -- Handlers --
 	ClientHandler          *handler.ClientHandler
@@ -106,6 +106,7 @@ func (c *Container) initRepositories() {
 	c.clientRepository = postgres.NewClientRepository(c.db)
 	c.invoiceRepository = postgres.NewInvoiceRepository(c.db)
 	c.projectRepository = postgres.NewProjectRepository(c.db)
+	c.projectUserRepository = postgres.NewProjectUserRepository(c.db)
 	c.projectLabelRepository = postgres.NewProjectLabelRepository(c.db)
 	c.projectDocumentRepository = postgres.NewProjectDocumentRepository(c.db)
 	c.kanbanBoardRepository = postgres.NewKanbanBoardRepository(c.db)
@@ -118,6 +119,7 @@ func (c *Container) initServices() {
 	c.updateClientService = client.NewUpdateClientService(c.clientRepository)
 	c.deleteClientService = client.NewDeleteClientService(c.clientRepository)
 	c.findClientByIDService = client.NewFindClientByIDService(c.clientRepository)
+	c.listClientsService = client.NewListClientsService(c.clientRepository)
 
 	// Invoice services
 	c.createInvoiceService = invoice.NewCreateInvoiceService(c.invoiceRepository)
@@ -127,40 +129,39 @@ func (c *Container) initServices() {
 	c.listInvoicesService = invoice.NewListInvoicesService(c.invoiceRepository)
 
 	// Project services
-	c.createProjectService = project.NewCreateProjectService(c.projectRepository, c.txManager)
+	c.createProjectService = project.NewCreateProjectService(c.projectRepository, c.projectUserRepository, c.txManager)
 	c.updateProjectService = project.NewUpdateProjectService(c.projectRepository)
 	c.deleteProjectService = project.NewDeleteProjectService(c.projectRepository)
 	c.findProjectByIDService = project.NewFindProjectByIDService(c.projectRepository)
 	c.listProjectsService = project.NewListProjectsService(c.projectRepository)
-	c.favouriteProjectService = project.NewFavouriteProjectService(c.projectRepository)
+	c.favouriteProjectService = project.NewFavouriteProjectService(c.projectRepository, c.projectUserRepository)
 
 	// Project Label services
-	c.createProjectLabelService = project_label.NewCreateProjectLabelService(c.projectLabelRepository)
-	c.updateProjectLabelService = project_label.NewUpdateProjectLabelService(c.projectLabelRepository)
-	c.deleteProjectLabelService = project_label.NewDeleteProjectLabelService(c.projectLabelRepository)
-	c.findProjectLabelByIDService = project_label.NewFindProjectLabelByIDService(c.projectLabelRepository)
-	c.listProjectLabelsService = project_label.NewListProjectLabelsService(c.projectLabelRepository)
+	c.createProjectLabelService = project_label.NewCreateProjectLabelService(c.projectLabelRepository, c.projectUserRepository)
+	c.updateProjectLabelService = project_label.NewUpdateProjectLabelService(c.projectLabelRepository, c.projectUserRepository)
+	c.deleteProjectLabelService = project_label.NewDeleteProjectLabelService(c.projectLabelRepository, c.projectUserRepository)
+	c.findProjectLabelByIDService = project_label.NewFindProjectLabelByIDService(c.projectLabelRepository, c.projectUserRepository)
+	c.listProjectLabelsService = project_label.NewListProjectLabelsService(c.projectLabelRepository, c.projectUserRepository)
 
 	// Project Document services
-	c.createProjectDocumentService = project_document.NewCreateProjectDocumentService(c.projectDocumentRepository)
-	c.updateProjectDocumentService = project_document.NewUpdateProjectDocumentService(c.projectDocumentRepository)
-	c.deleteProjectDocumentService = project_document.NewDeleteProjectDocumentService(c.projectDocumentRepository)
-	c.findProjectDocumentByIDService = project_document.NewFindProjectDocumentByIDService(c.projectDocumentRepository)
-	c.listProjectDocumentsService = project_document.NewListProjectDocumentsService(c.projectDocumentRepository)
+	c.createProjectDocumentService = project_document.NewCreateProjectDocumentService(c.projectDocumentRepository, c.projectUserRepository)
+	c.updateProjectDocumentService = project_document.NewUpdateProjectDocumentService(c.projectDocumentRepository, c.projectUserRepository)
+	c.deleteProjectDocumentService = project_document.NewDeleteProjectDocumentService(c.projectDocumentRepository, c.projectUserRepository)
+	c.findProjectDocumentByIDService = project_document.NewFindProjectDocumentByIDService(c.projectDocumentRepository, c.projectUserRepository)
+	c.listProjectDocumentsService = project_document.NewListProjectDocumentsService(c.projectDocumentRepository, c.projectUserRepository)
 
 	// Kanban Board services
-	c.createKanbanBoardService = kanban_board.NewCreateKanbanBoardService(c.kanbanBoardRepository)
-	c.updateKanbanBoardService = kanban_board.NewUpdateKanbanBoardService(c.kanbanBoardRepository)
-	c.deleteKanbanBoardService = kanban_board.NewDeleteKanbanBoardService(c.kanbanBoardRepository)
-	c.findKanbanBoardByIDService = kanban_board.NewFindKanbanBoardByIDService(c.kanbanBoardRepository)
-	c.listKanbanBoardsService = kanban_board.NewListKanbanBoardsService(c.kanbanBoardRepository)
+	c.createKanbanBoardService = kanban_board.NewCreateKanbanBoardService(c.kanbanBoardRepository, c.projectUserRepository)
+	c.updateKanbanBoardService = kanban_board.NewUpdateKanbanBoardService(c.kanbanBoardRepository, c.projectUserRepository)
+	c.deleteKanbanBoardService = kanban_board.NewDeleteKanbanBoardService(c.kanbanBoardRepository, c.projectUserRepository)
+	c.findKanbanBoardByIDService = kanban_board.NewFindKanbanBoardByIDService(c.kanbanBoardRepository, c.projectUserRepository)
+	c.listKanbanBoardsService = kanban_board.NewListKanbanBoardsService(c.kanbanBoardRepository, c.projectUserRepository)
 
 	// Kanban Column services
-	c.createKanbanColumnService = kanban_column.NewCreateKanbanColumnService(c.kanbanColumnRepository)
-	c.updateKanbanColumnService = kanban_column.NewUpdateKanbanColumnService(c.kanbanColumnRepository)
-	c.deleteKanbanColumnService = kanban_column.NewDeleteKanbanColumnService(c.kanbanColumnRepository)
-	c.findKanbanColumnByIDService = kanban_column.NewFindKanbanColumnByIDService(c.kanbanColumnRepository)
-	c.listKanbanColumnsService = kanban_column.NewListKanbanColumnsService(c.kanbanColumnRepository)
+	c.createKanbanColumnService = kanban_column.NewCreateKanbanColumnService(c.kanbanColumnRepository, c.projectUserRepository)
+	c.updateKanbanColumnService = kanban_column.NewUpdateKanbanColumnService(c.kanbanColumnRepository, c.projectUserRepository)
+	c.deleteKanbanColumnService = kanban_column.NewDeleteKanbanColumnService(c.kanbanColumnRepository, c.projectUserRepository)
+	c.listKanbanColumnsService = kanban_column.NewListKanbanColumnsService(c.kanbanColumnRepository, c.projectUserRepository)
 }
 
 func (c *Container) initHandlers() {
@@ -170,5 +171,5 @@ func (c *Container) initHandlers() {
 	c.ProjectLabelHandler = handler.NewProjectLabelHandler(c.createProjectLabelService, c.updateProjectLabelService, c.deleteProjectLabelService, c.findProjectLabelByIDService, c.listProjectLabelsService, c.parser)
 	c.ProjectDocumentHandler = handler.NewProjectDocumentHandler(c.createProjectDocumentService, c.updateProjectDocumentService, c.deleteProjectDocumentService, c.findProjectDocumentByIDService, c.listProjectDocumentsService, c.parser)
 	c.KanbanBoardHandler = handler.NewKanbanBoardHandler(c.createKanbanBoardService, c.updateKanbanBoardService, c.deleteKanbanBoardService, c.findKanbanBoardByIDService, c.listKanbanBoardsService, c.parser)
-	c.KanbanColumnHandler = handler.NewKanbanColumnHandler(c.createKanbanColumnService, c.updateKanbanColumnService, c.deleteKanbanColumnService, c.findKanbanColumnByIDService, c.listKanbanColumnsService)
+	c.KanbanColumnHandler = handler.NewKanbanColumnHandler(c.createKanbanColumnService, c.updateKanbanColumnService, c.deleteKanbanColumnService, c.listKanbanColumnsService)
 }

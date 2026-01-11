@@ -7,37 +7,37 @@ import (
 )
 
 type CreateClientReq struct {
-	UserID       uuid.UUID  `header:"X-User-ID" binding:"required"`
-	ClientType   string     `json:"clientType" binding:"required"`
-	ContractType string     `json:"contractType" binding:"required"`
-	Name         string     `json:"name" binding:"required,min=3,max=100"`
+	UserID       string     `header:"X-User-ID"`
+	ClientType   string     `json:"clientType"`
+	ContractType string     `json:"contractType"`
+	Name         string     `json:"name"`
 	Description  *string    `json:"description"`
 	TaxNumber    *string    `json:"taxNumber"`
-	Address      *string    `json:"address" binding:"required"`
+	Address      *string    `json:"address"`
 	Tags         []string   `json:"tags"`
-	HourRate     float64    `json:"hourRate" binding:"required,gte=0"`
-	StartedAt    time.Time  `json:"startedAt" binding:"required"`
+	HourRate     float64    `json:"hourRate"`
+	StartedAt    time.Time  `json:"startedAt"`
 	FinishedAt   *time.Time `json:"finishedAt"`
 }
 
 type UpdateClientReq struct {
-	UserID   uuid.UUID `header:"X-User-ID"`
-	ClientID uuid.UUID `uri:"clientId" binding:"required"`
+	UserID   string `header:"X-User-ID"`
+	ClientID string `uri:"clientId"`
 	CreateClientReq
 }
 
 type DeleteClientReq struct {
-	UserID uuid.UUID `header:"X-User-ID"`
-	ID     uuid.UUID `uri:"clientId" binding:"required"`
+	UserID string `header:"X-User-ID"`
+	ID     string `uri:"clientId"`
 }
 
 type FindClientByIDReq struct {
-	UserID uuid.UUID `header:"X-User-ID"`
-	ID     uuid.UUID `uri:"clientId" binding:"required"`
+	UserID string `header:"X-User-ID"`
+	ID     string `uri:"clientId"`
 }
 
 type ListClientsReq struct {
-	UserID uuid.UUID `header:"X-User-ID"`
+	UserID string `header:"X-User-ID"`
 }
 
 type ClientRes struct {

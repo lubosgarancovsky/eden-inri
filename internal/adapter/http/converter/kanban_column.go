@@ -6,12 +6,11 @@ import (
 	"github.com/lubosgarancovsky/eden-inri/internal/domain/command"
 	"github.com/lubosgarancovsky/eden-inri/internal/domain/entity"
 	"github.com/lubosgarancovsky/eden-inri/internal/domain/query"
-	go_kit "github.com/lubosgarancovsky/go-kit"
 )
 
 func ToCreateKanbanColumnCommand(input *dto.CreateKanbanColumnReq) *command.CreateKanbanColumnCommand {
 	return &command.CreateKanbanColumnCommand{
-		BoardID:  input.BoardID,
+		BoardID:  uuid.MustParse(input.BoardID),
 		Key:      input.Key,
 		Name:     input.Name,
 		Type:     input.Type,
@@ -22,13 +21,30 @@ func ToCreateKanbanColumnCommand(input *dto.CreateKanbanColumnReq) *command.Crea
 
 func ToUpdateKanbanColumnCommand(input *dto.UpdateKanbanColumnReq) *command.UpdateKanbanColumnCommand {
 	return &command.UpdateKanbanColumnCommand{
-		ID:       input.ColumnID,
-		BoardID:  input.BoardID,
+		ID:       uuid.MustParse(input.ColumnID),
+		BoardID:  uuid.MustParse(input.BoardID),
 		Key:      input.Key,
 		Name:     input.Name,
 		Type:     input.Type,
 		Color:    input.Color,
 		Position: input.Position,
+	}
+}
+
+func ToDeleteKanbanColumnCommand(input *dto.DeleteKanbanColumnReq) *command.DeleteKanbanColumnCommand {
+	return &command.DeleteKanbanColumnCommand{
+		ID:        uuid.MustParse(input.ColumnID),
+		BoardID:   uuid.MustParse(input.BoardID),
+		ProjectID: uuid.MustParse(input.ProjectID),
+		UserID:    uuid.MustParse(input.UserID),
+	}
+}
+
+func ToListKanbanColumnQuery(input *dto.ListKanbanColumnsReq) *query.ListKanbanColumnsQuery {
+	return &query.ListKanbanColumnsQuery{
+		BoardID:   uuid.MustParse(input.BoardID),
+		UserID:    uuid.MustParse(input.UserID),
+		ProjectID: uuid.MustParse(input.ProjectID),
 	}
 }
 
@@ -43,32 +59,4 @@ func ToKanbanColumnResponse(e *entity.KanbanColumn) *dto.KanbanColumnRes {
 		Position:  e.Position,
 		CreatedAt: e.CreatedAt,
 	}
-}
-
-func ToDeleteBoardScopedCommand(input interface{}) (*command.DeleteBoardScopedCommand, error) {
-	boardDto, ok := input.(interface {
-		GetBoardID() uuid.UUID
-		GetID() uuid.UUID
-	})
-	if !ok {
-		return nil, go_kit.ErrInternalServer
-	}
-	return &command.DeleteBoardScopedCommand{
-		ID:      boardDto.GetID(),
-		BoardID: boardDto.GetBoardID(),
-	}, nil
-}
-
-func ToFindByIDBoardScopedQuery(input interface{}) (*query.FindByIDBoardScopedQuery, error) {
-	boardDto, ok := input.(interface {
-		GetBoardID() uuid.UUID
-		GetID() uuid.UUID
-	})
-	if !ok {
-		return nil, go_kit.ErrInternalServer
-	}
-	return &query.FindByIDBoardScopedQuery{
-		ID:      boardDto.GetID(),
-		BoardID: boardDto.GetBoardID(),
-	}, nil
 }

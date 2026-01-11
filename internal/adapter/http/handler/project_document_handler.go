@@ -54,13 +54,7 @@ func (h *ProjectDocumentHandler) List(c *gin.Context) {
 		return
 	}
 
-	query, err := converter.ToListProjectScopedQuery(req, listingQuery)
-	if err != nil {
-		handle.Error(c, err)
-		return
-	}
-
-	items, total, err := h.listUC.Execute(c.Request.Context(), query)
+	items, total, err := h.listUC.Execute(c.Request.Context(), converter.ToListProjectDocumentsQuery(req, listingQuery))
 	if err != nil {
 		handle.Error(c, err)
 		return
@@ -77,13 +71,7 @@ func (h *ProjectDocumentHandler) FindByID(c *gin.Context) {
 		return
 	}
 
-	query, err := converter.ToFindByIDProjectScopedQuery(req)
-	if err != nil {
-		handle.Error(c, err)
-		return
-	}
-
-	item, err := h.findByIDUC.Execute(c.Request.Context(), query)
+	item, err := h.findByIDUC.Execute(c.Request.Context(), converter.ToFindProjectDocumentByIDQuery(req))
 	if err != nil {
 		handle.Error(c, err)
 		return
@@ -131,13 +119,7 @@ func (h *ProjectDocumentHandler) Delete(c *gin.Context) {
 		return
 	}
 
-	cmd, err := converter.ToDeleteProjectScopedCommand(req)
-	if err != nil {
-		handle.Error(c, err)
-		return
-	}
-
-	if err := h.deleteUC.Execute(c.Request.Context(), cmd); err != nil {
+	if err := h.deleteUC.Execute(c.Request.Context(), converter.ToDeleteProjectDocumentCommand(req)); err != nil {
 		handle.Error(c, err)
 		return
 	}

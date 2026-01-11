@@ -1,41 +1,56 @@
 package converter
 
 import (
-	"github.com/lubosgarancovsky/eden-inri/internal/adapter/http/dto"
+	"reflect"
+
+	"github.com/google/uuid"
 	"github.com/lubosgarancovsky/eden-inri/internal/domain/command"
 	"github.com/lubosgarancovsky/eden-inri/internal/domain/query"
-	go_kit "github.com/lubosgarancovsky/go-kit"
+	"github.com/lubosgarancovsky/go-kit"
 )
 
 func ToDeleteCommand(input interface{}) (*command.DeleteCommand, error) {
-	baseDto, ok := input.(dto.BaseDto)
-	if !ok {
-		return nil, go_kit.ErrInternalServer // TODO: improve error handling
+	userID := extractUserID(input)
+	if userID == uuid.Nil {
+		return nil, go_kit.ErrUnauthorized
 	}
+
+	ID := extractID(input)
+	if ID == uuid.Nil {
+		return nil, go_kit.ErrBadRequest
+	}
+
 	return &command.DeleteCommand{
-		ID:     baseDto.GetID(),
-		UserID: baseDto.GetUserID(),
+		ID:     ID,
+		UserID: userID,
 	}, nil
 }
 
 func ToFindByIDQuery(input interface{}) (*query.FindByIDQuery, error) {
-	baseDto, ok := input.(dto.BaseDto)
-	if !ok {
-		return nil, go_kit.ErrInternalServer
+	userID := extractUserID(input)
+	if userID == uuid.Nil {
+		return nil, go_kit.ErrUnauthorized
 	}
+
+	ID := extractID(input)
+	if ID == uuid.Nil {
+		return nil, go_kit.ErrBadRequest
+	}
+
 	return &query.FindByIDQuery{
-		ID:     baseDto.GetID(),
-		UserID: baseDto.GetUserID(),
+		ID:     ID,
+		UserID: userID,
 	}, nil
 }
 
 func ToListQuery(input interface{}, lq *go_kit.ListingQuery) (*query.ListQuery, error) {
-	userIDDto, ok := input.(dto.UserIDDto)
-	if !ok {
-		return nil, go_kit.ErrInternalServer
+	userID := extractUserID(input)
+	if userID == uuid.Nil {
+		return nil, go_kit.ErrUnauthorized
 	}
+
 	return &query.ListQuery{
-		UserID:       userIDDto.GetUserID(),
+		UserID:       userID,
 		ListingQuery: lq,
 	}, nil
 }
@@ -56,4 +71,50 @@ func ToListResponse[I any, O any](
 	}
 
 	return out
+}
+
+func extractUserID(v interface{}) uuid.UUID {
+	rv := reflect.ValueOf(v)
+
+	if !rv.IsValid() {
+		return uuid.Nil
+	}
+
+	if rv.Kind() == reflect.Ptr {
+		rv = rv.Elem()
+	}
+
+	if rv.Kind() != reflect.Struct {
+		return uuid.Nil
+	}
+
+	field := rv.FieldByName("UserID")
+	if !field.IsValid() || field.Kind() != reflect.String {
+		return uuid.Nil
+	}
+
+	return uuid.MustParse(field.String())
+}
+
+func extractID(v interface{}) uuid.UUID {
+	rv := reflect.ValueOf(v)
+
+	if !rv.IsValid() {
+		return uuid.Nil
+	}
+
+	if rv.Kind() == reflect.Ptr {
+		rv = rv.Elem()
+	}
+
+	if rv.Kind() != reflect.Struct {
+		return uuid.Nil
+	}
+
+	field := rv.FieldByName("ID")
+	if !field.IsValid() || field.Kind() != reflect.String {
+		return uuid.Nil
+	}
+
+	return uuid.MustParse(field.String())
 }

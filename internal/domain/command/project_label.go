@@ -9,6 +9,7 @@ import (
 
 type CreateProjectLabelCommand struct {
 	ProjectID   uuid.UUID
+	UserID      uuid.UUID
 	Name        string
 	Description string
 	Color       string
@@ -28,6 +29,7 @@ func (c *CreateProjectLabelCommand) ToDomain() *entity.ProjectLabel {
 type UpdateProjectLabelCommand struct {
 	ID          uuid.UUID
 	ProjectID   uuid.UUID
+	UserID      uuid.UUID
 	Name        string
 	Description string
 	Color       string
@@ -37,4 +39,10 @@ func (c *UpdateProjectLabelCommand) Apply(e *entity.ProjectLabel) {
 	e.Name = c.Name
 	e.Description = c.Description
 	e.Color = c.Color
+}
+
+type DeleteProjectLabelCommand struct {
+	ID        uuid.UUID
+	ProjectID uuid.UUID
+	UserID    uuid.UUID
 }

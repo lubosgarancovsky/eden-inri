@@ -18,7 +18,7 @@ const (
 type Project struct {
 	ID             uuid.UUID
 	Name           string
-	Description    string
+	Description    *string
 	Status         string
 	Tags           []string
 	Slug           string
@@ -30,10 +30,15 @@ type Project struct {
 	IsStarred      bool        // From ProjectUser
 }
 
-type ProjectUser struct {
-	ProjectID uuid.UUID
-	UserID    uuid.UUID
-	Role      ProjectRole
-	IsStarred bool
-	JoinedAt  time.Time
+func (p *Project) IsOwner() bool {
+	return p.Role == ProjectRoleOwner
+}
+
+func (p *Project) CanMutate() bool {
+	return p.Role == ProjectRoleAdmin || p.Role == ProjectRoleOwner
+}
+
+func (p *Project) ToggleIsStarred() bool {
+	p.IsStarred = !p.IsStarred
+	return p.IsStarred
 }

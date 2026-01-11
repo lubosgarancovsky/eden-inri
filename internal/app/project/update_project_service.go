@@ -6,6 +6,7 @@ import (
 	"github.com/lubosgarancovsky/eden-inri/internal/app/ports"
 	"github.com/lubosgarancovsky/eden-inri/internal/domain/command"
 	"github.com/lubosgarancovsky/eden-inri/internal/domain/entity"
+	go_kit "github.com/lubosgarancovsky/go-kit"
 )
 
 type UpdateProjectService struct {
@@ -19,12 +20,15 @@ func NewUpdateProjectService(repo ports.PersistProjectPort) *UpdateProjectServic
 }
 
 func (s *UpdateProjectService) Execute(ctx context.Context, cmd *command.UpdateProjectCommand) (*entity.Project, error) {
-	// Note: In hexagonal, the service should handle business logic.
-	// We might need to check if the project exists or if the user has permissions.
-	// For now, let's keep it simple as in legacy.
-	project := &entity.Project{
-		ID: cmd.ID,
+	project, err := s.repo.FindByID(ctx, cmd.UserID, cmd.ID)
+	if err != nil {
+		return nil, err
 	}
+
+	if !project.CanMutate() {
+		return nil, go_kit.ErrForbidden.WithMessage("you don't have sufficient permission to mutate this project")
+	}
+
 	cmd.Apply(project)
 
 	if err := s.repo.Update(ctx, project); err != nil {
