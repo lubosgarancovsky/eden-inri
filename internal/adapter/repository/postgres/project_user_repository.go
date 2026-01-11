@@ -82,3 +82,14 @@ func (r *ProjectUserRepository) HasRole(ctx context.Context, userID, projectID u
 
 	return false, nil
 }
+
+func (r *ProjectUserRepository) GetOwner(ctx context.Context, projectID uuid.UUID) (uuid.UUID, error) {
+	db := GetDB(ctx, r.db)
+	var pu model.ProjectUser
+
+	if err := db.Where("project_id = ? AND role = ?", projectID, "owner").First(&pu).Error; err != nil {
+		return uuid.Nil, go_kit.Wrap(go_kit.ErrInternalServer, err)
+	}
+
+	return pu.UserID, nil
+}

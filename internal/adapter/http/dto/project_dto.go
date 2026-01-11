@@ -25,6 +25,11 @@ type FavouriteProjectReq struct {
 	ProjectID string `uri:"projectId"`
 }
 
+type ProjectAttachmentReq struct {
+	UserID    string `header:"X-User-ID"`
+	ProjectID string `uri:"projectId"`
+}
+
 type FindProjectByIDReq struct {
 	UserID    string `header:"X-User-ID"`
 	ProjectID string `uri:"projectId"`

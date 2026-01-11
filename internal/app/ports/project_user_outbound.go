@@ -19,3 +19,7 @@ type IsProjectMemberPort interface {
 type MemberHasRolePort interface {
 	HasRole(ctx context.Context, userID, projectID uuid.UUID, roles []entity.ProjectRole) (bool, error)
 }
+
+type GetProjectOwnerPort interface {
+	GetOwner(ctx context.Context, projectID uuid.UUID) (uuid.UUID, error)
+}

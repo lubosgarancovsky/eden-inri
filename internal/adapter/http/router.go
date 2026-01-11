@@ -88,6 +88,34 @@ func NewServerRoute(c *app.Container) *gin.Engine {
 					columns.GET("", c.KanbanColumnHandler.List)
 				}
 			}
+
+			stories := projects.Group("/:projectId/stories")
+			{
+				stories.POST("", c.StoryHandler.Create)
+				stories.PUT("/:storyId", c.StoryHandler.Update)
+				stories.DELETE("/:storyId", c.StoryHandler.Delete)
+				stories.GET("/:storyId", c.StoryHandler.FindByID)
+				stories.GET("", c.StoryHandler.List)
+				stories.PUT("/:storyId/assignee", c.StoryHandler.ChangeAssignee)
+
+				activities := stories.Group("/:storyId/activities")
+				{
+					activities.POST("", c.StoryActivityHandler.Create)
+					activities.PUT("/:activityId", c.StoryActivityHandler.Update)
+					activities.DELETE("/:activityId", c.StoryActivityHandler.Delete)
+					activities.GET("", c.StoryActivityHandler.List)
+				}
+			}
+		}
+
+		protected.GET("/stories", c.StoryHandler.ListAssigned)
+
+		attachments := protected.Group("/attachments")
+		{
+			attachments.GET("", c.AttachmentHandler.List)
+			attachments.GET("/:attachmentId", c.AttachmentHandler.FindByID)
+			attachments.DELETE("/:attachmentId", c.AttachmentHandler.Delete)
+			attachments.GET("/:attachmentId/download", c.AttachmentHandler.Download)
 		}
 	}
 
