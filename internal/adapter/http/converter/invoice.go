@@ -1,53 +1,66 @@
 package converter
 
 import (
-	"github.com/google/uuid"
 	"github.com/lubosgarancovsky/eden-inri/internal/adapter/http/dto"
-	"github.com/lubosgarancovsky/eden-inri/internal/app/ports"
+	"github.com/lubosgarancovsky/eden-inri/internal/domain/command"
+	"github.com/lubosgarancovsky/eden-inri/internal/domain/entity"
 )
 
-func ToInvoicePortFromCreate(req *dto.CreateInvoiceReq) *ports.Invoice {
-	return &ports.Invoice{
-		ID:          uuid.New(),
-		UserID:      req.UserID,
-		ClientID:    req.ClientID,
-		Number:      req.Name, // legacy field mapping (name used as invoice number)
-		IssuedAt:    req.IssuedAt,
-		DueAt:       req.DueAt,
-		TotalAmount: int64(req.Total),
-		Currency:    "", // not present in legacy DTO
-		Status:      "", // from legacy Update endpoint status
-		Note:        req.Note,
+func ToCreateInvoiceCommand(input *dto.CreateInvoiceReq) *command.CreateInvoiceCommand {
+	return &command.CreateInvoiceCommand{
+		UserID:        input.UserID,
+		ClientID:      input.ClientID,
+		Name:          input.Name,
+		Description:   input.Description,
+		ExternalID:    input.ExternalID,
+		ExternalLink:  input.ExternalLink,
+		Total:         input.Total,
+		BillableHours: input.BillableHours,
+		IssuedAt:      input.IssuedAt,
+		DueAt:         input.DueAt,
+		DeliveredAt:   input.DeliveredAt,
+		PaidAt:        input.PaidAt,
+		IsCanceled:    input.IsCanceled,
 	}
 }
 
-func ToInvoicePortFromUpdate(req *dto.UpdateInvoiceReq) *ports.Invoice {
-	inv := ToInvoicePortFromCreate(&req.CreateInvoiceReq)
-	inv.ID = req.InvoiceID
-	inv.UserID = req.UserID
-	return inv
+func ToUpdateInvoiceCommand(input *dto.UpdateInvoiceReq) *command.UpdateInvoiceCommand {
+	return &command.UpdateInvoiceCommand{
+		ID: input.InvoiceID,
+		CreateInvoiceCommand: command.CreateInvoiceCommand{
+			UserID:        input.UserID,
+			ClientID:      input.ClientID,
+			Name:          input.Name,
+			Description:   input.Description,
+			ExternalID:    input.ExternalID,
+			ExternalLink:  input.ExternalLink,
+			Total:         input.Total,
+			BillableHours: input.BillableHours,
+			IssuedAt:      input.IssuedAt,
+			DueAt:         input.DueAt,
+			DeliveredAt:   input.DeliveredAt,
+			PaidAt:        input.PaidAt,
+			IsCanceled:    input.IsCanceled,
+		},
+	}
 }
 
-func ToInvoiceResponse(inv *ports.Invoice) *dto.InvoiceRes {
-	// Map to legacy InvoiceRes fields for backward compatibility in response shape
+func ToInvoiceResponse(invoice *entity.Invoice) *dto.InvoiceRes {
 	return &dto.InvoiceRes{
-		ID:       inv.ID,
-		Name:     inv.Number,
-		Note:     inv.Note,
-		Total:    float64(inv.TotalAmount),
-		IssuedAt: inv.IssuedAt,
-		DueAt:    inv.DueAt,
+		ID:            invoice.ID,
+		Name:          invoice.Name,
+		Description:   invoice.Description,
+		ExternalID:    invoice.ExternalID,
+		Total:         invoice.Total,
+		BillableHours: invoice.BillableHours,
+		IssuedAt:      invoice.IssuedAt,
+		DueAt:         invoice.DueAt,
+		DeliveredAt:   invoice.DeliveredAt,
+		PaidAt:        invoice.PaidAt,
+		IsCanceled:    invoice.IsCanceled,
+		ExternalLink:  invoice.ExternalLink,
+		CreatedAt:     invoice.CreatedAt,
+		UpdatedAt:     invoice.UpdatedAt,
+		Client:        *ToClientResponse(invoice.Client),
 	}
-}
-
-func ToInvoiceListResponse(items *[]ports.Invoice) []*dto.InvoiceRes {
-	if items == nil {
-		return nil
-	}
-	arr := *items
-	res := make([]*dto.InvoiceRes, len(arr))
-	for i := range arr {
-		res[i] = ToInvoiceResponse(&arr[i])
-	}
-	return res
 }

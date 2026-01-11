@@ -6,8 +6,10 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
+	"github.com/lubosgarancovsky/eden-inri/internal/adapter/repository/postgres/mapper"
 	"github.com/lubosgarancovsky/eden-inri/internal/adapter/repository/postgres/model"
 	"github.com/lubosgarancovsky/eden-inri/internal/app/ports"
+	"github.com/lubosgarancovsky/eden-inri/internal/domain/entity"
 	go_kit "github.com/lubosgarancovsky/go-kit"
 	"gorm.io/gorm"
 )
@@ -19,24 +21,20 @@ type InvoiceRepository struct{ db *gorm.DB }
 
 func NewInvoiceRepository(db *gorm.DB) *InvoiceRepository { return &InvoiceRepository{db: db} }
 
-func (r *InvoiceRepository) List(ctx context.Context, userID uuid.UUID, lq *go_kit.ListingQuery) (*[]ports.Invoice, int64, error) {
+func (r *InvoiceRepository) List(ctx context.Context, userID uuid.UUID, lq *go_kit.ListingQuery) (*[]entity.Invoice, int64, error) {
 	db := GetDB(ctx, r.db)
 	query := db.Model(&model.Invoice{}).Where("user_id = ?", userID)
 	if lq.Filter != nil {
 		query = query.Where(lq.Filter.Query, lq.Filter.Args...)
 	}
-	itemsM, total, err := List[model.Invoice](query, lq)
+	items, total, err := ListToDomain[model.Invoice, entity.Invoice](query, lq)
 	if err != nil {
-		return nil, 0, go_kit.Wrap(go_kit.ErrInternalServer, err)
-	}
-	items := make([]ports.Invoice, len(itemsM))
-	for i := range itemsM {
-		items[i] = *itemsM[i].ToPort()
+		return nil, 0, err
 	}
 	return &items, total, nil
 }
 
-func (r *InvoiceRepository) FindByID(ctx context.Context, userID, invoiceID uuid.UUID) (*ports.Invoice, error) {
+func (r *InvoiceRepository) FindByID(ctx context.Context, userID, invoiceID uuid.UUID) (*entity.Invoice, error) {
 	db := GetDB(ctx, r.db)
 	var m model.Invoice
 	if err := db.Model(&model.Invoice{}).
@@ -47,20 +45,20 @@ func (r *InvoiceRepository) FindByID(ctx context.Context, userID, invoiceID uuid
 		}
 		return nil, go_kit.Wrap(go_kit.ErrInternalServer, err)
 	}
-	return m.ToPort(), nil
+	return m.ToDomain(), nil
 }
 
-func (r *InvoiceRepository) Create(ctx context.Context, inv *ports.Invoice) error {
+func (r *InvoiceRepository) Create(ctx context.Context, inv *entity.Invoice) error {
 	db := GetDB(ctx, r.db)
-	if err := db.Create(model.InvoiceFromPort(inv)).Error; err != nil {
+	if err := db.Create(mapper.InvoiceFromDomain(inv)).Error; err != nil {
 		return go_kit.Wrap(go_kit.ErrInternalServer, err)
 	}
 	return nil
 }
 
-func (r *InvoiceRepository) Update(ctx context.Context, inv *ports.Invoice) error {
+func (r *InvoiceRepository) Update(ctx context.Context, inv *entity.Invoice) error {
 	db := GetDB(ctx, r.db)
-	res := db.Model(&model.Invoice{}).Where("id = ? AND user_id = ?", inv.ID, inv.UserID).Updates(model.InvoiceFromPort(inv))
+	res := db.Model(&model.Invoice{}).Where("id = ? AND user_id = ?", inv.ID, inv.UserID).Updates(mapper.InvoiceFromDomain(inv))
 	if res.Error != nil {
 		return go_kit.Wrap(go_kit.ErrInternalServer, res.Error)
 	}

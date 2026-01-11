@@ -19,8 +19,14 @@ func NewUpdateClientService(repository ports.PersistClientPort) *UpdateClientSer
 }
 
 func (c *UpdateClientService) Execute(ctx context.Context, cmd *command.UpdateClientCommand) (*entity.Client, error) {
-	client := cmd.ToDomain()
-	if err := c.repository.Update(ctx, client); err != nil {
+	client, err := c.repository.FindByID(ctx, cmd.UserID, cmd.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	cmd.Apply(client)
+
+	if err = c.repository.Update(ctx, client); err != nil {
 		return nil, err
 	}
 	return client, nil

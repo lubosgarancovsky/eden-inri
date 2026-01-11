@@ -11,15 +11,15 @@ import (
 var _ ports.FindClientByIDUseCase = (*FindClientByIDService)(nil)
 
 type FindClientByIDService struct {
-	repository ports.QueryClientPort
+	repository ports.PersistClientPort
 }
 
 func NewFindClientByIDService(
-	repository ports.QueryClientPort,
+	repository ports.PersistClientPort,
 ) *FindClientByIDService {
 	return &FindClientByIDService{repository}
 }
 
-func (c *FindClientByIDService) Execute(ctx context.Context, q *query.FindClientByIDQuery) (*entity.Client, error) {
+func (c *FindClientByIDService) Execute(ctx context.Context, q *query.FindByIDQuery) (*entity.Client, error) {
 	return c.repository.FindByID(ctx, q.UserID, q.ID)
 }

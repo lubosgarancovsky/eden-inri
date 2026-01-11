@@ -4,8 +4,6 @@ import (
 	"github.com/lubosgarancovsky/eden-inri/internal/adapter/http/dto"
 	"github.com/lubosgarancovsky/eden-inri/internal/domain/command"
 	"github.com/lubosgarancovsky/eden-inri/internal/domain/entity"
-	"github.com/lubosgarancovsky/eden-inri/internal/domain/query"
-	go_kit "github.com/lubosgarancovsky/go-kit"
 )
 
 func ToCreateClientCommand(input *dto.CreateClientReq) *command.CreateClientCommand {
@@ -43,27 +41,6 @@ func ToUpdateClientCommand(input *dto.UpdateClientReq) *command.UpdateClientComm
 	}
 }
 
-func ToDeleteClientCommand(input *dto.DeleteClientReq) *command.DeleteClientCommand {
-	return &command.DeleteClientCommand{
-		ID:     input.ClientID,
-		UserID: input.UserID,
-	}
-}
-
-func ToFindClientByIDQuery(req *dto.FindClientByIDReq) *query.FindClientByIDQuery {
-	return &query.FindClientByIDQuery{
-		ID:     req.ID,
-		UserID: req.UserID,
-	}
-}
-
-func ToListClientsQuery(req *dto.ListClientsReq, lq *go_kit.ListingQuery) *query.ListClientsQuery {
-	return &query.ListClientsQuery{
-		UserID:       req.UserID,
-		ListingQuery: *lq,
-	}
-}
-
 func ToClientResponse(client *entity.Client) *dto.ClientRes {
 	return &dto.ClientRes{
 		ID:           client.ID,
@@ -80,18 +57,4 @@ func ToClientResponse(client *entity.Client) *dto.ClientRes {
 		CreatedAt:    client.CreatedAt,
 		UpdatedAt:    client.UpdatedAt,
 	}
-}
-
-func ToClientListResponse(clients *[]entity.Client) []*dto.ClientRes {
-	if clients == nil {
-		return nil
-	}
-
-	clientsArray := *clients
-
-	res := make([]*dto.ClientRes, len(clientsArray))
-	for i, client := range clientsArray {
-		res[i] = ToClientResponse(&client)
-	}
-	return res
 }

@@ -27,8 +27,8 @@ type UpdateClientReq struct {
 }
 
 type DeleteClientReq struct {
-	UserID   uuid.UUID `header:"X-User-ID"`
-	ClientID uuid.UUID `uri:"clientId" binding:"required"`
+	UserID uuid.UUID `header:"X-User-ID"`
+	ID     uuid.UUID `uri:"clientId" binding:"required"`
 }
 
 type FindClientByIDReq struct {

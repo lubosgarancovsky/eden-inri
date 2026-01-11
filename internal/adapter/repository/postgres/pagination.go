@@ -54,3 +54,31 @@ func List[T any](query *gorm.DB, lq *go_kit.ListingQuery) ([]T, int64, error) {
 
 	return state.items, state.totalCount, nil
 }
+
+func ListToDomain[M ToDomain[D], D any](
+	query *gorm.DB,
+	lq *go_kit.ListingQuery,
+) ([]D, int64, error) {
+
+	state := &ListState[M]{
+		items:      make([]M, 0),
+		totalCount: 0,
+		lq:         lq,
+	}
+
+	if err := Paginate(
+		query.WithContext(query.Statement.Context).Session(&gorm.Session{}),
+		state,
+	); err != nil {
+		return nil, 0, err
+	}
+
+	if err := Count(
+		query.WithContext(query.Statement.Context).Session(&gorm.Session{}),
+		state,
+	); err != nil {
+		return nil, 0, err
+	}
+
+	return MapToDomain[M, D](state.items), state.totalCount, nil
+}

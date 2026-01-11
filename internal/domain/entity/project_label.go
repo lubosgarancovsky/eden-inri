@@ -10,7 +10,8 @@ type ProjectLabel struct {
 	ID          uuid.UUID
 	ProjectID   uuid.UUID
 	Name        string
-	Description string
+	Description *string
 	Color       string
 	CreatedAt   time.Time
+	UpdatedAt   time.Time
 }

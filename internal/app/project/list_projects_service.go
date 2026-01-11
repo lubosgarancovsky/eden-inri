@@ -19,6 +19,5 @@ func NewListProjectsService(repository ports.QueryProjectPort) *ListProjectsServ
 }
 
 func (s *ListProjectsService) Execute(ctx context.Context, q *query.ListProjectsQuery) (*[]entity.Project, int64, error) {
-	lq := q.ListingQuery // copy value to get pointer below
-	return s.repository.List(ctx, q.UserID, &lq)
+	return s.repository.List(ctx, q.UserID, &q.ListingQuery)
 }

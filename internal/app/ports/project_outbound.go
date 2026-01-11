@@ -9,6 +9,7 @@ import (
 )
 
 type PersistProjectPort interface {
+	FindByID(ctx context.Context, userID, projectID uuid.UUID) (*entity.Project, error)
 	Create(ctx context.Context, project *entity.Project) error
 	Update(ctx context.Context, userID uuid.UUID, project *entity.Project) error
 	Delete(ctx context.Context, userID, projectID uuid.UUID) error

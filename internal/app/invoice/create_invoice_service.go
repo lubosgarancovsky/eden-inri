@@ -4,22 +4,24 @@ import (
 	"context"
 
 	"github.com/lubosgarancovsky/eden-inri/internal/app/ports"
+	"github.com/lubosgarancovsky/eden-inri/internal/domain/command"
+	"github.com/lubosgarancovsky/eden-inri/internal/domain/entity"
 )
 
 var _ ports.CreateInvoiceUseCase = (*CreateInvoiceService)(nil)
 
 type CreateInvoiceService struct {
 	repo ports.PersistInvoicePort
-	tm   ports.TransactionManager
 }
 
-func NewCreateInvoiceService(repo ports.PersistInvoicePort, tm ports.TransactionManager) *CreateInvoiceService {
-	return &CreateInvoiceService{repo: repo, tm: tm}
+func NewCreateInvoiceService(repo ports.PersistInvoicePort) *CreateInvoiceService {
+	return &CreateInvoiceService{repo: repo}
 }
 
-func (s *CreateInvoiceService) Execute(ctx context.Context, inv *ports.Invoice) (*ports.Invoice, error) {
-	if err := s.tm.WithTransaction(ctx, func(ctx context.Context) error { return s.repo.Create(ctx, inv) }); err != nil {
+func (s *CreateInvoiceService) Execute(ctx context.Context, cmd *command.CreateInvoiceCommand) (*entity.Invoice, error) {
+	invoice := cmd.ToDomain()
+	if err := s.repo.Create(ctx, invoice); err != nil {
 		return nil, err
 	}
-	return inv, nil
+	return invoice, nil
 }

@@ -9,17 +9,18 @@ import (
 )
 
 type Project struct {
-	ID             uuid.UUID `gorm:"primary_key;type:uuid;default:uuid_generate_v4()"`
-	Name           string
-	Description    string
-	Status         string
+	ID             uuid.UUID      `gorm:"primary_key;type:uuid;default:uuid_generate_v4()"`
+	Name           string         `gorm:"type:text,not null"`
+	Description    *string        `gorm:"type:text"`
+	Status         string         `gorm:"type:text,not null"`
 	Tags           pq.StringArray `gorm:"type:text[]"`
-	Slug           string
-	CreatedAt      time.Time
-	UpdatedAt      time.Time
-	LastActivityAt time.Time
-	StorySequence  int
-	IsStarred      bool `gorm:"->"`
+	Slug           string         `gorm:"type:text,not null"`
+	CreatedAt      time.Time      `gorm:"type:timestamptz,not null"`
+	UpdatedAt      time.Time      `gorm:"type:timestamptz,not null"`
+	LastActivityAt time.Time      `gorm:"type:timestamptz,not null"`
+	StorySequence  int            `gorm:"type:integer,not null"`
+	IsStarred      bool           `gorm:"->"`
+	Role           string         `gorm:"->"`
 }
 
 func (Project) TableName() string { return "inri_projects" }
@@ -32,7 +33,7 @@ func (m *Project) ToDomain() *entity.Project {
 		Description:    m.Description,
 		StorySequence:  m.StorySequence,
 		IsStarred:      m.IsStarred,
-		Tags:           []string(m.Tags),
+		Tags:           m.Tags,
 		Status:         entity.ProjectStatus(m.Status),
 		CreatedAt:      m.CreatedAt,
 		UpdatedAt:      m.UpdatedAt,

@@ -11,15 +11,12 @@ var _ ports.DeleteProjectUseCase = (*DeleteProjectService)(nil)
 
 type DeleteProjectService struct {
 	repository ports.PersistProjectPort
-	tm         ports.TransactionManager
 }
 
-func NewDeleteProjectService(repository ports.PersistProjectPort, tm ports.TransactionManager) *DeleteProjectService {
-	return &DeleteProjectService{repository: repository, tm: tm}
+func NewDeleteProjectService(repository ports.PersistProjectPort) *DeleteProjectService {
+	return &DeleteProjectService{repository: repository}
 }
 
 func (s *DeleteProjectService) Execute(ctx context.Context, cmd *command.DeleteProjectCommand) error {
-	return s.tm.WithTransaction(ctx, func(ctx context.Context) error {
-		return s.repository.Delete(ctx, cmd.UserID, cmd.ProjectID)
-	})
+	return s.repository.Delete(ctx, cmd.UserID, cmd.ProjectID)
 }

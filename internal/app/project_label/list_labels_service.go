@@ -1,4 +1,4 @@
-package label
+package project_label
 
 import (
 	"context"
