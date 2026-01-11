@@ -1,6 +1,8 @@
 package command
 
 import (
+	"time"
+
 	"github.com/google/uuid"
 	"github.com/lubosgarancovsky/eden-inri/internal/domain/entity"
 )
@@ -8,7 +10,7 @@ import (
 type CreateProjectCommand struct {
 	UserID      uuid.UUID
 	Name        string
-	Description string
+	Description *string
 	Status      string
 	Tags        []string
 	Slug        string
@@ -30,16 +32,19 @@ type UpdateProjectCommand struct {
 	UserID      uuid.UUID
 	ProjectID   uuid.UUID
 	Name        string
-	Description string
+	Description *string
 	Status      string
 	Tags        []string
 }
 
 func (c *UpdateProjectCommand) Apply(p *entity.Project) {
+	now := time.Now()
 	p.Name = c.Name
 	p.Description = c.Description
 	p.Status = entity.ProjectStatus(c.Status)
 	p.Tags = c.Tags
+	p.UpdatedAt = now
+	p.LastActivityAt = now
 }
 
 func (c *UpdateProjectCommand) ToDomain() *entity.Project {

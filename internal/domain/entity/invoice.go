@@ -1,7 +1,6 @@
 package entity
 
 import (
-	"errors"
 	"time"
 
 	"github.com/google/uuid"
@@ -12,9 +11,9 @@ type Invoice struct {
 	UserID        uuid.UUID
 	ClientID      uuid.UUID
 	Name          string
-	Note          string
-	ExternalID    string
-	ExternalLink  string
+	Description   *string
+	ExternalID    *string
+	ExternalLink  *string
 	Total         float64
 	BillableHours float64
 	IssuedAt      time.Time
@@ -24,9 +23,5 @@ type Invoice struct {
 	IsCanceled    bool
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
-}
-
-func NewInvoice() (*Invoice, error) {
-	// TODO: Implement method
-	return nil, errors.New("not implemented")
+	Client        *Client
 }

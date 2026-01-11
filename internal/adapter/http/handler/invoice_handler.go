@@ -52,12 +52,20 @@ func (h *InvoiceHandler) List(c *gin.Context) {
 		handle.Error(c, err)
 		return
 	}
-	items, total, err := h.listUC.Execute(c.Request.Context(), req.UserID, listingQuery)
+
+	query, err := converter.ToListQuery(req, listingQuery)
 	if err != nil {
 		handle.Error(c, err)
 		return
 	}
-	handle.Page(c, listingQuery, total, converter.ToInvoiceListResponse(items))
+
+	items, total, err := h.listUC.Execute(c.Request.Context(), query)
+	if err != nil {
+		handle.Error(c, err)
+		return
+	}
+	invoices := converter.ToListResponse(items, converter.ToInvoiceResponse)
+	handle.Page(c, listingQuery, total, invoices)
 }
 
 func (h *InvoiceHandler) FindByID(c *gin.Context) {
@@ -66,7 +74,14 @@ func (h *InvoiceHandler) FindByID(c *gin.Context) {
 		handle.Error(c, err)
 		return
 	}
-	item, err := h.findUC.Execute(c.Request.Context(), req.UserID, req.InvoiceID)
+
+	query, err := converter.ToFindByIDQuery(req)
+	if err != nil {
+		handle.Error(c, err)
+		return
+	}
+
+	item, err := h.findUC.Execute(c.Request.Context(), query)
 	if err != nil {
 		handle.Error(c, err)
 		return
@@ -80,7 +95,8 @@ func (h *InvoiceHandler) Create(c *gin.Context) {
 		handle.Error(c, err)
 		return
 	}
-	created, err := h.createUC.Execute(c.Request.Context(), converter.ToInvoicePortFromCreate(req))
+
+	created, err := h.createUC.Execute(c.Request.Context(), converter.ToCreateInvoiceCommand(req))
 	if err != nil {
 		handle.Error(c, err)
 		return
@@ -94,7 +110,7 @@ func (h *InvoiceHandler) Update(c *gin.Context) {
 		handle.Error(c, err)
 		return
 	}
-	updated, err := h.updateUC.Execute(c.Request.Context(), converter.ToInvoicePortFromUpdate(req))
+	updated, err := h.updateUC.Execute(c.Request.Context(), converter.ToUpdateInvoiceCommand(req))
 	if err != nil {
 		handle.Error(c, err)
 		return
@@ -103,12 +119,19 @@ func (h *InvoiceHandler) Update(c *gin.Context) {
 }
 
 func (h *InvoiceHandler) Delete(c *gin.Context) {
-	req := &dto.FindInvoiceByIDReq{}
+	req := &dto.DeleteInvoiceReq{}
 	if err := validator.BindAndValidate(c, req); err != nil {
 		handle.Error(c, err)
 		return
 	}
-	if err := h.deleteUC.Execute(c.Request.Context(), req.UserID, req.InvoiceID); err != nil {
+
+	cmd, err := converter.ToDeleteCommand(req)
+	if err != nil {
+		handle.Error(c, err)
+		return
+	}
+
+	if err = h.deleteUC.Execute(c.Request.Context(), cmd); err != nil {
 		handle.Error(c, err)
 		return
 	}

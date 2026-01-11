@@ -57,13 +57,20 @@ func (h *ClientHandler) List(c *gin.Context) {
 		return
 	}
 
-	clients, total, err := h.listClientsUC.Execute(c.Request.Context(), converter.ToListClientsQuery(req, listingQuery))
+	query, err := converter.ToListQuery(req, listingQuery)
 	if err != nil {
 		handle.Error(c, err)
 		return
 	}
 
-	handle.Page(c, listingQuery, total, converter.ToClientListResponse(clients))
+	clients, total, err := h.listClientsUC.Execute(c.Request.Context(), query)
+	if err != nil {
+		handle.Error(c, err)
+		return
+	}
+
+	responseItems := converter.ToListResponse(clients, converter.ToClientResponse)
+	handle.Page(c, listingQuery, total, responseItems)
 }
 
 func (h *ClientHandler) FindByID(c *gin.Context) {
@@ -74,7 +81,13 @@ func (h *ClientHandler) FindByID(c *gin.Context) {
 		return
 	}
 
-	client, err := h.findClientByIDUC.Execute(c.Request.Context(), converter.ToFindClientByIDQuery(req))
+	query, err := converter.ToFindByIDQuery(req)
+	if err != nil {
+		handle.Error(c, err)
+		return
+	}
+
+	client, err := h.findClientByIDUC.Execute(c.Request.Context(), query)
 	if err != nil {
 		handle.Error(c, err)
 		return
@@ -125,8 +138,13 @@ func (h *ClientHandler) Delete(c *gin.Context) {
 		return
 	}
 
-	err := h.deleteClientUC.Execute(c.Request.Context(), converter.ToDeleteClientCommand(req))
+	cmd, err := converter.ToDeleteCommand(req)
 	if err != nil {
+		handle.Error(c, err)
+		return
+	}
+
+	if err := h.deleteClientUC.Execute(c.Request.Context(), cmd); err != nil {
 		handle.Error(c, err)
 		return
 	}

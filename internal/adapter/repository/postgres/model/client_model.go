@@ -27,11 +27,11 @@ type Client struct {
 	DeletedAt    gorm.DeletedAt `gorm:"type:timestamptz;index"`
 }
 
-func (c *Client) TableName() string {
+func (Client) TableName() string {
 	return "inri_clients"
 }
 
-func (c *Client) ToDomain() *entity.Client {
+func (c Client) ToDomain() *entity.Client {
 	return &entity.Client{
 		ID:           c.ID,
 		UserID:       c.UserID,
@@ -48,23 +48,4 @@ func (c *Client) ToDomain() *entity.Client {
 		CreatedAt:    c.CreatedAt,
 		UpdatedAt:    c.UpdatedAt,
 	}
-}
-
-func ClientFromDomain(entity *entity.Client) *Client {
-	client := &Client{}
-	client.ID = entity.ID
-	client.UserID = entity.UserID
-	client.ClientType = string(entity.ClientType)
-	client.ContractType = string(entity.ContractType)
-	client.Name = entity.Name
-	client.Description = entity.Description
-	client.TaxNumber = entity.TaxNumber
-	client.Address = entity.Address
-	client.Tags = entity.Tags
-	client.HourRate = entity.HourRate
-	client.StartedAt = entity.StartedAt
-	client.FinishedAt = entity.FinishedAt
-	client.CreatedAt = entity.CreatedAt
-	client.UpdatedAt = entity.UpdatedAt
-	return client
 }

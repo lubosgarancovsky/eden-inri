@@ -28,7 +28,7 @@ func (r *ProjectRepository) List(ctx context.Context, userID uuid.UUID, lq *go_k
 
 	query := db.Model(&model.Project{}).
 		Joins("JOIN inri_project_users pu ON pu.project_id = inri_projects.id AND pu.user_id = ?", userID).
-		Select("inri_projects.*, pu.is_starred as is_starred")
+		Select("inri_projects.*, pu.is_starred as is_starred, pu.role as role")
 
 	if lq.Filter != nil {
 		query = query.Where(lq.Filter.Query, lq.Filter.Args...)
@@ -47,7 +47,7 @@ func (r *ProjectRepository) FindByID(ctx context.Context, userID, projectID uuid
 	var m model.Project
 	if err := db.Model(&model.Project{}).
 		Joins("JOIN inri_project_users pu ON pu.project_id = inri_projects.id AND pu.user_id = ?", userID).
-		Select("inri_projects.*, pu.is_starred as is_starred").
+		Select("inri_projects.*, pu.is_starred as is_starred, pu.role as role").
 		Where("inri_projects.id = ?", projectID).
 		First(&m).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -68,7 +68,7 @@ func (r *ProjectRepository) Create(ctx context.Context, project *entity.Project)
 
 func (r *ProjectRepository) Update(ctx context.Context, userID uuid.UUID, project *entity.Project) error {
 	db := GetDB(ctx, r.db)
-	// Only allow update if user is member
+
 	result := db.Model(&model.Project{}).
 		Joins("JOIN inri_project_users pu ON pu.project_id = inri_projects.id AND pu.user_id = ?", userID).
 		Where("inri_projects.id = ?", project.ID).
@@ -85,7 +85,7 @@ func (r *ProjectRepository) Update(ctx context.Context, userID uuid.UUID, projec
 
 func (r *ProjectRepository) Delete(ctx context.Context, userID, projectID uuid.UUID) error {
 	db := GetDB(ctx, r.db)
-	// Only allow delete if user is owner (role = owner)
+
 	result := db.Table("inri_projects p").
 		Joins("JOIN inri_project_users pu ON pu.project_id = p.id AND pu.user_id = ? AND pu.role = ?", userID, "owner").
 		Where("p.id = ?", projectID).

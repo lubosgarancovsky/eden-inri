@@ -2,8 +2,10 @@ package invoice
 
 import (
 	"context"
-	"github.com/google/uuid"
+
 	"github.com/lubosgarancovsky/eden-inri/internal/app/ports"
+	"github.com/lubosgarancovsky/eden-inri/internal/domain/entity"
+	"github.com/lubosgarancovsky/eden-inri/internal/domain/query"
 )
 
 var _ ports.FindInvoiceByIDUseCase = (*FindInvoiceService)(nil)
@@ -14,6 +16,6 @@ func NewFindInvoiceService(repo ports.QueryInvoicePort) *FindInvoiceService {
 	return &FindInvoiceService{repo}
 }
 
-func (s *FindInvoiceService) Execute(ctx context.Context, userID, invoiceID uuid.UUID) (*ports.Invoice, error) {
-	return s.repo.FindByID(ctx, userID, invoiceID)
+func (s *FindInvoiceService) Execute(ctx context.Context, query *query.FindByIDQuery) (*entity.Invoice, error) {
+	return s.repo.FindByID(ctx, query.UserID, query.ID)
 }

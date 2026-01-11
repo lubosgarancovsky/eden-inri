@@ -5,9 +5,9 @@ import (
 	"github.com/lubosgarancovsky/eden-inri/internal/adapter/repository/postgres"
 	"github.com/lubosgarancovsky/eden-inri/internal/app/client"
 	app_invoice "github.com/lubosgarancovsky/eden-inri/internal/app/invoice"
-	app_label "github.com/lubosgarancovsky/eden-inri/internal/app/label"
 	"github.com/lubosgarancovsky/eden-inri/internal/app/project"
 	project_document_uc "github.com/lubosgarancovsky/eden-inri/internal/app/project_document"
+	app_label "github.com/lubosgarancovsky/eden-inri/internal/app/project_label"
 	"github.com/lubosgarancovsky/go-kit"
 	"gorm.io/gorm"
 )
@@ -22,16 +22,23 @@ type Container struct {
 	projectRepository         *postgres.ProjectRepository
 	projectUserRepository     *postgres.ProjectUserRepository
 	projectDocumentRepository *postgres.ProjectDocumentRepository
-	labelRepository           *postgres.LabelRepository
+	projectLabelRepository    *postgres.ProjectLabelRepository
 	invoiceRepository         *postgres.InvoiceRepository
 	txManager                 *postgres.TransactionManager
 
-	// -- Services --
+	// -- Client services --
 	listClientsService    *client.ListClientsService
 	findClientByIDService *client.FindClientByIDService
 	createClientService   *client.CreateClientService
 	updateClientService   *client.UpdateClientService
 	deleteClientService   *client.DeleteClientService
+
+	// Invoice services
+	listInvoicesService    *app_invoice.ListInvoicesService
+	findInvoiceByIDService *app_invoice.FindInvoiceService
+	createInvoiceService   *app_invoice.CreateInvoiceService
+	updateInvoiceService   *app_invoice.UpdateInvoiceService
+	deleteInvoiceService   *app_invoice.DeleteInvoiceService
 
 	// Project services
 	listProjectsService    *project.ListProjectsService
@@ -50,16 +57,9 @@ type Container struct {
 	// Label services
 	listLabelsService    *app_label.ListLabelsService
 	findLabelByIDService *app_label.FindLabelService
-	createLabelService   *app_label.CreateLabelService
+	createLabelService   *app_label.CreateProjectLabelService
 	updateLabelService   *app_label.UpdateLabelService
-	deleteLabelService   *app_label.DeleteLabelService
-
-	// Invoice services
-	listInvoicesService    *app_invoice.ListInvoicesService
-	findInvoiceByIDService *app_invoice.FindInvoiceService
-	createInvoiceService   *app_invoice.CreateInvoiceService
-	updateInvoiceService   *app_invoice.UpdateInvoiceService
-	deleteInvoiceService   *app_invoice.DeleteInvoiceService
+	deleteLabelService   *app_label.DeleteProjectLabelService
 
 	// -- Handlers --
 	ClientHandler          *handler.ClientHandler
@@ -87,7 +87,7 @@ func (c *Container) initRepositories() {
 	c.projectRepository = postgres.NewProjectRepository(c.db)
 	c.projectUserRepository = postgres.NewProjectUserRepository(c.db)
 	c.projectDocumentRepository = postgres.NewProjectDocumentRepository(c.db)
-	c.labelRepository = postgres.NewLabelRepository(c.db)
+	c.projectLabelRepository = postgres.NewProjectLabelRepository(c.db)
 	c.invoiceRepository = postgres.NewInvoiceRepository(c.db)
 	c.txManager = postgres.NewTransactionManager(c.db)
 }
@@ -114,7 +114,7 @@ func (c *Container) initServices() {
 	c.listProjectDocumentsService = project_document_uc.NewListProjectDocumentsService(c.projectDocumentRepository)
 
 	// Label services
-	c.createLabelService = app_label.NewCreateLabelService(c.labelRepository, c.txManager)
+	c.createLabelService = app_label.NewCreateProLabelService(c.labelRepository, c.txManager)
 	c.updateLabelService = app_label.NewUpdateLabelService(c.labelRepository, c.txManager)
 	c.deleteLabelService = app_label.NewDeleteLabelService(c.labelRepository, c.txManager)
 	c.findLabelByIDService = app_label.NewFindLabelService(c.labelRepository)

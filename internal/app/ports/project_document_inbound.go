@@ -2,27 +2,28 @@ package ports
 
 import (
 	"context"
-	"github.com/google/uuid"
+
+	"github.com/lubosgarancovsky/eden-inri/internal/domain/command"
 	"github.com/lubosgarancovsky/eden-inri/internal/domain/entity"
-	go_kit "github.com/lubosgarancovsky/go-kit"
+	"github.com/lubosgarancovsky/eden-inri/internal/domain/query"
 )
 
 type CreateProjectDocumentUseCase interface {
-	Execute(ctx context.Context, projectID uuid.UUID, doc *entity.ProjectDocument) (*entity.ProjectDocument, error)
+	Execute(ctx context.Context, cmd *command.CreateProjectDocumentCommand) (*entity.ProjectDocument, error)
 }
 
 type UpdateProjectDocumentUseCase interface {
-	Execute(ctx context.Context, projectID, documentID uuid.UUID, doc *entity.ProjectDocument) (*entity.ProjectDocument, error)
+	Execute(ctx context.Context, cmd *command.CreateProjectDocumentCommand) (*entity.ProjectDocument, error)
 }
 
 type DeleteProjectDocumentUseCase interface {
-	Execute(ctx context.Context, projectID, documentID uuid.UUID) error
+	Execute(ctx context.Context, cmd *command.DeleteProjectDocumentCommand) error
 }
 
 type FindProjectDocumentByIDUseCase interface {
-	Execute(ctx context.Context, projectID, documentID uuid.UUID) (*entity.ProjectDocument, error)
+	Execute(ctx context.Context, query *query.FindProjectDocumentByIDQuery) (*entity.ProjectDocument, error)
 }
 
 type ListProjectDocumentsUseCase interface {
-	Execute(ctx context.Context, projectID uuid.UUID, lq *go_kit.ListingQuery) (*[]entity.ProjectDocument, int64, error)
+	Execute(ctx context.Context, query *query.ListProjectDocumentsQuery) (*[]entity.ProjectDocument, int64, error)
 }

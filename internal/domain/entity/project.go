@@ -19,7 +19,7 @@ type Project struct {
 	ID             uuid.UUID
 	Slug           string
 	Name           string
-	Description    string
+	Description    *string
 	StorySequence  int
 	IsStarred      bool
 	Tags           []string

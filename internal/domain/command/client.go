@@ -47,26 +47,16 @@ type UpdateClientCommand struct {
 	CreateClientCommand
 }
 
-func (c *UpdateClientCommand) ToDomain() *entity.Client {
-	return &entity.Client{
-		ID:           c.ID,
-		UserID:       c.UserID,
-		ClientType:   entity.ClientType(c.ClientType),
-		ContractType: entity.ClientContractType(c.ContractType),
-		Name:         c.Name,
-		Description:  c.Description,
-		TaxNumber:    c.TaxNumber,
-		Address:      c.Address,
-		Tags:         c.Tags,
-		HourRate:     c.HourRate,
-		StartedAt:    c.StartedAt,
-		FinishedAt:   c.FinishedAt,
-		CreatedAt:    c.CreatedAt,
-		UpdatedAt:    c.UpdatedAt,
-	}
-}
-
-type DeleteClientCommand struct {
-	ID     uuid.UUID
-	UserID uuid.UUID
+func (c *UpdateClientCommand) Apply(e *entity.Client) {
+	e.ClientType = entity.ClientType(c.ClientType)
+	e.ContractType = entity.ClientContractType(c.ContractType)
+	e.Name = c.Name
+	e.Description = c.Description
+	e.TaxNumber = c.TaxNumber
+	e.Address = c.Address
+	e.Tags = c.Tags
+	e.HourRate = c.HourRate
+	e.StartedAt = c.StartedAt
+	e.FinishedAt = c.FinishedAt
+	e.UpdatedAt = time.Now()
 }

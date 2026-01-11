@@ -11,15 +11,15 @@ import (
 var _ ports.ListClientsUseCase = (*ListClientsService)(nil)
 
 type ListClientsService struct {
-	repository ports.QueryClientPort
+	repository ports.PersistClientPort
 }
 
 func NewListClientsService(
-	repository ports.QueryClientPort,
+	repository ports.PersistClientPort,
 ) *ListClientsService {
 	return &ListClientsService{repository}
 }
 
-func (c *ListClientsService) Execute(ctx context.Context, query *query.ListClientsQuery) (*[]entity.Client, int64, error) {
-	return c.repository.List(ctx, query.UserID, &query.ListingQuery)
+func (c *ListClientsService) Execute(ctx context.Context, query *query.ListQuery) (*[]entity.Client, int64, error) {
+	return c.repository.List(ctx, query.UserID, query.ListingQuery)
 }
