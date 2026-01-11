@@ -3,6 +3,7 @@ package app
 import (
 	"github.com/lubosgarancovsky/eden-inri/internal/adapter/http/handler"
 	"github.com/lubosgarancovsky/eden-inri/internal/adapter/repository/postgres"
+	"github.com/lubosgarancovsky/eden-inri/internal/app/attachment"
 	"github.com/lubosgarancovsky/eden-inri/internal/app/client"
 	"github.com/lubosgarancovsky/eden-inri/internal/app/contact_person"
 	"github.com/lubosgarancovsky/eden-inri/internal/app/invoice"
@@ -11,12 +12,16 @@ import (
 	"github.com/lubosgarancovsky/eden-inri/internal/app/project"
 	"github.com/lubosgarancovsky/eden-inri/internal/app/project_document"
 	"github.com/lubosgarancovsky/eden-inri/internal/app/project_label"
+	"github.com/lubosgarancovsky/eden-inri/internal/app/story"
+	"github.com/lubosgarancovsky/eden-inri/internal/app/story_activity"
+	"github.com/lubosgarancovsky/eden-inri/internal/config"
 	"github.com/lubosgarancovsky/go-kit"
 	"gorm.io/gorm"
 )
 
 type Container struct {
 	db     *gorm.DB
+	cfg    *config.Config
 	parser *go_kit.Parser
 
 	// -- Repositories --
@@ -30,6 +35,9 @@ type Container struct {
 	kanbanBoardRepository     *postgres.KanbanBoardRepository
 	kanbanColumnRepository    *postgres.KanbanColumnRepository
 	contactPersonRepository   *postgres.ContactPersonRepository
+	storyRepository           *postgres.StoryRepository
+	storyActivityRepository   *postgres.StoryActivityRepository
+	attachmentRepository      *postgres.AttachmentRepository
 
 	// -- Client services --
 	listClientsService    *client.ListClientsService
@@ -87,6 +95,28 @@ type Container struct {
 	updateContactPersonService   *contact_person.UpdateContactPersonService
 	deleteContactPersonService   *contact_person.DeleteContactPersonService
 
+	// Story services
+	listStoriesUC         *story.ListStoriesService
+	findStoryByIDUC       *story.FindStoryByIDService
+	createStoryUC         *story.CreateStoryService
+	updateStoryUC         *story.UpdateStoryService
+	deleteStoryUC         *story.DeleteStoryService
+	listAssignedStoriesUC *story.ListAssignedStoriesService
+	changeStoryAssigneeUC *story.ChangeStoryAssigneeService
+
+	// Story Activity services
+	listStoryActivitiesUC *story_activity.ListStoryActivitiesService
+	createStoryActivityUC *story_activity.CreateStoryActivityService
+	updateStoryActivityUC *story_activity.UpdateStoryActivityService
+	deleteStoryActivityUC *story_activity.DeleteStoryActivityService
+
+	// Attachment services
+	listAttachmentsUC        *attachment.ListAttachmentsService
+	findAttachmentByIDUC     *attachment.FindAttachmentByIDService
+	deleteAttachmentUC       *attachment.DeleteAttachmentService
+	findAttachmentsByModelUC *attachment.FindAttachmentsByModelService
+	attachmentUtilityService *attachment.AttachmentUtilityService
+
 	// -- Handlers --
 	ClientHandler          *handler.ClientHandler
 	InvoiceHandler         *handler.InvoiceHandler
@@ -96,11 +126,15 @@ type Container struct {
 	KanbanBoardHandler     *handler.KanbanBoardHandler
 	KanbanColumnHandler    *handler.KanbanColumnHandler
 	ContactPersonHandler   *handler.ContactPersonHandler
+	StoryHandler           *handler.StoryHandler
+	StoryActivityHandler   *handler.StoryActivityHandler
+	AttachmentHandler      *handler.AttachmentHandler
 }
 
-func NewContainer(db *gorm.DB, parser *go_kit.Parser) *Container {
+func NewContainer(db *gorm.DB, cfg *config.Config, parser *go_kit.Parser) *Container {
 	c := &Container{
 		db:     db,
+		cfg:    cfg,
 		parser: parser,
 	}
 
@@ -122,6 +156,9 @@ func (c *Container) initRepositories() {
 	c.kanbanBoardRepository = postgres.NewKanbanBoardRepository(c.db)
 	c.kanbanColumnRepository = postgres.NewKanbanColumnRepository(c.db)
 	c.contactPersonRepository = postgres.NewContactPersonRepository(c.db)
+	c.storyRepository = postgres.NewStoryRepository(c.db)
+	c.storyActivityRepository = postgres.NewStoryActivityRepository(c.db)
+	c.attachmentRepository = postgres.NewAttachmentRepository(c.db)
 }
 
 func (c *Container) initServices() {
@@ -180,6 +217,28 @@ func (c *Container) initServices() {
 	c.deleteContactPersonService = contact_person.NewDeleteContactPersonService(c.contactPersonRepository)
 	c.findContactPersonByIDService = contact_person.NewFindContactPersonByIDService(c.contactPersonRepository)
 	c.listContactPersonsService = contact_person.NewListContactPersonsService(c.contactPersonRepository)
+
+	// Story services
+	c.createStoryUC = story.NewCreateStoryService(c.storyRepository, c.projectRepository, c.projectUserRepository, c.txManager)
+	c.updateStoryUC = story.NewUpdateStoryService(c.storyRepository, c.projectUserRepository)
+	c.deleteStoryUC = story.NewDeleteStoryService(c.storyRepository, c.projectUserRepository)
+	c.findStoryByIDUC = story.NewFindStoryByIDService(c.storyRepository, c.projectUserRepository)
+	c.listStoriesUC = story.NewListStoriesService(c.storyRepository, c.projectUserRepository)
+	c.listAssignedStoriesUC = story.NewListAssignedStoriesService(c.storyRepository)
+	c.changeStoryAssigneeUC = story.NewChangeStoryAssigneeService(c.storyRepository, c.projectUserRepository)
+
+	// Story Activity services
+	c.createStoryActivityUC = story_activity.NewCreateStoryActivityService(c.storyActivityRepository)
+	c.updateStoryActivityUC = story_activity.NewUpdateStoryActivityService(c.storyActivityRepository)
+	c.deleteStoryActivityUC = story_activity.NewDeleteStoryActivityService(c.storyActivityRepository)
+	c.listStoryActivitiesUC = story_activity.NewListStoryActivitiesService(c.storyActivityRepository)
+
+	// Attachment services
+	c.attachmentUtilityService = attachment.NewAttachmentUtilityService(c.attachmentRepository, c.cfg)
+	c.listAttachmentsUC = attachment.NewListAttachmentsService(c.attachmentRepository)
+	c.findAttachmentByIDUC = attachment.NewFindAttachmentByIDService(c.attachmentRepository)
+	c.deleteAttachmentUC = attachment.NewDeleteAttachmentService(c.attachmentRepository, c.cfg)
+	c.findAttachmentsByModelUC = attachment.NewFindAttachmentsByModelService(c.attachmentRepository)
 }
 
 func (c *Container) initHandlers() {
@@ -191,4 +250,7 @@ func (c *Container) initHandlers() {
 	c.KanbanBoardHandler = handler.NewKanbanBoardHandler(c.createKanbanBoardService, c.updateKanbanBoardService, c.deleteKanbanBoardService, c.findKanbanBoardByIDService, c.listKanbanBoardsService, c.parser)
 	c.KanbanColumnHandler = handler.NewKanbanColumnHandler(c.createKanbanColumnService, c.updateKanbanColumnService, c.deleteKanbanColumnService, c.listKanbanColumnsService)
 	c.ContactPersonHandler = handler.NewContactPersonHandler(c.createContactPersonService, c.updateContactPersonService, c.deleteContactPersonService, c.findContactPersonByIDService, c.listContactPersonsService, c.parser)
+	c.StoryHandler = handler.NewStoryHandler(c.createStoryUC, c.updateStoryUC, c.deleteStoryUC, c.findStoryByIDUC, c.listStoriesUC, c.listAssignedStoriesUC, c.changeStoryAssigneeUC, c.parser)
+	c.StoryActivityHandler = handler.NewStoryActivityHandler(c.createStoryActivityUC, c.updateStoryActivityUC, c.deleteStoryActivityUC, c.listStoryActivitiesUC, c.parser)
+	c.AttachmentHandler = handler.NewAttachmentHandler(c.listAttachmentsUC, c.findAttachmentByIDUC, c.deleteAttachmentUC, c.attachmentUtilityService, c.parser)
 }

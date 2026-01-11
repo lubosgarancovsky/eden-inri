@@ -31,3 +31,11 @@ type ListProjectsUseCase interface {
 type FavouriteProjectUseCase interface {
 	Execute(ctx context.Context, cmd *command.DeleteCommand) (*entity.Project, error)
 }
+
+type SaveProjectAttachmentsUseCase interface {
+	Execute(ctx context.Context, projectID, userID string, files []interface{}) error
+}
+
+type ListProjectAttachmentsUseCase interface {
+	Execute(ctx context.Context, projectID, userID string) ([]entity.Attachment, error)
+}
