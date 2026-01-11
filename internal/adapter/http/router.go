@@ -27,33 +27,6 @@ func NewServerRoute(c *app.Container) *gin.Engine {
 			clients.GET("", c.ClientHandler.List)
 		}
 
-		projects := protected.Group("/projects")
-		{
-			projects.POST("", c.ProjectHandler.Create)
-			projects.PUT("/:projectId", c.ProjectHandler.Update)
-			projects.DELETE("/:projectId", c.ProjectHandler.Delete)
-			projects.GET("/:projectId", c.ProjectHandler.FindByID)
-			projects.GET("", c.ProjectHandler.List)
-
-			docs := projects.Group("/:projectId/documents")
-			{
-				docs.POST("", c.ProjectDocumentHandler.Create)
-				docs.GET("", c.ProjectDocumentHandler.List)
-				docs.GET("/:documentId", c.ProjectDocumentHandler.FindByID)
-				docs.PUT("/:documentId", c.ProjectDocumentHandler.Update)
-				docs.DELETE("/:documentId", c.ProjectDocumentHandler.Delete)
-			}
-
-			labels := projects.Group("/:projectId/labels")
-			{
-				labels.POST("", c.LabelHandler.Create)
-				labels.GET("", c.LabelHandler.List)
-				labels.GET("/:labelId", c.LabelHandler.FindByID)
-				labels.PUT("/:labelId", c.LabelHandler.Update)
-				labels.DELETE("/:labelId", c.LabelHandler.Delete)
-			}
-		}
-
 		invoices := protected.Group("/invoices")
 		{
 			invoices.POST("", c.InvoiceHandler.Create)
