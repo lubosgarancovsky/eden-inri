@@ -76,7 +76,6 @@ func NewServerRoute(c *app.Container) *gin.Engine {
 					columns.POST("", c.KanbanColumnHandler.Create)
 					columns.PUT("/:columnId", c.KanbanColumnHandler.Update)
 					columns.DELETE("/:columnId", c.KanbanColumnHandler.Delete)
-					columns.GET("/:columnId", c.KanbanColumnHandler.FindByID)
 					columns.GET("", c.KanbanColumnHandler.List)
 				}
 			}

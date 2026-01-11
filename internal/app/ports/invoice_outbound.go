@@ -5,7 +5,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/lubosgarancovsky/eden-inri/internal/domain/entity"
-	go_kit "github.com/lubosgarancovsky/go-kit"
+	"github.com/lubosgarancovsky/go-kit"
 )
 
 type PersistInvoicePort interface {

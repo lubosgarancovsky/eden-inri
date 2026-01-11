@@ -7,30 +7,35 @@ import (
 )
 
 type CreateKanbanBoardReq struct {
-	ProjectID uuid.UUID `uri:"projectId" binding:"required"`
-	Name      string    `json:"name" binding:"required"`
-	Status    string    `json:"status"`
+	UserID    string `header:"X-User-ID"`
+	ProjectID string `uri:"projectId"`
+	Name      string `json:"name"`
+	Status    string `json:"status"`
 }
 
 type UpdateKanbanBoardReq struct {
-	ProjectID uuid.UUID `uri:"projectId" binding:"required"`
-	BoardID   uuid.UUID `uri:"boardId" binding:"required"`
-	Name      string    `json:"name" binding:"required"`
-	Status    string    `json:"status"`
+	UserID    string `header:"X-User-ID"`
+	ProjectID string `uri:"projectId"`
+	BoardID   string `uri:"boardId"`
+	Name      string `json:"name"`
+	Status    string `json:"status"`
 }
 
 type DeleteKanbanBoardReq struct {
-	ProjectID uuid.UUID `uri:"projectId" binding:"required"`
-	BoardID   uuid.UUID `uri:"boardId" binding:"required"`
+	UserID    string `header:"X-User-ID"`
+	ProjectID string `uri:"projectId"`
+	BoardID   string `uri:"boardId"`
 }
 
 type FindKanbanBoardByIDReq struct {
-	ProjectID uuid.UUID `uri:"projectId" binding:"required"`
-	BoardID   uuid.UUID `uri:"boardId" binding:"required"`
+	UserID    string `header:"X-User-ID"`
+	ProjectID string `uri:"projectId"`
+	BoardID   string `uri:"boardId"`
 }
 
 type ListKanbanBoardsReq struct {
-	ProjectID uuid.UUID `uri:"projectId" binding:"required"`
+	UserID    string `header:"X-User-ID"`
+	ProjectID string `uri:"projectId"`
 }
 
 type KanbanBoardRes struct {
@@ -41,22 +46,3 @@ type KanbanBoardRes struct {
 	CreatedAt      time.Time `json:"createdAt"`
 	LastActivityAt time.Time `json:"lastActivityAt"`
 }
-
-func (r CreateKanbanBoardReq) GetID() uuid.UUID        { return uuid.Nil }
-func (r CreateKanbanBoardReq) GetUserID() uuid.UUID    { return uuid.Nil }
-func (r CreateKanbanBoardReq) GetProjectID() uuid.UUID { return r.ProjectID }
-
-func (r UpdateKanbanBoardReq) GetID() uuid.UUID        { return r.BoardID }
-func (r UpdateKanbanBoardReq) GetUserID() uuid.UUID    { return uuid.Nil }
-func (r UpdateKanbanBoardReq) GetProjectID() uuid.UUID { return r.ProjectID }
-
-func (r DeleteKanbanBoardReq) GetID() uuid.UUID        { return r.BoardID }
-func (r DeleteKanbanBoardReq) GetUserID() uuid.UUID    { return uuid.Nil }
-func (r DeleteKanbanBoardReq) GetProjectID() uuid.UUID { return r.ProjectID }
-
-func (r FindKanbanBoardByIDReq) GetID() uuid.UUID        { return r.BoardID }
-func (r FindKanbanBoardByIDReq) GetUserID() uuid.UUID    { return uuid.Nil }
-func (r FindKanbanBoardByIDReq) GetProjectID() uuid.UUID { return r.ProjectID }
-
-func (r ListKanbanBoardsReq) GetUserID() uuid.UUID    { return uuid.Nil }
-func (r ListKanbanBoardsReq) GetProjectID() uuid.UUID { return r.ProjectID }

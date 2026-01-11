@@ -104,28 +104,3 @@ func (r *ProjectRepository) Delete(ctx context.Context, projectID uuid.UUID) err
 
 	return nil
 }
-
-func (r *ProjectRepository) InsertProjectUser(ctx context.Context, pu *entity.ProjectUser) error {
-	db := GetDB(ctx, r.db)
-	if err := db.Create(mapper.ProjectUserFromDomain(pu)).Error; err != nil {
-		return go_kit.Wrap(go_kit.ErrInternalServer, err)
-	}
-	return nil
-}
-
-func (r *ProjectRepository) Favourite(ctx context.Context, userID, projectID uuid.UUID) (*entity.ProjectUser, error) {
-	db := GetDB(ctx, r.db)
-	var pu model.ProjectUser
-
-	if err := db.Where("project_id = ? AND user_id = ?", projectID, userID).First(&pu).Error; err != nil {
-		return nil, go_kit.Wrap(go_kit.ErrInternalServer, err)
-	}
-
-	pu.IsStarred = !pu.IsStarred
-
-	if err := db.Save(&pu).Error; err != nil {
-		return nil, go_kit.Wrap(go_kit.ErrInternalServer, err)
-	}
-
-	return pu.ToDomain(), nil
-}

@@ -8,12 +8,14 @@ import (
 )
 
 type CreateKanbanColumnCommand struct {
-	BoardID  uuid.UUID
-	Key      string
-	Name     string
-	Type     string
-	Color    string
-	Position int
+	UserID    uuid.UUID
+	ProjectID uuid.UUID
+	BoardID   uuid.UUID
+	Key       string
+	Name      string
+	Type      string
+	Color     string
+	Position  int
 }
 
 func (c *CreateKanbanColumnCommand) ToDomain() *entity.KanbanColumn {
@@ -30,13 +32,15 @@ func (c *CreateKanbanColumnCommand) ToDomain() *entity.KanbanColumn {
 }
 
 type UpdateKanbanColumnCommand struct {
-	ID       uuid.UUID
-	BoardID  uuid.UUID
-	Key      string
-	Name     string
-	Type     string
-	Color    string
-	Position int
+	ID        uuid.UUID
+	UserID    uuid.UUID
+	ProjectID uuid.UUID
+	BoardID   uuid.UUID
+	Key       string
+	Name      string
+	Type      string
+	Color     string
+	Position  int
 }
 
 func (c *UpdateKanbanColumnCommand) Apply(e *entity.KanbanColumn) {
@@ -45,4 +49,11 @@ func (c *UpdateKanbanColumnCommand) Apply(e *entity.KanbanColumn) {
 	e.Type = entity.ColumnType(c.Type)
 	e.Color = c.Color
 	e.Position = c.Position
+}
+
+type DeleteKanbanColumnCommand struct {
+	ID        uuid.UUID
+	BoardID   uuid.UUID
+	UserID    uuid.UUID
+	ProjectID uuid.UUID
 }

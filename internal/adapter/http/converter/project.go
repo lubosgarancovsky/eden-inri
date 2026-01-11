@@ -1,6 +1,7 @@
 package converter
 
 import (
+	"github.com/google/uuid"
 	"github.com/lubosgarancovsky/eden-inri/internal/adapter/http/dto"
 	"github.com/lubosgarancovsky/eden-inri/internal/domain/command"
 	"github.com/lubosgarancovsky/eden-inri/internal/domain/entity"
@@ -8,7 +9,7 @@ import (
 
 func ToCreateProjectCommand(input *dto.CreateProjectReq) *command.CreateProjectCommand {
 	return &command.CreateProjectCommand{
-		UserID:      input.UserID,
+		UserID:      uuid.MustParse(input.UserID),
 		Name:        input.Name,
 		Description: input.Description,
 		Status:      input.Status,
@@ -19,7 +20,7 @@ func ToCreateProjectCommand(input *dto.CreateProjectReq) *command.CreateProjectC
 
 func ToUpdateProjectCommand(input *dto.UpdateProjectReq) *command.UpdateProjectCommand {
 	return &command.UpdateProjectCommand{
-		ID:          input.ID,
+		ID:          uuid.MustParse(input.ID),
 		Name:        input.Name,
 		Description: input.Description,
 		Status:      input.Status,

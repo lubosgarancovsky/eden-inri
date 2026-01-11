@@ -7,30 +7,39 @@ import (
 )
 
 type CreateInvoiceReq struct {
-	UserID        uuid.UUID  `header:"X-User-ID"`
-	Name          string     `json:"name" binding:"required,min=3,max=100"`
+	UserID        string     `header:"X-User-ID"`
+	Name          string     `json:"name"`
 	Description   *string    `json:"description"`
 	ExternalID    *string    `json:"externalId"`
-	ClientID      uuid.UUID  `json:"clientId" binding:"required"`
-	Total         float64    `json:"total" binding:"required, min=0"`
-	BillableHours float64    `json:"billableHours" binding:"required,min=0"`
-	IssuedAt      time.Time  `json:"issuedAt" binding:"required"`
-	DueAt         time.Time  `json:"dueAt" binding:"required"`
-	DeliveredAt   time.Time  `json:"deliveredAt" binding:"required"`
+	ClientID      uuid.UUID  `json:"clientId"`
+	Total         float64    `json:"total"`
+	BillableHours float64    `json:"billableHours"`
+	IssuedAt      time.Time  `json:"issuedAt"`
+	DueAt         time.Time  `json:"dueAt"`
+	DeliveredAt   time.Time  `json:"deliveredAt"`
 	PaidAt        *time.Time `json:"paidAt"`
 	IsCanceled    bool       `json:"isCanceled"`
 	ExternalLink  *string    `json:"externalLink"`
 }
 
 type UpdateInvoiceReq struct {
-	UserID    uuid.UUID `header:"X-User-ID"`
-	InvoiceID uuid.UUID `uri:"invoiceId" binding:"required"`
+	UserID    string `header:"X-User-ID"`
+	InvoiceID string `uri:"invoiceId"`
 	CreateInvoiceReq
 }
 
 type DeleteInvoiceReq struct {
-	UserID uuid.UUID `header:"X-User-ID"`
-	ID     uuid.UUID `uri:"invoiceId" binding:"required"`
+	UserID string `header:"X-User-ID"`
+	ID     string `uri:"invoiceId"`
+}
+
+type FindInvoiceByIDReq struct {
+	UserID string `header:"X-User-ID"`
+	ID     string `uri:"invoiceId"`
+}
+
+type ListInvoicesReq struct {
+	UserID string `header:"X-User-ID"`
 }
 
 type InvoiceRes struct {
@@ -49,13 +58,4 @@ type InvoiceRes struct {
 	Client        ClientRes  `json:"client"`
 	CreatedAt     time.Time  `json:"createdAt"`
 	UpdatedAt     time.Time  `json:"updatedAt"`
-}
-
-type FindInvoiceByIDReq struct {
-	UserID uuid.UUID `header:"X-User-ID"`
-	ID     uuid.UUID `uri:"invoiceId" binding:"required,uuid"`
-}
-
-type ListInvoicesReq struct {
-	UserID uuid.UUID `header:"X-User-ID"`
 }

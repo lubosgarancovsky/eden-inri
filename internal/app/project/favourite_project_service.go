@@ -9,20 +9,22 @@ import (
 )
 
 type FavouriteProjectService struct {
-	repo ports.PersistProjectPort
+	projectUserRepo ports.PersistProjectUserPort
+	projectRepo     ports.PersistProjectPort
 }
 
-func NewFavouriteProjectService(repo ports.PersistProjectPort) *FavouriteProjectService {
+func NewFavouriteProjectService(projectRepo ports.PersistProjectPort, projectUserRepo ports.PersistProjectUserPort) *FavouriteProjectService {
 	return &FavouriteProjectService{
-		repo: repo,
+		projectRepo:     projectRepo,
+		projectUserRepo: projectUserRepo,
 	}
 }
 
 func (s *FavouriteProjectService) Execute(ctx context.Context, cmd *command.DeleteCommand) (*entity.Project, error) {
-	_, err := s.repo.Favourite(ctx, cmd.UserID, cmd.ID)
+	err := s.projectUserRepo.Favourite(ctx, cmd.UserID, cmd.ID)
 	if err != nil {
 		return nil, err
 	}
 
-	return s.repo.FindByID(ctx, cmd.UserID, cmd.ID)
+	return s.projectRepo.FindByID(ctx, cmd.UserID, cmd.ID)
 }

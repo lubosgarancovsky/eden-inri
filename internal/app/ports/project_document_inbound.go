@@ -17,13 +17,13 @@ type UpdateProjectDocumentUseCase interface {
 }
 
 type DeleteProjectDocumentUseCase interface {
-	Execute(ctx context.Context, cmd *command.DeleteProjectScopedCommand) error
+	Execute(ctx context.Context, cmd *command.DeleteProjectDocumentCommand) error
 }
 
 type FindProjectDocumentByIDUseCase interface {
-	Execute(ctx context.Context, query *query.FindByIDProjectScopedQuery) (*entity.ProjectDocument, error)
+	Execute(ctx context.Context, query *query.FindProjectDocumentByIDQuery) (*entity.ProjectDocument, error)
 }
 
 type ListProjectDocumentsUseCase interface {
-	Execute(ctx context.Context, query *query.ListProjectScopedQuery) (*[]entity.ProjectDocument, int64, error)
+	Execute(ctx context.Context, query *query.ListProjectDocumentsQuery) (*[]entity.ProjectDocument, int64, error)
 }

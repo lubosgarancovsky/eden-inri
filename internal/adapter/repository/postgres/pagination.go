@@ -14,6 +14,10 @@ type ListState[T any] struct {
 }
 
 func OrderBy[T any](query *gorm.DB, state *ListState[T]) *gorm.DB {
+	if state.lq.Sort == nil {
+		return query
+	}
+
 	for _, clause := range *state.lq.Sort {
 		query = query.Order(fmt.Sprintf("%s %s", clause.Field, clause.Direction))
 	}

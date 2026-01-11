@@ -9,6 +9,7 @@ import (
 
 type CreateKanbanBoardCommand struct {
 	ProjectID uuid.UUID
+	UserID    uuid.UUID
 	Name      string
 	Status    string
 }
@@ -28,6 +29,7 @@ func (c *CreateKanbanBoardCommand) ToDomain() *entity.KanbanBoard {
 type UpdateKanbanBoardCommand struct {
 	ID        uuid.UUID
 	ProjectID uuid.UUID
+	UserID    uuid.UUID
 	Name      string
 	Status    string
 }
@@ -36,4 +38,10 @@ func (c *UpdateKanbanBoardCommand) Apply(e *entity.KanbanBoard) {
 	e.Name = c.Name
 	e.Status = c.Status
 	e.LastActivityAt = time.Now()
+}
+
+type DeleteKanbanBoardCommand struct {
+	ID        uuid.UUID
+	ProjectID uuid.UUID
+	UserID    uuid.UUID
 }

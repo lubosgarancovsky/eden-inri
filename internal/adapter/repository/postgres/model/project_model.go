@@ -12,7 +12,7 @@ import (
 type Project struct {
 	ID             uuid.UUID      `gorm:"primary_key;type:uuid;default:uuid_generate_v4()"`
 	Name           string         `gorm:"type:string;not null"`
-	Description    string         `gorm:"type:string"`
+	Description    *string        `gorm:"type:string"`
 	Status         string         `gorm:"type:string"`
 	Tags           pq.StringArray `gorm:"type:text[]"`
 	Slug           string         `gorm:"type:string;unique"`

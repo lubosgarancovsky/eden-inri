@@ -11,7 +11,8 @@ import (
 
 func ToCreateProjectLabelCommand(input *dto.CreateProjectLabelReq) *command.CreateProjectLabelCommand {
 	return &command.CreateProjectLabelCommand{
-		ProjectID:   input.ProjectID,
+		UserID:      uuid.MustParse(input.UserID),
+		ProjectID:   uuid.MustParse(input.ProjectID),
 		Name:        input.Name,
 		Description: input.Description,
 		Color:       input.Color,
@@ -20,11 +21,36 @@ func ToCreateProjectLabelCommand(input *dto.CreateProjectLabelReq) *command.Crea
 
 func ToUpdateProjectLabelCommand(input *dto.UpdateProjectLabelReq) *command.UpdateProjectLabelCommand {
 	return &command.UpdateProjectLabelCommand{
-		ID:          input.LabelID,
-		ProjectID:   input.ProjectID,
+		UserID:      uuid.MustParse(input.UserID),
+		ProjectID:   uuid.MustParse(input.ProjectID),
+		ID:          uuid.MustParse(input.LabelID),
 		Name:        input.Name,
 		Description: input.Description,
 		Color:       input.Color,
+	}
+}
+
+func ToDeleteProjectLabelCommand(input *dto.DeleteProjectLabelReq) *command.DeleteProjectLabelCommand {
+	return &command.DeleteProjectLabelCommand{
+		UserID:    uuid.MustParse(input.UserID),
+		ProjectID: uuid.MustParse(input.ProjectID),
+		ID:        uuid.MustParse(input.LabelID),
+	}
+}
+
+func ToFindProjectLabelByIDQuery(input *dto.FindProjectLabelByIDReq) *query.FindProjectLabelByIDQuery {
+	return &query.FindProjectLabelByIDQuery{
+		ID:        uuid.MustParse(input.LabelID),
+		ProjectID: uuid.MustParse(input.ProjectID),
+		UserID:    uuid.MustParse(input.UserID),
+	}
+}
+
+func ToListProjectLabelsQuery(input *dto.ListProjectLabelsReq, lq *go_kit.ListingQuery) *query.ListProjectLabelsQuery {
+	return &query.ListProjectLabelsQuery{
+		UserID:       uuid.MustParse(input.UserID),
+		ProjectID:    uuid.MustParse(input.ProjectID),
+		ListingQuery: lq,
 	}
 }
 
@@ -41,43 +67,4 @@ func ToProjectLabelResponse(e *entity.ProjectLabel) *dto.ProjectLabelRes {
 		Color:       e.Color,
 		CreatedAt:   e.CreatedAt,
 	}
-}
-
-func ToDeleteProjectScopedCommand(input interface{}) (*command.DeleteProjectScopedCommand, error) {
-	projectDto, ok := input.(interface {
-		GetProjectID() uuid.UUID
-		GetID() uuid.UUID
-	})
-	if !ok {
-		return nil, go_kit.ErrInternalServer
-	}
-	return &command.DeleteProjectScopedCommand{
-		ID:        projectDto.GetID(),
-		ProjectID: projectDto.GetProjectID(),
-	}, nil
-}
-
-func ToFindByIDProjectScopedQuery(input interface{}) (*query.FindByIDProjectScopedQuery, error) {
-	projectDto, ok := input.(interface {
-		GetProjectID() uuid.UUID
-		GetID() uuid.UUID
-	})
-	if !ok {
-		return nil, go_kit.ErrInternalServer
-	}
-	return &query.FindByIDProjectScopedQuery{
-		ID:        projectDto.GetID(),
-		ProjectID: projectDto.GetProjectID(),
-	}, nil
-}
-
-func ToListProjectScopedQuery(input interface{}, lq *go_kit.ListingQuery) (*query.ListProjectScopedQuery, error) {
-	projectDto, ok := input.(interface{ GetProjectID() uuid.UUID })
-	if !ok {
-		return nil, go_kit.ErrInternalServer
-	}
-	return &query.ListProjectScopedQuery{
-		ProjectID:    projectDto.GetProjectID(),
-		ListingQuery: lq,
-	}, nil
 }

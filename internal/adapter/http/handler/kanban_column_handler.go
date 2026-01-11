@@ -12,25 +12,22 @@ import (
 )
 
 type KanbanColumnHandler struct {
-	createUC   ports.CreateKanbanColumnUseCase
-	updateUC   ports.UpdateKanbanColumnUseCase
-	deleteUC   ports.DeleteKanbanColumnUseCase
-	findByIDUC ports.FindKanbanColumnByIDUseCase
-	listUC     ports.ListKanbanColumnsUseCase
+	createUC ports.CreateKanbanColumnUseCase
+	updateUC ports.UpdateKanbanColumnUseCase
+	deleteUC ports.DeleteKanbanColumnUseCase
+	listUC   ports.ListKanbanColumnsUseCase
 }
 
 func NewKanbanColumnHandler(
 	createUC ports.CreateKanbanColumnUseCase,
 	updateUC ports.UpdateKanbanColumnUseCase,
 	deleteUC ports.DeleteKanbanColumnUseCase,
-	findByIDUC ports.FindKanbanColumnByIDUseCase,
 	listUC ports.ListKanbanColumnsUseCase,
 ) *KanbanColumnHandler {
 	return &KanbanColumnHandler{
 		createUC,
 		updateUC,
 		deleteUC,
-		findByIDUC,
 		listUC,
 	}
 }
@@ -42,7 +39,7 @@ func (h *KanbanColumnHandler) List(c *gin.Context) {
 		return
 	}
 
-	items, err := h.listUC.Execute(c.Request.Context(), req.BoardID)
+	items, err := h.listUC.Execute(c.Request.Context(), converter.ToListKanbanColumnQuery(req))
 	if err != nil {
 		handle.Error(c, err)
 		return
@@ -54,28 +51,6 @@ func (h *KanbanColumnHandler) List(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, responseItems)
-}
-
-func (h *KanbanColumnHandler) FindByID(c *gin.Context) {
-	req := &dto.FindKanbanColumnByIDReq{}
-	if err := validator.BindAndValidate(c, req); err != nil {
-		handle.Error(c, err)
-		return
-	}
-
-	query, err := converter.ToFindByIDBoardScopedQuery(req)
-	if err != nil {
-		handle.Error(c, err)
-		return
-	}
-
-	item, err := h.findByIDUC.Execute(c.Request.Context(), query)
-	if err != nil {
-		handle.Error(c, err)
-		return
-	}
-
-	c.JSON(http.StatusOK, converter.ToKanbanColumnResponse(item))
 }
 
 func (h *KanbanColumnHandler) Create(c *gin.Context) {
@@ -117,13 +92,7 @@ func (h *KanbanColumnHandler) Delete(c *gin.Context) {
 		return
 	}
 
-	cmd, err := converter.ToDeleteBoardScopedCommand(req)
-	if err != nil {
-		handle.Error(c, err)
-		return
-	}
-
-	if err := h.deleteUC.Execute(c.Request.Context(), cmd); err != nil {
+	if err := h.deleteUC.Execute(c.Request.Context(), converter.ToDeleteKanbanColumnCommand(req)); err != nil {
 		handle.Error(c, err)
 		return
 	}

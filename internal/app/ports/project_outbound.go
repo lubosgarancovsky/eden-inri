@@ -14,7 +14,4 @@ type PersistProjectPort interface {
 	Delete(ctx context.Context, projectID uuid.UUID) error
 	FindByID(ctx context.Context, userID, projectID uuid.UUID) (*entity.Project, error)
 	List(ctx context.Context, userID uuid.UUID, lq *go_kit.ListingQuery) (*[]entity.Project, int64, error)
-
-	InsertProjectUser(ctx context.Context, pu *entity.ProjectUser) error
-	Favourite(ctx context.Context, userID, projectID uuid.UUID) (*entity.ProjectUser, error)
 }

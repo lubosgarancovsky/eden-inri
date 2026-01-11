@@ -9,6 +9,7 @@ import (
 
 type CreateProjectDocumentCommand struct {
 	ProjectID uuid.UUID
+	UserID    uuid.UUID
 	Name      string
 	Content   string
 	Tags      []string
@@ -30,6 +31,7 @@ func (c *CreateProjectDocumentCommand) ToDomain() *entity.ProjectDocument {
 type UpdateProjectDocumentCommand struct {
 	ID        uuid.UUID
 	ProjectID uuid.UUID
+	UserID    uuid.UUID
 	Name      string
 	Content   string
 	Tags      []string
@@ -40,4 +42,10 @@ func (c *UpdateProjectDocumentCommand) Apply(e *entity.ProjectDocument) {
 	e.Content = c.Content
 	e.Tags = c.Tags
 	e.UpdatedAt = time.Now()
+}
+
+type DeleteProjectDocumentCommand struct {
+	ID        uuid.UUID
+	ProjectID uuid.UUID
+	UserID    uuid.UUID
 }

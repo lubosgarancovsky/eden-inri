@@ -8,9 +8,9 @@ import (
 )
 
 type AuthContext struct {
-	UserID        uuid.UUID `header:"X-User-ID" binding:"required,uuid4"`
-	UserRole      string    `header:"X-User-Role" binding:"required,oneof=admin user"`
-	Authorization *string   `header:"Authorization"`
+	UserID        string  `header:"X-User-ID" binding:"required"`
+	UserRole      string  `header:"X-User-Role" binding:"required,oneof=admin user"`
+	Authorization *string `header:"Authorization"`
 }
 
 func AuthMiddleware() gin.HandlerFunc {
@@ -19,9 +19,14 @@ func AuthMiddleware() gin.HandlerFunc {
 
 		err := c.ShouldBindHeader(headers)
 		if err != nil {
-			handle.Error(c, go_kit.ErrUnauthorized.WithMessage("Authorization token is expired, missing or malformed"))
+			handle.Error(c, go_kit.Wrap(go_kit.ErrBadRequest.WithMessage("Authorization token is expired, missing or malformed"), err))
 			c.Abort()
 			return
+		}
+
+		_, err = uuid.Parse(headers.UserID)
+		if err != nil {
+			handle.Error(c, go_kit.Wrap(go_kit.ErrInvalidUUID.WithMessage("Invalid user ID"), err))
 		}
 
 		c.Set("user", headers)

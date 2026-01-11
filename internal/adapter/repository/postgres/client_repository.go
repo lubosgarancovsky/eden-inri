@@ -42,7 +42,7 @@ func (r *ClientRepository) FindByID(ctx context.Context, userID, clientID uuid.U
 	db := GetDB(ctx, r.db)
 
 	var client model.Client
-	if err := db.Where("client_id = ?", clientID).Where("user_id = ?", userID).First(&client).Error; err != nil {
+	if err := db.Where("id = ?", clientID).Where("user_id = ?", userID).First(&client).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, go_kit.ErrNotFound.WithMessage(fmt.Sprintf("client with id %s not found", clientID))
 		}
@@ -83,7 +83,7 @@ func (r *ClientRepository) Delete(ctx context.Context, userID, clientID uuid.UUI
 	db := GetDB(ctx, r.db)
 	result := db.
 		Where("user_id = ?", userID).
-		Where("client_id = ?", clientID).
+		Where("id = ?", clientID).
 		Delete(&model.Client{})
 
 	if result.Error != nil {

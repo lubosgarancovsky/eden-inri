@@ -5,12 +5,14 @@ import (
 	"github.com/lubosgarancovsky/go-kit"
 )
 
-type ListProjectScopedQuery struct {
+type ListProjectQuery struct {
 	ProjectID uuid.UUID
+	UserID    uuid.UUID
 	*go_kit.ListingQuery
 }
 
-type FindByIDProjectScopedQuery struct {
+type FindByIDProjectQuery struct {
 	ID        uuid.UUID
 	ProjectID uuid.UUID
+	UserID    uuid.UUID
 }
