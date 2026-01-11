@@ -2,11 +2,11 @@ package dto
 
 import "github.com/google/uuid"
 
-type BaseDto struct {
-	ID     uuid.UUID
-	UserID uuid.UUID
+type BaseDto interface {
+	GetID() uuid.UUID
+	GetUserID() uuid.UUID
 }
 
-type UserIDDto struct {
-	UserID uuid.UUID
+type UserIDDto interface {
+	GetUserID() uuid.UUID
 }

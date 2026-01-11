@@ -13,8 +13,8 @@ func ToDeleteCommand(input interface{}) (*command.DeleteCommand, error) {
 		return nil, go_kit.ErrInternalServer // TODO: improve error handling
 	}
 	return &command.DeleteCommand{
-		ID:     baseDto.ID,
-		UserID: baseDto.UserID,
+		ID:     baseDto.GetID(),
+		UserID: baseDto.GetUserID(),
 	}, nil
 }
 
@@ -24,8 +24,8 @@ func ToFindByIDQuery(input interface{}) (*query.FindByIDQuery, error) {
 		return nil, go_kit.ErrInternalServer
 	}
 	return &query.FindByIDQuery{
-		ID:     baseDto.ID,
-		UserID: baseDto.UserID,
+		ID:     baseDto.GetID(),
+		UserID: baseDto.GetUserID(),
 	}, nil
 }
 
@@ -35,7 +35,7 @@ func ToListQuery(input interface{}, lq *go_kit.ListingQuery) (*query.ListQuery, 
 		return nil, go_kit.ErrInternalServer
 	}
 	return &query.ListQuery{
-		UserID:       userIDDto.UserID,
+		UserID:       userIDDto.GetUserID(),
 		ListingQuery: lq,
 	}, nil
 }
