@@ -39,7 +39,7 @@ func NewAttachmentHandler(
 
 type AttachmentListingAttributes struct {
 	Model        string `rsql:"filter,sort"`
-	ModelID      string `rsql:"filter"`
+	ModelID      string `rsql:"field:model_id,filter"`
 	OriginalName string `rsql:"filter,sort"`
 	MimeType     string `rsql:"filter,sort"`
 	Size         string `rsql:"filter,sort"`

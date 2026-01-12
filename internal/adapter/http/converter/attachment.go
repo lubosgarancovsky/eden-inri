@@ -24,7 +24,6 @@ func ToAttachmentResponse(e *entity.Attachment) *dto.AttachmentRes {
 		Model:        e.Model,
 		ModelID:      e.ModelID,
 		OriginalName: e.OriginalName,
-		ServerName:   e.ServerName,
 		MimeType:     e.MimeType,
 		Size:         e.Size,
 		CreatedAt:    e.CreatedAt,

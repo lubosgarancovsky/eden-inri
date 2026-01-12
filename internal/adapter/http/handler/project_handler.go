@@ -49,6 +49,8 @@ type ProjectListingAttributes struct {
 	CreatedAt      string `rsql:"filter,sort"`
 	UpdatedAt      string `rsql:"filter,sort"`
 	LastActivityAt string `rsql:"filter,sort"`
+	IsStarred      string `rsql:"filter"`
+	Role           string `rsql:"filter"`
 }
 
 func (h *ProjectHandler) List(c *gin.Context) {

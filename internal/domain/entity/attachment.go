@@ -1,6 +1,7 @@
 package entity
 
 import (
+	"fmt"
 	"mime/multipart"
 	"net/http"
 	"path/filepath"
@@ -31,7 +32,7 @@ func NewAttachment(userID uuid.UUID, modelName string, modelID string, file *mul
 		return nil, go_kit.ErrBadRequest.WithMessage("File is missing")
 	}
 
-	mimeType, err := GetMimeType(file)
+	mimeType, err := getMimeType(file)
 	if err != nil {
 		return nil, err
 	}
@@ -52,19 +53,22 @@ func NewAttachment(userID uuid.UUID, modelName string, modelID string, file *mul
 		File:         file,
 	}
 
-	att.ServerName = att.GetFileName()
+	att.ServerName = att.GenerateServerName()
 	return att, nil
 }
 
+// GetFilePath Computes a path where a file is saved on a server disk
 func (a *Attachment) GetFilePath(uploadFolder string) string {
 	return filepath.Join(uploadFolder, a.UserID.String(), a.Model, a.ModelID, a.ServerName)
 }
 
-func (a *Attachment) GetFileName() string {
-	return strings.ToLower(strings.TrimSpace(a.OriginalName))
+func (a *Attachment) GenerateServerName() string {
+	now := time.Now().Unix()
+	uid := uuid.New().String()
+	return fmt.Sprintf("%d_%s", now, strings.ReplaceAll(uid, "-", ""))
 }
 
-func GetMimeType(fileHeader *multipart.FileHeader) (string, error) {
+func getMimeType(fileHeader *multipart.FileHeader) (string, error) {
 	file, err := fileHeader.Open()
 	if err != nil {
 		return "", err
