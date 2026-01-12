@@ -23,6 +23,7 @@ func NewServerRoute(c *app.Container) *gin.Engine {
 			attachments.GET("", c.AttachmentHandler.List)
 			attachments.GET("/:attachmentId", c.AttachmentHandler.FindByID)
 			attachments.DELETE("/:attachmentId", c.AttachmentHandler.Delete)
+			attachments.POST("", c.AttachmentHandler.Upload)
 			attachments.GET("/:attachmentId/download", c.AttachmentHandler.Download)
 		}
 

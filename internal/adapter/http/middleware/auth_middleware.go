@@ -7,15 +7,9 @@ import (
 	"github.com/lubosgarancovsky/go-kit"
 )
 
-type AuthContext struct {
-	UserID        string  `header:"X-User-ID" binding:"required"`
-	UserRole      string  `header:"X-User-Role" binding:"required,oneof=ADMIN USER"`
-	Authorization *string `header:"Authorization"`
-}
-
 func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		headers := &AuthContext{}
+		headers := &handle.AuthContext{}
 
 		err := c.ShouldBindHeader(headers)
 		if err != nil {

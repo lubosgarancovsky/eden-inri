@@ -35,11 +35,3 @@ type ListAssignedStoriesUseCase interface {
 type ChangeStoryAssigneeUseCase interface {
 	Execute(ctx context.Context, cmd *command.ChangeStoryAssigneeCommand) error
 }
-
-type SaveStoryAttachmentsUseCase interface {
-	Execute(ctx context.Context, projectID, storyID, userID string, files []interface{}) error
-}
-
-type ListStoryAttachmentsUseCase interface {
-	Execute(ctx context.Context, projectID, storyID, userID string) ([]entity.Attachment, error)
-}
