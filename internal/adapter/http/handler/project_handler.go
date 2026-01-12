@@ -29,7 +29,6 @@ func NewProjectHandler(
 	findProjectByIDUC ports.FindProjectByIDUseCase,
 	listProjectsUC ports.ListProjectsUseCase,
 	favouriteProjectUC ports.FavouriteProjectUseCase,
-
 	parser *go_kit.Parser,
 ) *ProjectHandler {
 	return &ProjectHandler{
@@ -164,7 +163,7 @@ func (h *ProjectHandler) Favourite(c *gin.Context) {
 		return
 	}
 
-	cmd, err := converter.ToDeleteCommand(req) // Reusing DeleteCommand for ID/UserID
+	cmd, err := converter.ToDeleteCommand(req)
 	if err != nil {
 		handle.Error(c, err)
 		return

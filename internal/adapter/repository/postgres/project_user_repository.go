@@ -8,6 +8,7 @@ import (
 	"github.com/lubosgarancovsky/eden-inri/internal/adapter/repository/postgres/mapper"
 	"github.com/lubosgarancovsky/eden-inri/internal/adapter/repository/postgres/model"
 	"github.com/lubosgarancovsky/eden-inri/internal/domain/entity"
+	app_err "github.com/lubosgarancovsky/eden-inri/internal/domain/error"
 	"github.com/lubosgarancovsky/go-kit"
 	"gorm.io/gorm"
 )
@@ -68,7 +69,7 @@ func (r *ProjectUserRepository) HasRole(ctx context.Context, userID, projectID u
 
 	if err := db.Where("project_id = ? AND user_id = ?", projectID, userID).First(&pu).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return false, nil
+			return false, app_err.ErrNotAMember
 		}
 
 		return false, go_kit.Wrap(go_kit.ErrInternalServer, err)

@@ -39,7 +39,6 @@ type UpdateProjectCommand struct {
 	Description *string
 	Status      string
 	Tags        []string
-	Slug        string
 }
 
 func (c *UpdateProjectCommand) Apply(e *entity.Project) {
@@ -47,7 +46,6 @@ func (c *UpdateProjectCommand) Apply(e *entity.Project) {
 	e.Description = c.Description
 	e.Status = c.Status
 	e.Tags = c.Tags
-	e.Slug = c.Slug
 	e.UpdatedAt = time.Now()
 }
 

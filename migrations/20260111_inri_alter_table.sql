@@ -22,3 +22,4 @@ ALTER TABLE inri_stories ADD COLUMN deleted_at TIMESTAMPTZ;
 ALTER TABLE inri_invoice ADD COLUMN deleted_at TIMESTAMPTZ;
 ALTER TABLE inri_contact_person ALTER COLUMN email DROP NOT NULL;
 ALTER TABLE inri_contact_person ALTER COLUMN phone DROP NOT NULL;
+ALTER TABLE inri_project_documents ADD COLUMN deleted_at TIMESTAMPTZ;

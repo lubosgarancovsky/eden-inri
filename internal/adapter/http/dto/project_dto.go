@@ -16,28 +16,27 @@ type CreateProjectReq struct {
 }
 
 type UpdateProjectReq struct {
-	ID string `uri:"projectId"`
-	CreateProjectReq
+	UserID      string   `header:"X-User-ID"`
+	ID          string   `uri:"projectId"`
+	Name        string   `json:"name"`
+	Description *string  `json:"description"`
+	Status      string   `json:"status"`
+	Tags        []string `json:"tags"`
 }
 
 type FavouriteProjectReq struct {
-	UserID    string `header:"X-User-ID"`
-	ProjectID string `uri:"projectId"`
-}
-
-type ProjectAttachmentReq struct {
-	UserID    string `header:"X-User-ID"`
-	ProjectID string `uri:"projectId"`
+	UserID string `header:"X-User-ID"`
+	ID     string `uri:"projectId"`
 }
 
 type FindProjectByIDReq struct {
-	UserID    string `header:"X-User-ID"`
-	ProjectID string `uri:"projectId"`
+	UserID string `header:"X-User-ID"`
+	ID     string `uri:"projectId"`
 }
 
 type DeleteProjectReq struct {
-	UserID    string `header:"X-User-ID"`
-	ProjectID string `uri:"projectId"`
+	UserID string `header:"X-User-ID"`
+	ID     string `uri:"projectId"`
 }
 
 type ListProjectsReq struct {

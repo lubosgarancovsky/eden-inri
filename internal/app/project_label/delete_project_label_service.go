@@ -20,7 +20,7 @@ func NewDeleteProjectLabelService(repo ports.PersistProjectLabelPort, hasRoleRep
 
 func (s *DeleteProjectLabelService) Execute(ctx context.Context, cmd *command.DeleteProjectLabelCommand) error {
 	roles := []entity.ProjectRole{entity.ProjectRoleOwner, entity.ProjectRoleAdmin}
-	hasRole, err := s.hasRoleRepo.HasRole(ctx, cmd.UserID, cmd.ID, roles)
+	hasRole, err := s.hasRoleRepo.HasRole(ctx, cmd.UserID, cmd.ProjectID, roles)
 	if err != nil {
 		return err
 	}
@@ -29,5 +29,5 @@ func (s *DeleteProjectLabelService) Execute(ctx context.Context, cmd *command.De
 		return app_err.ErrInsufficientProjectRole
 	}
 
-	return s.repo.Delete(ctx, cmd.ID, cmd.ID)
+	return s.repo.Delete(ctx, cmd.ProjectID, cmd.ID)
 }

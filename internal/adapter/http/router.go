@@ -61,7 +61,7 @@ func NewServerRoute(c *app.Container) *gin.Engine {
 			projects.DELETE("/:projectId", c.ProjectHandler.Delete)
 			projects.GET("/:projectId", c.ProjectHandler.FindByID)
 			projects.GET("", c.ProjectHandler.List)
-			projects.POST("/:projectId/favourite", c.ProjectHandler.Favourite)
+			projects.PUT("/:projectId/favourite", c.ProjectHandler.Favourite)
 
 			labels := projects.Group("/:projectId/labels")
 			{
@@ -81,7 +81,7 @@ func NewServerRoute(c *app.Container) *gin.Engine {
 				documents.GET("", c.ProjectDocumentHandler.List)
 			}
 
-			boards := projects.Group("/:projectId/boards")
+			boards := projects.Group("/:projectId/kanban")
 			{
 				boards.POST("", c.KanbanBoardHandler.Create)
 				boards.PUT("/:boardId", c.KanbanBoardHandler.Update)
