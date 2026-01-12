@@ -19,9 +19,9 @@ func NewCreateInvoiceService(repo ports.PersistInvoicePort) *CreateInvoiceServic
 }
 
 func (s *CreateInvoiceService) Execute(ctx context.Context, cmd *command.CreateInvoiceCommand) (*entity.Invoice, error) {
-	invoice := cmd.ToDomain()
-	if err := s.repo.Create(ctx, invoice); err != nil {
+	newInvoice := cmd.ToDomain()
+	if err := s.repo.Create(ctx, newInvoice); err != nil {
 		return nil, err
 	}
-	return invoice, nil
+	return s.repo.FindByID(ctx, cmd.UserID, newInvoice.ID)
 }

@@ -6,6 +6,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/lib/pq"
 	"github.com/lubosgarancovsky/eden-inri/internal/domain/entity"
+	"gorm.io/gorm"
 )
 
 type ProjectDocument struct {
@@ -16,6 +17,7 @@ type ProjectDocument struct {
 	Tags      pq.StringArray `gorm:"type:text[]"`
 	CreatedAt time.Time      `gorm:"type:timestamptz;autoCreateTime;not null"`
 	UpdatedAt time.Time      `gorm:"type:timestamptz;autoUpdateTime;not null"`
+	DeletedAt gorm.DeletedAt `gorm:"type:timestamptz;index"`
 }
 
 func (ProjectDocument) TableName() string {

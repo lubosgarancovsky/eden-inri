@@ -1,6 +1,8 @@
 package command
 
 import (
+	"mime/multipart"
+
 	"github.com/google/uuid"
 	"github.com/lubosgarancovsky/eden-inri/internal/domain/entity"
 )
@@ -26,4 +28,11 @@ func (c *SaveAttachmentCommand) ToDomain() *entity.Attachment {
 		MimeType:     c.MimeType,
 		Size:         c.Size,
 	}
+}
+
+type UploadAttachmentCommand struct {
+	UserID    uuid.UUID
+	ModelID   string
+	ModelName string
+	File      *multipart.FileHeader
 }

@@ -3,31 +3,33 @@ package model
 import (
 	"github.com/google/uuid"
 	"github.com/lubosgarancovsky/eden-inri/internal/domain/entity"
+	"gorm.io/gorm"
 
 	"time"
 )
 
 type Invoice struct {
-	ID            uuid.UUID  `gorm:"primary_key;type:uuid;default:uuid_generate_v4()"`
-	UserID        uuid.UUID  `gorm:"type:uuid;not null"`
-	ClientID      uuid.UUID  `gorm:"type:uuid;not null"`
-	Name          string     `gorm:"type:text;not null"`
-	Description   *string    `gorm:"type:text"`
-	ExternalID    *string    `gorm:"type:text"`
-	ExternalLink  *string    `gorm:"type:text"`
-	Total         float64    `gorm:"type:double;not null"`
-	BillableHours float64    `gorm:"type:double;not null"`
-	IsCanceled    bool       `gorm:"type:boolean;not null"`
-	IssuedAt      time.Time  `gorm:"type:timestamptz;not null"`
-	DueAt         time.Time  `gorm:"type:timestamptz;not null"`
-	DeliveredAt   time.Time  `gorm:"type:timestamptz;not null"`
-	PaidAt        *time.Time `gorm:"type:timestamptz"`
-	CreatedAt     time.Time  `gorm:"type:timestamptz;not null"`
-	UpdatedAt     time.Time  `gorm:"type:timestamptz;not null"`
-	Client        Client     `gorm:"foreignKey:ClientID,->"`
+	ID            uuid.UUID      `gorm:"primary_key;type:uuid;default:uuid_generate_v4()"`
+	UserID        uuid.UUID      `gorm:"type:uuid;not null"`
+	ClientID      uuid.UUID      `gorm:"type:uuid;not null"`
+	Name          string         `gorm:"type:text;not null"`
+	Description   *string        `gorm:"type:text"`
+	ExternalID    *string        `gorm:"type:text"`
+	ExternalLink  *string        `gorm:"type:text"`
+	Total         float64        `gorm:"type:double;not null"`
+	BillableHours float64        `gorm:"type:double;not null"`
+	IsCanceled    bool           `gorm:"type:boolean;not null"`
+	IssuedAt      time.Time      `gorm:"type:timestamptz;not null"`
+	DueAt         time.Time      `gorm:"type:timestamptz;not null"`
+	DeliveredAt   time.Time      `gorm:"type:timestamptz;not null"`
+	PaidAt        *time.Time     `gorm:"type:timestamptz"`
+	CreatedAt     time.Time      `gorm:"type:timestamptz;not null"`
+	UpdatedAt     time.Time      `gorm:"type:timestamptz;not null"`
+	DeletedAt     gorm.DeletedAt `gorm:"type:timestamptz;index"`
+	Client        Client         `gorm:"foreignKey:ClientID;references:ID;->"`
 }
 
-func (Invoice) TableName() string { return "inri_invoices" }
+func (Invoice) TableName() string { return "inri_invoice" }
 
 func (m Invoice) ToDomain() *entity.Invoice {
 	inv := &entity.Invoice{

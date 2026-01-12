@@ -5,15 +5,17 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/lubosgarancovsky/eden-inri/internal/domain/entity"
+	"gorm.io/gorm"
 )
 
 type KanbanBoard struct {
-	ID             uuid.UUID `gorm:"primary_key;type:uuid;default:uuid_generate_v4()"`
-	Name           string    `gorm:"type:string;not null"`
-	Status         string    `gorm:"type:string"`
-	ProjectID      uuid.UUID `gorm:"type:uuid;not null"`
-	CreatedAt      time.Time `gorm:"type:timestamptz;autoCreateTime;not null"`
-	LastActivityAt time.Time `gorm:"type:timestamptz;autoUpdateTime;not null"`
+	ID             uuid.UUID      `gorm:"primary_key;type:uuid;default:uuid_generate_v4()"`
+	Name           string         `gorm:"type:string;not null"`
+	Status         string         `gorm:"type:string"`
+	ProjectID      uuid.UUID      `gorm:"type:uuid;not null"`
+	CreatedAt      time.Time      `gorm:"type:timestamptz;autoCreateTime;not null"`
+	LastActivityAt time.Time      `gorm:"type:timestamptz;autoUpdateTime;not null"`
+	DeletedAt      gorm.DeletedAt `gorm:"type:timestamptz;index"`
 }
 
 func (KanbanBoard) TableName() string {

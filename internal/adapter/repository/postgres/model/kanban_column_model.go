@@ -5,17 +5,20 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/lubosgarancovsky/eden-inri/internal/domain/entity"
+	"gorm.io/gorm"
 )
 
 type KanbanColumn struct {
-	ID        uuid.UUID `gorm:"primary_key;type:uuid;default:uuid_generate_v4()"`
-	BoardID   uuid.UUID `gorm:"type:uuid;not null"`
-	Key       string    `gorm:"type:string;not null"`
-	Name      string    `gorm:"type:string;not null"`
-	Type      string    `gorm:"type:string;not null"`
-	Color     string    `gorm:"type:string"`
-	Position  int       `gorm:"type:int;not null"`
-	CreatedAt time.Time `gorm:"type:timestamptz;autoCreateTime;not null"`
+	ID        uuid.UUID      `gorm:"primary_key;type:uuid;default:uuid_generate_v4()"`
+	BoardID   uuid.UUID      `gorm:"type:uuid;not null"`
+	Key       string         `gorm:"type:string;not null"`
+	Name      string         `gorm:"type:string;not null"`
+	Type      string         `gorm:"type:string;not null"`
+	Color     string         `gorm:"type:string"`
+	Position  int            `gorm:"type:int;not null"`
+	CreatedAt time.Time      `gorm:"type:timestamptz;autoCreateTime;not null"`
+	UpdatedAt time.Time      `gorm:"type:timestamptz;autoUpdateTime;not null"`
+	DeletedAt gorm.DeletedAt `gorm:"type:timestamptz;index"`
 }
 
 func (KanbanColumn) TableName() string {
