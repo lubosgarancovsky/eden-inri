@@ -6,6 +6,12 @@ import (
 )
 
 func InvoiceFromDomain(entity *entity.Invoice) *model.Invoice {
+	var client model.Client
+
+	if entity.Client != nil {
+		client = *ClientFromDomain(entity.Client)
+	}
+
 	return &model.Invoice{
 		ID:            entity.ID,
 		UserID:        entity.UserID,
@@ -23,6 +29,6 @@ func InvoiceFromDomain(entity *entity.Invoice) *model.Invoice {
 		PaidAt:        entity.PaidAt,
 		CreatedAt:     entity.CreatedAt,
 		UpdatedAt:     entity.UpdatedAt,
-		Client:        *ClientFromDomain(entity.Client),
+		Client:        client,
 	}
 }

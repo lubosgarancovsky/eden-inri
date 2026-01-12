@@ -18,6 +18,14 @@ func NewServerRoute(c *app.Container) *gin.Engine {
 	protected := v1.Group("", middleware.AuthMiddleware())
 
 	{
+		attachments := protected.Group("/attachments")
+		{
+			attachments.GET("", c.AttachmentHandler.List)
+			attachments.GET("/:attachmentId", c.AttachmentHandler.FindByID)
+			attachments.DELETE("/:attachmentId", c.AttachmentHandler.Delete)
+			attachments.GET("/:attachmentId/download", c.AttachmentHandler.Download)
+		}
+
 		clients := protected.Group("/clients")
 		{
 			clients.POST("", c.ClientHandler.Create)
@@ -109,14 +117,6 @@ func NewServerRoute(c *app.Container) *gin.Engine {
 		}
 
 		protected.GET("/stories", c.StoryHandler.ListAssigned)
-
-		attachments := protected.Group("/attachments")
-		{
-			attachments.GET("", c.AttachmentHandler.List)
-			attachments.GET("/:attachmentId", c.AttachmentHandler.FindByID)
-			attachments.DELETE("/:attachmentId", c.AttachmentHandler.Delete)
-			attachments.GET("/:attachmentId/download", c.AttachmentHandler.Download)
-		}
 	}
 
 	return router

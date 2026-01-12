@@ -9,7 +9,7 @@ import (
 
 type AuthContext struct {
 	UserID        string  `header:"X-User-ID" binding:"required"`
-	UserRole      string  `header:"X-User-Role" binding:"required,oneof=admin user"`
+	UserRole      string  `header:"X-User-Role" binding:"required,oneof=ADMIN USER"`
 	Authorization *string `header:"Authorization"`
 }
 

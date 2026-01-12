@@ -131,10 +131,9 @@ type Container struct {
 	AttachmentHandler      *handler.AttachmentHandler
 }
 
-func NewContainer(db *gorm.DB, cfg *config.Config, parser *go_kit.Parser) *Container {
+func NewContainer(db *gorm.DB, parser *go_kit.Parser) *Container {
 	c := &Container{
 		db:     db,
-		cfg:    cfg,
 		parser: parser,
 	}
 
@@ -244,7 +243,7 @@ func (c *Container) initServices() {
 func (c *Container) initHandlers() {
 	c.ClientHandler = handler.NewClientHandler(c.createClientService, c.updateClientService, c.deleteClientService, c.findClientByIDService, c.listClientsService, c.parser)
 	c.InvoiceHandler = handler.NewInvoiceHandler(c.createInvoiceService, c.updateInvoiceService, c.deleteInvoiceService, c.findInvoiceByIDService, c.listInvoicesService, c.parser)
-	c.ProjectHandler = handler.NewProjectHandler(c.createProjectService, c.updateProjectService, c.deleteProjectService, c.findProjectByIDService, c.listProjectsService, c.favouriteProjectService, c.parser)
+	//c.ProjectHandler = handler.NewProjectHandler(c.createProjectService, c.updateProjectService, c.deleteProjectService, c.findProjectByIDService, c.listProjectsService, c.favouriteProjectService, c.attachmentUtilityService, c.listAttachmentsUC, c.parser)
 	c.ProjectLabelHandler = handler.NewProjectLabelHandler(c.createProjectLabelService, c.updateProjectLabelService, c.deleteProjectLabelService, c.findProjectLabelByIDService, c.listProjectLabelsService, c.parser)
 	c.ProjectDocumentHandler = handler.NewProjectDocumentHandler(c.createProjectDocumentService, c.updateProjectDocumentService, c.deleteProjectDocumentService, c.findProjectDocumentByIDService, c.listProjectDocumentsService, c.parser)
 	c.KanbanBoardHandler = handler.NewKanbanBoardHandler(c.createKanbanBoardService, c.updateKanbanBoardService, c.deleteKanbanBoardService, c.findKanbanBoardByIDService, c.listKanbanBoardsService, c.parser)

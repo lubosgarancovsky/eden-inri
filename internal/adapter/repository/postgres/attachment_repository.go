@@ -49,7 +49,7 @@ func (r *AttachmentRepository) FindByID(ctx context.Context, userID, attachmentI
 	}
 
 	domainAtt := att.ToDomain()
-	return &domainAtt, nil
+	return domainAtt, nil
 }
 
 func (r *AttachmentRepository) FindByModelID(ctx context.Context, userID, modelID uuid.UUID, modelName string) ([]entity.Attachment, error) {

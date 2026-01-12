@@ -42,6 +42,7 @@ func (c *CreateInvoiceCommand) ToDomain() *entity.Invoice {
 		IsCanceled:    c.IsCanceled,
 		CreatedAt:     now,
 		UpdatedAt:     now,
+		Client:        nil,
 	}
 }
 

@@ -19,7 +19,7 @@ func NewInvoiceRepository(db *gorm.DB) *InvoiceRepository { return &InvoiceRepos
 
 func (r *InvoiceRepository) List(ctx context.Context, userID uuid.UUID, lq *go_kit.ListingQuery) (*[]entity.Invoice, int64, error) {
 	db := GetDB(ctx, r.db)
-	query := db.Model(&model.Invoice{}).Where("user_id = ?", userID)
+	query := db.Model(&model.Invoice{}).Preload("Client").Where("user_id = ?", userID)
 	if lq.Filter != nil {
 		query = query.Where(lq.Filter.Query, lq.Filter.Args...)
 	}
@@ -35,6 +35,7 @@ func (r *InvoiceRepository) FindByID(ctx context.Context, userID, invoiceID uuid
 	var m model.Invoice
 	if err := db.Model(&model.Invoice{}).
 		Where("id = ? AND user_id = ?", invoiceID, userID).
+		Preload("Client").
 		First(&m).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, go_kit.ErrNotFound.WithMessage(fmt.Sprintf("invoice %s not found", invoiceID))

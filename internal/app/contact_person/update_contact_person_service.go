@@ -24,9 +24,8 @@ func (s *UpdateContactPersonService) Execute(ctx context.Context, cmd *command.U
 
 	cmd.Apply(cp)
 
-	if err := s.repo.Update(ctx, cp); err != nil {
+	if err = s.repo.Update(ctx, cp); err != nil {
 		return nil, err
 	}
-
 	return cp, nil
 }
