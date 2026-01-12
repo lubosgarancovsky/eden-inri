@@ -27,3 +27,9 @@ type DeleteAttachmentReq struct {
 	UserID       string `header:"X-User-ID"`
 	AttachmentID string `uri:"attachmentId"`
 }
+
+type UploadAttachmentReq struct {
+	UserID  string
+	ModelID string
+	Model   string
+}

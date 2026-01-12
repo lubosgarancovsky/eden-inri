@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"path/filepath"
 	"time"
 
 	"github.com/google/uuid"
@@ -15,11 +14,10 @@ import (
 
 type DeleteAttachmentService struct {
 	repo ports.PersistAttachmentPort
-	cfg  *config.Config
 }
 
-func NewDeleteAttachmentService(repo ports.PersistAttachmentPort, cfg *config.Config) *DeleteAttachmentService {
-	return &DeleteAttachmentService{repo: repo, cfg: cfg}
+func NewDeleteAttachmentService(repo ports.PersistAttachmentPort) *DeleteAttachmentService {
+	return &DeleteAttachmentService{repo: repo}
 }
 
 func (s *DeleteAttachmentService) Execute(ctx context.Context, userIDStr, attachmentIDStr string) error {
@@ -44,8 +42,7 @@ func (s *DeleteAttachmentService) DeleteFromDisk(ctx context.Context, attachment
 		_, cancel := context.WithTimeout(ctx, 10*time.Second)
 		defer cancel()
 
-		path := filepath.Join(s.cfg.UploadsFolder, attachment.UserID.String(), attachment.Model, attachment.ModelID, attachment.OriginalName)
-		if err := os.Remove(path); err != nil {
+		if err := os.Remove(attachment.GetFilePath(config.GlobalConfig.UploadsFolder)); err != nil {
 			fmt.Println(err)
 		}
 	}()

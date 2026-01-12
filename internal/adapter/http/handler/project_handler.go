@@ -19,8 +19,6 @@ type ProjectHandler struct {
 	findProjectByIDUC  ports.FindProjectByIDUseCase
 	listProjectsUC     ports.ListProjectsUseCase
 	favouriteProjectUC ports.FavouriteProjectUseCase
-	saveAttachmentsUC  ports.SaveProjectAttachmentsUseCase
-	listAttachmentsUC  ports.ListProjectAttachmentsUseCase
 	parser             *go_kit.Parser
 }
 
@@ -31,8 +29,7 @@ func NewProjectHandler(
 	findProjectByIDUC ports.FindProjectByIDUseCase,
 	listProjectsUC ports.ListProjectsUseCase,
 	favouriteProjectUC ports.FavouriteProjectUseCase,
-	saveAttachmentsUC ports.SaveProjectAttachmentsUseCase,
-	listAttachmentsUC ports.ListProjectAttachmentsUseCase,
+
 	parser *go_kit.Parser,
 ) *ProjectHandler {
 	return &ProjectHandler{
@@ -42,8 +39,6 @@ func NewProjectHandler(
 		findProjectByIDUC,
 		listProjectsUC,
 		favouriteProjectUC,
-		saveAttachmentsUC,
-		listAttachmentsUC,
 		parser,
 	}
 }
@@ -137,49 +132,6 @@ func (h *ProjectHandler) Update(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, converter.ToProjectResponse(updated))
-}
-
-func (h *ProjectHandler) UploadAttachments(c *gin.Context) {
-	req := &dto.ProjectAttachmentReq{}
-	if err := validator.BindAndValidate(c, req); err != nil {
-		handle.Error(c, err)
-		return
-	}
-
-	form, err := c.MultipartForm()
-	if err != nil {
-		handle.Error(c, err)
-		return
-	}
-
-	files := form.File["files"]
-	interfaces := make([]interface{}, len(files))
-	for i, f := range files {
-		interfaces[i] = f
-	}
-
-	if err := h.saveAttachmentsUC.Execute(c.Request.Context(), req.ProjectID, req.UserID, interfaces); err != nil {
-		handle.Error(c, err)
-		return
-	}
-
-	c.Status(http.StatusCreated)
-}
-
-func (h *ProjectHandler) ListAttachments(c *gin.Context) {
-	req := &dto.ProjectAttachmentReq{}
-	if err := validator.BindAndValidate(c, req); err != nil {
-		handle.Error(c, err)
-		return
-	}
-
-	attachments, err := h.listAttachmentsUC.Execute(c.Request.Context(), req.ProjectID, req.UserID)
-	if err != nil {
-		handle.Error(c, err)
-		return
-	}
-
-	c.JSON(http.StatusOK, converter.ToListResponse(&attachments, converter.ToAttachmentResponse))
 }
 
 func (h *ProjectHandler) Delete(c *gin.Context) {

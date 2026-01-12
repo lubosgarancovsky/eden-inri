@@ -8,37 +8,37 @@ import (
 	"github.com/lubosgarancovsky/eden-inri/internal/adapter/http/dto"
 	"github.com/lubosgarancovsky/eden-inri/internal/adapter/http/handle"
 	"github.com/lubosgarancovsky/eden-inri/internal/adapter/http/validator"
-	"github.com/lubosgarancovsky/eden-inri/internal/app/attachment"
 	"github.com/lubosgarancovsky/eden-inri/internal/app/ports"
+	"github.com/lubosgarancovsky/eden-inri/internal/config"
 	"github.com/lubosgarancovsky/go-kit"
 )
 
 type AttachmentHandler struct {
-	listUC         ports.ListAttachmentsUseCase
-	findByIDUC     ports.FindAttachmentByIDUseCase
-	deleteUC       ports.DeleteAttachmentUseCase
-	utilityService *attachment.AttachmentUtilityService
-	parser         *go_kit.Parser
+	listUC     ports.ListAttachmentsUseCase
+	findByIDUC ports.FindAttachmentByIDUseCase
+	deleteUC   ports.DeleteAttachmentUseCase
+	uploadUC   ports.UploadAttachmentUseCase
+	parser     *go_kit.Parser
 }
 
 func NewAttachmentHandler(
 	listUC ports.ListAttachmentsUseCase,
 	findByIDUC ports.FindAttachmentByIDUseCase,
 	deleteUC ports.DeleteAttachmentUseCase,
-	utilityService *attachment.AttachmentUtilityService,
+	uploadUC ports.UploadAttachmentUseCase,
 	parser *go_kit.Parser,
 ) *AttachmentHandler {
 	return &AttachmentHandler{
 		listUC,
 		findByIDUC,
 		deleteUC,
-		utilityService,
+		uploadUC,
 		parser,
 	}
 }
 
 type AttachmentListingAttributes struct {
-	Model        string `rsql:"filter"`
+	Model        string `rsql:"filter,sort"`
 	ModelID      string `rsql:"filter"`
 	OriginalName string `rsql:"filter,sort"`
 	MimeType     string `rsql:"filter,sort"`
@@ -109,6 +109,37 @@ func (h *AttachmentHandler) Delete(c *gin.Context) {
 	c.Status(http.StatusNoContent)
 }
 
+func (h *AttachmentHandler) Upload(c *gin.Context) {
+	userID := handle.UserID(c)
+	model := c.PostForm("model")
+	modelID := c.PostForm("modelId")
+
+	req := &dto.UploadAttachmentReq{
+		UserID:  userID.String(),
+		ModelID: modelID,
+		Model:   model,
+	}
+
+	form, err := c.MultipartForm()
+	if err != nil {
+		handle.Error(c, go_kit.Wrap(go_kit.ErrBadRequest.WithMessage("invalid multipart form"), err))
+		return
+	}
+	files := form.File["files"]
+
+	if len(files) == 0 {
+		handle.Error(c, go_kit.ErrBadRequest.WithMessage("no files provided"))
+		return
+	}
+
+	if err = h.uploadUC.Execute(c.Request.Context(), converter.ToUploadAttachmentCommand(req, files)); err != nil {
+		handle.Error(c, err)
+		return
+	}
+
+	c.Status(http.StatusNoContent)
+}
+
 func (h *AttachmentHandler) Download(c *gin.Context) {
 	req := &dto.FindAttachmentByIDReq{}
 	if err := validator.BindAndValidate(c, req); err != nil {
@@ -128,6 +159,5 @@ func (h *AttachmentHandler) Download(c *gin.Context) {
 		return
 	}
 
-	path := h.utilityService.GetFilePath(item)
-	c.FileAttachment(path, item.OriginalName)
+	c.FileAttachment(item.GetFilePath(config.GlobalConfig.UploadsFolder), item.OriginalName)
 }

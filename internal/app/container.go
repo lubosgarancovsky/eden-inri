@@ -111,11 +111,11 @@ type Container struct {
 	deleteStoryActivityUC *story_activity.DeleteStoryActivityService
 
 	// Attachment services
+	uploadAttachmentUC       *attachment.UploadAttachmentService
 	listAttachmentsUC        *attachment.ListAttachmentsService
 	findAttachmentByIDUC     *attachment.FindAttachmentByIDService
 	deleteAttachmentUC       *attachment.DeleteAttachmentService
 	findAttachmentsByModelUC *attachment.FindAttachmentsByModelService
-	attachmentUtilityService *attachment.AttachmentUtilityService
 
 	// -- Handlers --
 	ClientHandler          *handler.ClientHandler
@@ -233,11 +233,11 @@ func (c *Container) initServices() {
 	c.listStoryActivitiesUC = story_activity.NewListStoryActivitiesService(c.storyActivityRepository)
 
 	// Attachment services
-	c.attachmentUtilityService = attachment.NewAttachmentUtilityService(c.attachmentRepository, c.cfg)
 	c.listAttachmentsUC = attachment.NewListAttachmentsService(c.attachmentRepository)
 	c.findAttachmentByIDUC = attachment.NewFindAttachmentByIDService(c.attachmentRepository)
-	c.deleteAttachmentUC = attachment.NewDeleteAttachmentService(c.attachmentRepository, c.cfg)
+	c.deleteAttachmentUC = attachment.NewDeleteAttachmentService(c.attachmentRepository)
 	c.findAttachmentsByModelUC = attachment.NewFindAttachmentsByModelService(c.attachmentRepository)
+	c.uploadAttachmentUC = attachment.NewUploadAttachmentService(c.attachmentRepository, c.txManager)
 }
 
 func (c *Container) initHandlers() {
@@ -251,5 +251,5 @@ func (c *Container) initHandlers() {
 	c.ContactPersonHandler = handler.NewContactPersonHandler(c.createContactPersonService, c.updateContactPersonService, c.deleteContactPersonService, c.findContactPersonByIDService, c.listContactPersonsService, c.parser)
 	c.StoryHandler = handler.NewStoryHandler(c.createStoryUC, c.updateStoryUC, c.deleteStoryUC, c.findStoryByIDUC, c.listStoriesUC, c.listAssignedStoriesUC, c.changeStoryAssigneeUC, c.parser)
 	c.StoryActivityHandler = handler.NewStoryActivityHandler(c.createStoryActivityUC, c.updateStoryActivityUC, c.deleteStoryActivityUC, c.listStoryActivitiesUC, c.parser)
-	c.AttachmentHandler = handler.NewAttachmentHandler(c.listAttachmentsUC, c.findAttachmentByIDUC, c.deleteAttachmentUC, c.attachmentUtilityService, c.parser)
+	c.AttachmentHandler = handler.NewAttachmentHandler(c.listAttachmentsUC, c.findAttachmentByIDUC, c.deleteAttachmentUC, c.uploadAttachmentUC, c.parser)
 }

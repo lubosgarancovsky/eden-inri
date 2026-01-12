@@ -22,6 +22,8 @@ type Attachment struct {
 	Size         int64
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
+	TempFilePath string
+	File         *multipart.FileHeader
 }
 
 func NewAttachment(userID uuid.UUID, modelName string, modelID string, file *multipart.FileHeader) (*Attachment, error) {
@@ -47,6 +49,7 @@ func NewAttachment(userID uuid.UUID, modelName string, modelID string, file *mul
 		Size:         file.Size,
 		CreatedAt:    now,
 		UpdatedAt:    now,
+		File:         file,
 	}
 
 	att.ServerName = att.GetFileName()
@@ -54,7 +57,7 @@ func NewAttachment(userID uuid.UUID, modelName string, modelID string, file *mul
 }
 
 func (a *Attachment) GetFilePath(uploadFolder string) string {
-	return filepath.Join(uploadFolder, a.UserID.String(), a.Model, a.ModelID, a.OriginalName)
+	return filepath.Join(uploadFolder, a.UserID.String(), a.Model, a.ModelID, a.ServerName)
 }
 
 func (a *Attachment) GetFileName() string {

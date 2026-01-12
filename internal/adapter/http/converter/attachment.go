@@ -1,9 +1,22 @@
 package converter
 
 import (
+	"mime/multipart"
+
+	"github.com/google/uuid"
 	"github.com/lubosgarancovsky/eden-inri/internal/adapter/http/dto"
+	"github.com/lubosgarancovsky/eden-inri/internal/domain/command"
 	"github.com/lubosgarancovsky/eden-inri/internal/domain/entity"
 )
+
+func ToUploadAttachmentCommand(req *dto.UploadAttachmentReq, files []*multipart.FileHeader) *command.UploadAttachmentCommand {
+	return &command.UploadAttachmentCommand{
+		UserID:  uuid.MustParse(req.UserID),
+		ModelID: req.ModelID,
+		Model:   req.Model,
+		Files:   files,
+	}
+}
 
 func ToAttachmentResponse(e *entity.Attachment) *dto.AttachmentRes {
 	return &dto.AttachmentRes{

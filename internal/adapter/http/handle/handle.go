@@ -10,6 +10,12 @@ import (
 	"github.com/lubosgarancovsky/go-kit"
 )
 
+type AuthContext struct {
+	UserID        string  `header:"X-User-ID" binding:"required"`
+	UserRole      string  `header:"X-User-Role" binding:"required,oneof=ADMIN USER"`
+	Authorization *string `header:"Authorization"`
+}
+
 func Error(c *gin.Context, err error) {
 	requestID := c.GetHeader("X-Request-ID")
 	if requestID == "" {
@@ -53,4 +59,25 @@ func Page[T any](c *gin.Context, lq *go_kit.ListingQuery, totalCount int64, item
 		PageSize:   lq.Limit,
 		TotalCount: totalCount,
 	})
+}
+
+func UserID(c *gin.Context) uuid.UUID {
+	user, ok := c.Get("user")
+	if !ok {
+		Error(c, go_kit.ErrUnauthorized)
+		return uuid.Nil
+	}
+
+	userCtx, ok := user.(*AuthContext)
+	if !ok {
+		Error(c, go_kit.ErrUnauthorized)
+		return uuid.Nil
+	}
+
+	userID, err := uuid.Parse(userCtx.UserID)
+	if err != nil {
+		Error(c, go_kit.ErrUnauthorized)
+	}
+
+	return userID
 }
