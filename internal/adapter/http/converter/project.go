@@ -21,11 +21,11 @@ func ToCreateProjectCommand(input *dto.CreateProjectReq) *command.CreateProjectC
 func ToUpdateProjectCommand(input *dto.UpdateProjectReq) *command.UpdateProjectCommand {
 	return &command.UpdateProjectCommand{
 		ID:          uuid.MustParse(input.ID),
+		UserID:      uuid.MustParse(input.UserID),
 		Name:        input.Name,
 		Description: input.Description,
 		Status:      input.Status,
 		Tags:        input.Tags,
-		Slug:        input.Slug,
 	}
 }
 
