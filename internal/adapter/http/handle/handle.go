@@ -49,6 +49,11 @@ func ListingQuery(c *gin.Context, parser *go_kit.Parser, listingAttr interface{}
 		return nil
 	}
 
+	if lq == nil {
+		Error(c, go_kit.ErrBadRequest.WithMessage("Invalid listing query"))
+		return nil
+	}
+
 	return lq
 }
 
