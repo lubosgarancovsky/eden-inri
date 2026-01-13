@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/lubosgarancovsky/eden-inri/internal/adapter/repository/postgres"
 	"github.com/lubosgarancovsky/eden-inri/internal/models"
-	"github.com/lubosgarancovsky/eden-inri/pkg/helpers"
 	"github.com/lubosgarancovsky/go-kit/list"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -63,7 +63,7 @@ func (r *StoryActivityRepository) ListActivities(ctx context.Context, storyID uu
 		query = query.Where(lq.Filter.Query, lq.Filter.Args...)
 	}
 
-	items, total, err := helpers.List[models.StoryActivity](query, lq)
+	items, total, err := postgres.List[models.StoryActivity](query, lq)
 	if err != nil {
 		return nil, 0, err
 	}
