@@ -16,6 +16,6 @@ func NewFindInvoiceService(repo ports.PersistInvoicePort) *FindInvoiceService {
 	return &FindInvoiceService{repo}
 }
 
-func (s *FindInvoiceService) Execute(ctx context.Context, query *query.FindByIDQuery) (*entity.Invoice, error) {
+func (s *FindInvoiceService) Execute(ctx context.Context, query *query.Query) (*entity.Invoice, error) {
 	return s.repo.FindByID(ctx, query.UserID, query.ID)
 }

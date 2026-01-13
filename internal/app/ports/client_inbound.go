@@ -17,11 +17,11 @@ type UpdateClientUseCase interface {
 }
 
 type DeleteClientUseCase interface {
-	Execute(ctx context.Context, cmd *command.DeleteCommand) error
+	Execute(ctx context.Context, cmd *command.Command) error
 }
 
 type FindClientByIDUseCase interface {
-	Execute(ctx context.Context, query *query.FindByIDQuery) (*entity.Client, error)
+	Execute(ctx context.Context, query *query.Query) (*entity.Client, error)
 }
 
 type ListClientsUseCase interface {

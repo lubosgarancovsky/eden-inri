@@ -10,56 +10,43 @@ import (
 	"github.com/lubosgarancovsky/eden-inri/internal/adapter/http/validator"
 	"github.com/lubosgarancovsky/eden-inri/internal/app/ports"
 	"github.com/lubosgarancovsky/eden-inri/internal/config"
-	"github.com/lubosgarancovsky/go-kit"
+	go_kit "github.com/lubosgarancovsky/go-kit"
 )
 
-type AttachmentHandler struct {
-	listUC     ports.ListAttachmentsUseCase
-	findByIDUC ports.FindAttachmentByIDUseCase
-	deleteUC   ports.DeleteAttachmentUseCase
-	uploadUC   ports.UploadAttachmentUseCase
-	updateUC   ports.UpdateAttachmentUseCase
+type ProjectAttachmentHandler struct {
+	listUC     ports.ListProjectAttachmentsUseCase
+	findByIDUC ports.FindProjectAttachmentByIDUseCase
+	updateUC   ports.UpdateProjectAttachmentUseCase
+	deleteUC   ports.DeleteProjectAttachmentUseCase
 	parser     *go_kit.Parser
 }
 
-func NewAttachmentHandler(
-	listUC ports.ListAttachmentsUseCase,
-	findByIDUC ports.FindAttachmentByIDUseCase,
-	deleteUC ports.DeleteAttachmentUseCase,
-	uploadUC ports.UploadAttachmentUseCase,
-	updateUC ports.UpdateAttachmentUseCase,
+func NewProjectAttachmentHandler(
+	listUC ports.ListProjectAttachmentsUseCase,
+	findByIDUC ports.FindProjectAttachmentByIDUseCase,
+	updateUC ports.UpdateProjectAttachmentUseCase,
+	deleteUC ports.DeleteProjectAttachmentUseCase,
 	parser *go_kit.Parser,
-) *AttachmentHandler {
-	return &AttachmentHandler{
+) *ProjectAttachmentHandler {
+	return &ProjectAttachmentHandler{
 		listUC,
 		findByIDUC,
-		deleteUC,
-		uploadUC,
 		updateUC,
+		deleteUC,
 		parser,
 	}
 }
 
-type AttachmentListingAttributes struct {
-	Model        string `rsql:"filter,sort"`
-	ModelID      string `rsql:"field:model_id,filter"`
-	OriginalName string `rsql:"filter,sort"`
-	MimeType     string `rsql:"filter,sort"`
-	Size         string `rsql:"filter,sort"`
-	CreatedAt    string `rsql:"filter,sort"`
-	UpdatedAt    string `rsql:"filter,sort"`
-}
-
-func (h *AttachmentHandler) List(c *gin.Context) {
+func (h *ProjectAttachmentHandler) List(c *gin.Context) {
 	listingQuery := handle.ListingQuery(c, h.parser, &AttachmentListingAttributes{})
 
-	req := &dto.ListAttachmentsReq{}
+	req := &dto.ListProjectAttachmentsReq{}
 	if err := validator.BindAndValidate(c, req); err != nil {
 		handle.Error(c, err)
 		return
 	}
 
-	query, err := converter.ToListQuery(req, listingQuery)
+	query, err := converter.ToScopedListQuery(req, listingQuery)
 	if err != nil {
 		handle.Error(c, err)
 		return
@@ -75,14 +62,14 @@ func (h *AttachmentHandler) List(c *gin.Context) {
 	handle.Page(c, listingQuery, total, responseItems)
 }
 
-func (h *AttachmentHandler) FindByID(c *gin.Context) {
-	req := &dto.AttachmentByIDReq{}
+func (h *ProjectAttachmentHandler) FindByID(c *gin.Context) {
+	req := &dto.ProjectAttachmentByIDReq{}
 	if err := validator.BindAndValidate(c, req); err != nil {
 		handle.Error(c, err)
 		return
 	}
 
-	query, err := converter.ToQuery(req)
+	query, err := converter.ToScopedQuery(req)
 	if err != nil {
 		handle.Error(c, err)
 		return
@@ -97,14 +84,19 @@ func (h *AttachmentHandler) FindByID(c *gin.Context) {
 	c.JSON(http.StatusOK, converter.ToAttachmentResponse(item))
 }
 
-func (h *AttachmentHandler) Update(c *gin.Context) {
-	req := &dto.UpdateAttachmentReq{}
+func (h *ProjectAttachmentHandler) Update(c *gin.Context) {
+	req := &dto.UpdateProjectAttachmentReq{}
 	if err := validator.BindAndValidate(c, &req); err != nil {
 		handle.Error(c, err)
 		return
 	}
 
-	cmd := converter.ToUpdateAttachmentCommand(req)
+	cmd, err := converter.ToUpdateProjectAttachmentCommand(req)
+	if err != nil {
+		handle.Error(c, err)
+		return
+	}
+
 	attachment, err := h.updateUC.Execute(c.Request.Context(), cmd)
 	if err != nil {
 		handle.Error(c, err)
@@ -114,14 +106,14 @@ func (h *AttachmentHandler) Update(c *gin.Context) {
 	c.JSON(http.StatusOK, converter.ToAttachmentResponse(attachment))
 }
 
-func (h *AttachmentHandler) Delete(c *gin.Context) {
-	req := &dto.AttachmentByIDReq{}
+func (h *ProjectAttachmentHandler) Delete(c *gin.Context) {
+	req := &dto.ProjectAttachmentByIDReq{}
 	if err := validator.BindAndValidate(c, req); err != nil {
 		handle.Error(c, err)
 		return
 	}
 
-	cmd, err := converter.ToCommand(req)
+	cmd, err := converter.ToScopedCommand(req)
 	if err != nil {
 		handle.Error(c, err)
 		return
@@ -135,45 +127,14 @@ func (h *AttachmentHandler) Delete(c *gin.Context) {
 	c.Status(http.StatusNoContent)
 }
 
-func (h *AttachmentHandler) Upload(c *gin.Context) {
-	userID := handle.UserID(c)
-	model := c.PostForm("model")
-	modelID := c.PostForm("modelId")
-
-	req := &dto.UploadAttachmentReq{
-		UserID:  userID.String(),
-		ModelID: modelID,
-		Model:   model,
-	}
-
-	form, err := c.MultipartForm()
-	if err != nil {
-		handle.Error(c, go_kit.Wrap(go_kit.ErrBadRequest.WithMessage("invalid multipart form"), err))
-		return
-	}
-	files := form.File["files"]
-
-	if len(files) == 0 {
-		handle.Error(c, go_kit.ErrBadRequest.WithMessage("no files provided"))
-		return
-	}
-
-	if err = h.uploadUC.Execute(c.Request.Context(), converter.ToUploadAttachmentCommand(req, files)); err != nil {
-		handle.Error(c, err)
-		return
-	}
-
-	c.Status(http.StatusNoContent)
-}
-
-func (h *AttachmentHandler) Download(c *gin.Context) {
-	req := &dto.AttachmentByIDReq{}
+func (h *ProjectAttachmentHandler) Download(c *gin.Context) {
+	req := &dto.ProjectAttachmentByIDReq{}
 	if err := validator.BindAndValidate(c, req); err != nil {
 		handle.Error(c, err)
 		return
 	}
 
-	query, err := converter.ToQuery(req)
+	query, err := converter.ToScopedQuery(req)
 	if err != nil {
 		handle.Error(c, err)
 		return

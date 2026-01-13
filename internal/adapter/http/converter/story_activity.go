@@ -26,8 +26,8 @@ func ToUpdateStoryActivityCommand(input *dto.UpdateStoryActivityReq) *command.Up
 	}
 }
 
-func ToDeleteStoryActivityCommand(input *dto.DeleteStoryActivityReq) *command.DeleteCommand {
-	return &command.DeleteCommand{
+func ToDeleteStoryActivityCommand(input *dto.DeleteStoryActivityReq) *command.Command {
+	return &command.Command{
 		ID:     uuid.MustParse(input.ActivityID),
 		UserID: uuid.MustParse(input.UserID),
 	}

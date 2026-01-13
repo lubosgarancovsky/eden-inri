@@ -18,7 +18,7 @@ func NewDeleteProjectService(repo ports.PersistProjectPort) *DeleteProjectServic
 	}
 }
 
-func (s *DeleteProjectService) Execute(ctx context.Context, cmd *command.DeleteCommand) error {
+func (s *DeleteProjectService) Execute(ctx context.Context, cmd *command.Command) error {
 	project, err := s.repo.FindByID(ctx, cmd.UserID, cmd.ID)
 	if err != nil {
 		return err

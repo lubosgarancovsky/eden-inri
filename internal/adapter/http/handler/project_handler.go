@@ -86,7 +86,7 @@ func (h *ProjectHandler) FindByID(c *gin.Context) {
 		return
 	}
 
-	query, err := converter.ToFindByIDQuery(req)
+	query, err := converter.ToQuery(req)
 	if err != nil {
 		handle.Error(c, err)
 		return
@@ -143,7 +143,7 @@ func (h *ProjectHandler) Delete(c *gin.Context) {
 		return
 	}
 
-	cmd, err := converter.ToDeleteCommand(req)
+	cmd, err := converter.ToCommand(req)
 	if err != nil {
 		handle.Error(c, err)
 		return
@@ -165,7 +165,7 @@ func (h *ProjectHandler) Favourite(c *gin.Context) {
 		return
 	}
 
-	cmd, err := converter.ToDeleteCommand(req)
+	cmd, err := converter.ToCommand(req)
 	if err != nil {
 		handle.Error(c, err)
 		return

@@ -17,14 +17,15 @@ type ListAttachmentsReq struct {
 	UserID string `header:"X-User-ID"`
 }
 
-type FindAttachmentByIDReq struct {
-	UserID       string `header:"X-User-ID"`
-	AttachmentID string `uri:"attachmentId"`
+type AttachmentByIDReq struct {
+	UserID string `header:"X-User-ID"`
+	ID     string `uri:"attachmentId"`
 }
 
-type DeleteAttachmentReq struct {
-	UserID       string `header:"X-User-ID"`
-	AttachmentID string `uri:"attachmentId"`
+type UpdateAttachmentReq struct {
+	UserID string `header:"X-User-ID"`
+	ID     string `uri:"attachmentId"`
+	Name   string `json:"name"`
 }
 
 type UploadAttachmentReq struct {

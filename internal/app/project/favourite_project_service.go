@@ -20,7 +20,7 @@ func NewFavouriteProjectService(projectRepo ports.PersistProjectPort, projectUse
 	}
 }
 
-func (s *FavouriteProjectService) Execute(ctx context.Context, cmd *command.DeleteCommand) (*entity.Project, error) {
+func (s *FavouriteProjectService) Execute(ctx context.Context, cmd *command.Command) (*entity.Project, error) {
 	err := s.projectUserRepo.Favourite(ctx, cmd.UserID, cmd.ID)
 	if err != nil {
 		return nil, err

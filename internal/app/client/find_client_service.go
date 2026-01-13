@@ -20,6 +20,6 @@ func NewFindClientByIDService(
 	return &FindClientByIDService{repository}
 }
 
-func (c *FindClientByIDService) Execute(ctx context.Context, q *query.FindByIDQuery) (*entity.Client, error) {
+func (c *FindClientByIDService) Execute(ctx context.Context, q *query.Query) (*entity.Client, error) {
 	return c.repository.FindByID(ctx, q.UserID, q.ID)
 }

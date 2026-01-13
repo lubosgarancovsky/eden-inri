@@ -6,10 +6,11 @@ import (
 	"os"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/lubosgarancovsky/eden-inri/internal/app/ports"
 	"github.com/lubosgarancovsky/eden-inri/internal/config"
+	"github.com/lubosgarancovsky/eden-inri/internal/domain/command"
 	"github.com/lubosgarancovsky/eden-inri/internal/domain/entity"
+	app_err "github.com/lubosgarancovsky/eden-inri/internal/domain/error"
 )
 
 type DeleteAttachmentService struct {
@@ -20,16 +21,18 @@ func NewDeleteAttachmentService(repo ports.PersistAttachmentPort) *DeleteAttachm
 	return &DeleteAttachmentService{repo: repo}
 }
 
-func (s *DeleteAttachmentService) Execute(ctx context.Context, userIDStr, attachmentIDStr string) error {
-	userID := uuid.MustParse(userIDStr)
-	attachmentID := uuid.MustParse(attachmentIDStr)
+func (s *DeleteAttachmentService) Execute(ctx context.Context, cmd *command.Command) error {
 
-	attachment, err := s.repo.FindByID(ctx, userID, attachmentID)
+	attachment, err := s.repo.FindByID(ctx, cmd.ID)
 	if err != nil {
 		return err
 	}
 
-	if err = s.repo.Delete(ctx, userID, attachmentID); err != nil {
+	if attachment.UserID != cmd.UserID {
+		return app_err.ErrInsufficientPermission
+	}
+
+	if err = s.repo.Delete(ctx, cmd.ID); err != nil {
 		return err
 	}
 

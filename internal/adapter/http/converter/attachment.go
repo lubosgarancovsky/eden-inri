@@ -30,3 +30,11 @@ func ToAttachmentResponse(e *entity.Attachment) *dto.AttachmentRes {
 		UpdatedAt:    e.UpdatedAt,
 	}
 }
+
+func ToUpdateAttachmentCommand(req *dto.UpdateAttachmentReq) *command.UpdateAttachmentCommand {
+	return &command.UpdateAttachmentCommand{
+		ID:           uuid.MustParse(req.ID),
+		UserID:       uuid.MustParse(req.UserID),
+		OriginalName: req.Name,
+	}
+}

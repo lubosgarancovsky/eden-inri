@@ -17,11 +17,11 @@ type UpdateProjectUseCase interface {
 }
 
 type DeleteProjectUseCase interface {
-	Execute(ctx context.Context, cmd *command.DeleteCommand) error
+	Execute(ctx context.Context, cmd *command.Command) error
 }
 
 type FindProjectByIDUseCase interface {
-	Execute(ctx context.Context, query *query.FindByIDQuery) (*entity.Project, error)
+	Execute(ctx context.Context, query *query.Query) (*entity.Project, error)
 }
 
 type ListProjectsUseCase interface {
@@ -29,5 +29,5 @@ type ListProjectsUseCase interface {
 }
 
 type FavouriteProjectUseCase interface {
-	Execute(ctx context.Context, cmd *command.DeleteCommand) (*entity.Project, error)
+	Execute(ctx context.Context, cmd *command.Command) (*entity.Project, error)
 }

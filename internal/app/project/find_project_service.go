@@ -18,6 +18,6 @@ func NewFindProjectByIDService(repo ports.PersistProjectPort) *FindProjectByIDSe
 	}
 }
 
-func (s *FindProjectByIDService) Execute(ctx context.Context, q *query.FindByIDQuery) (*entity.Project, error) {
+func (s *FindProjectByIDService) Execute(ctx context.Context, q *query.Query) (*entity.Project, error) {
 	return s.repo.FindByID(ctx, q.UserID, q.ID)
 }

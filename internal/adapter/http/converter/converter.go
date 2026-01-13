@@ -9,40 +9,91 @@ import (
 	"github.com/lubosgarancovsky/go-kit"
 )
 
-func ToDeleteCommand(input interface{}) (*command.DeleteCommand, error) {
+// ToCommand Requires DTO in shape { ID, UserID }
+func ToCommand(input interface{}) (*command.Command, error) {
 	userID := extractUserID(input)
 	if userID == uuid.Nil {
 		return nil, go_kit.ErrUnauthorized
 	}
 
-	ID := extractID(input)
+	ID := extractID(input, "ID")
 	if ID == uuid.Nil {
 		return nil, go_kit.ErrBadRequest
 	}
 
-	return &command.DeleteCommand{
+	return &command.Command{
 		ID:     ID,
 		UserID: userID,
 	}, nil
 }
 
-func ToFindByIDQuery(input interface{}) (*query.FindByIDQuery, error) {
+// ToScopedCommand Requires DTO in shape { ID, ScopeID, UserID }
+func ToScopedCommand(input interface{}) (*command.ScopedCommand, error) {
 	userID := extractUserID(input)
 	if userID == uuid.Nil {
 		return nil, go_kit.ErrUnauthorized
 	}
 
-	ID := extractID(input)
+	ID := extractID(input, "ID")
 	if ID == uuid.Nil {
 		return nil, go_kit.ErrBadRequest
 	}
 
-	return &query.FindByIDQuery{
+	ScopeID := extractID(input, "ScopeID")
+	if ScopeID == uuid.Nil {
+		return nil, go_kit.ErrBadRequest
+	}
+
+	return &command.ScopedCommand{
+		ID:      ID,
+		ScopeID: ScopeID,
+		UserID:  userID,
+	}, nil
+}
+
+// ToQuery Requires DTO in shape { ID, UserID }
+func ToQuery(input interface{}) (*query.Query, error) {
+	userID := extractUserID(input)
+	if userID == uuid.Nil {
+		return nil, go_kit.ErrUnauthorized
+	}
+
+	ID := extractID(input, "ID")
+	if ID == uuid.Nil {
+		return nil, go_kit.ErrBadRequest
+	}
+
+	return &query.Query{
 		ID:     ID,
 		UserID: userID,
 	}, nil
 }
 
+// ToScopedQuery Requires DTO in shape { ID, ScopeID, UserID }
+func ToScopedQuery(input interface{}) (*query.ScopedQuery, error) {
+	userID := extractUserID(input)
+	if userID == uuid.Nil {
+		return nil, go_kit.ErrUnauthorized
+	}
+
+	ID := extractID(input, "ID")
+	if ID == uuid.Nil {
+		return nil, go_kit.ErrBadRequest
+	}
+
+	ScopeID := extractID(input, "ScopeID")
+	if ScopeID == uuid.Nil {
+		return nil, go_kit.ErrBadRequest
+	}
+
+	return &query.ScopedQuery{
+		ID:      ID,
+		ScopeID: ScopeID,
+		UserID:  userID,
+	}, nil
+}
+
+// ToListQuery Requires DTO in shape { UserID }
 func ToListQuery(input interface{}, lq *go_kit.ListingQuery) (*query.ListQuery, error) {
 	userID := extractUserID(input)
 	if userID == uuid.Nil {
@@ -51,6 +102,25 @@ func ToListQuery(input interface{}, lq *go_kit.ListingQuery) (*query.ListQuery, 
 
 	return &query.ListQuery{
 		UserID:       userID,
+		ListingQuery: lq,
+	}, nil
+}
+
+// ToScopedListQuery Requires DTO in shape { UserID, ScopeID }
+func ToScopedListQuery(input interface{}, lq *go_kit.ListingQuery) (*query.ScopedListQuery, error) {
+	userID := extractUserID(input)
+	if userID == uuid.Nil {
+		return nil, go_kit.ErrUnauthorized
+	}
+
+	ScopeID := extractID(input, "ScopeID")
+	if ScopeID == uuid.Nil {
+		return nil, go_kit.ErrBadRequest
+	}
+
+	return &query.ScopedListQuery{
+		UserID:       userID,
+		ScopeID:      ScopeID,
 		ListingQuery: lq,
 	}, nil
 }
@@ -96,7 +166,7 @@ func extractUserID(v interface{}) uuid.UUID {
 	return uuid.MustParse(field.String())
 }
 
-func extractID(v interface{}) uuid.UUID {
+func extractID(v interface{}, name string) uuid.UUID {
 	rv := reflect.ValueOf(v)
 
 	if !rv.IsValid() {
@@ -111,7 +181,7 @@ func extractID(v interface{}) uuid.UUID {
 		return uuid.Nil
 	}
 
-	field := rv.FieldByName("ID")
+	field := rv.FieldByName(name)
 	if !field.IsValid() || field.Kind() != reflect.String {
 		return uuid.Nil
 	}

@@ -22,6 +22,7 @@ func NewServerRoute(c *app.Container) *gin.Engine {
 		{
 			attachments.GET("", c.AttachmentHandler.List)
 			attachments.GET("/:attachmentId", c.AttachmentHandler.FindByID)
+			attachments.PUT("/:attachmentId", c.AttachmentHandler.Update)
 			attachments.DELETE("/:attachmentId", c.AttachmentHandler.Delete)
 			attachments.POST("", c.AttachmentHandler.Upload)
 			attachments.GET("/:attachmentId/download", c.AttachmentHandler.Download)
@@ -62,6 +63,15 @@ func NewServerRoute(c *app.Container) *gin.Engine {
 			projects.GET("/:projectId", c.ProjectHandler.FindByID)
 			projects.GET("", c.ProjectHandler.List)
 			projects.PUT("/:projectId/favourite", c.ProjectHandler.Favourite)
+
+			projectAttachments := projects.Group("/:projectId/attachments")
+			{
+				projectAttachments.GET("/:attachmentId/download", c.ProjectAttachmentHandler.Download)
+				projectAttachments.PUT("/:attachmentId", c.ProjectAttachmentHandler.Update)
+				projectAttachments.DELETE("/:attachmentId", c.ProjectAttachmentHandler.Delete)
+				projectAttachments.GET("/:attachmentId", c.ProjectAttachmentHandler.FindByID)
+				projectAttachments.GET("", c.ProjectAttachmentHandler.List)
+			}
 
 			labels := projects.Group("/:projectId/labels")
 			{

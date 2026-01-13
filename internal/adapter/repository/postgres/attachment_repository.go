@@ -36,11 +36,26 @@ func (r *AttachmentRepository) List(ctx context.Context, userID uuid.UUID, lq *g
 	return &items, total, nil
 }
 
-func (r *AttachmentRepository) FindByID(ctx context.Context, userID, attachmentID uuid.UUID) (*entity.Attachment, error) {
+func (r *AttachmentRepository) ListByModelID(ctx context.Context, modelID uuid.UUID, lq *go_kit.ListingQuery) (*[]entity.Attachment, int64, error) {
+	db := GetDB(ctx, r.db)
+
+	query := db.Model(&model.Attachment{}).Where("model_id = ?", modelID)
+	if lq.Filter != nil {
+		query = query.Where(lq.Filter.Query, lq.Filter.Args...)
+	}
+
+	items, total, err := ListToDomain[model.Attachment, entity.Attachment](query, lq)
+	if err != nil {
+		return nil, 0, err
+	}
+	return &items, total, nil
+}
+
+func (r *AttachmentRepository) FindByID(ctx context.Context, attachmentID uuid.UUID) (*entity.Attachment, error) {
 	db := GetDB(ctx, r.db)
 
 	var att model.Attachment
-	if err := db.Where("id = ?", attachmentID).Where("user_id = ?", userID).First(&att).Error; err != nil {
+	if err := db.Where("id = ?", attachmentID).First(&att).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, go_kit.ErrNotFound.WithMessage(fmt.Sprintf("attachment with id %s not found", attachmentID))
 		}
@@ -48,19 +63,7 @@ func (r *AttachmentRepository) FindByID(ctx context.Context, userID, attachmentI
 		return nil, go_kit.Wrap(go_kit.ErrInternalServer, err)
 	}
 
-	domainAtt := att.ToDomain()
-	return domainAtt, nil
-}
-
-func (r *AttachmentRepository) FindByModelID(ctx context.Context, userID, modelID uuid.UUID, modelName string) ([]entity.Attachment, error) {
-	db := GetDB(ctx, r.db)
-
-	var items []model.Attachment
-	if err := db.Where("user_id = ? AND model_id = ? AND model = ?", userID, modelID, modelName).Find(&items).Error; err != nil {
-		return nil, go_kit.Wrap(go_kit.ErrInternalServer, err)
-	}
-
-	return MapToDomain[model.Attachment, entity.Attachment](items), nil
+	return att.ToDomain(), nil
 }
 
 func (r *AttachmentRepository) Create(ctx context.Context, attachment *entity.Attachment) error {
@@ -71,10 +74,26 @@ func (r *AttachmentRepository) Create(ctx context.Context, attachment *entity.At
 	return nil
 }
 
-func (r *AttachmentRepository) Delete(ctx context.Context, userID, attachmentID uuid.UUID) error {
+func (r *AttachmentRepository) Update(ctx context.Context, attachment *entity.Attachment) error {
 	db := GetDB(ctx, r.db)
 	result := db.
-		Where("user_id = ?", userID).
+		Where("id = ?", attachment.ID).
+		Updates(mapper.AttachmentFromDomain(attachment))
+
+	if result.Error != nil {
+		return go_kit.Wrap(go_kit.ErrInternalServer, result.Error)
+	}
+
+	if result.RowsAffected == 0 {
+		return go_kit.ErrNotFound.WithMessage(fmt.Sprintf("attachment with id %s not found", attachment.ID))
+	}
+
+	return nil
+}
+
+func (r *AttachmentRepository) Delete(ctx context.Context, attachmentID uuid.UUID) error {
+	db := GetDB(ctx, r.db)
+	result := db.
 		Where("id = ?", attachmentID).
 		Delete(&model.Attachment{})
 
