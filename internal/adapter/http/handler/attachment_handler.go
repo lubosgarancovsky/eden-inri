@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -185,5 +186,10 @@ func (h *AttachmentHandler) Download(c *gin.Context) {
 		return
 	}
 
-	c.FileAttachment(item.GetFilePath(config.GlobalConfig.UploadsFolder), item.OriginalName)
+	c.Header("Content-Disposition", `attachment; filename="`+item.OriginalName+`"`)
+	c.Header("Content-Type", item.MimeType)
+
+	fmt.Println(item.GetFilePath(config.GlobalConfig.UploadsFolder))
+
+	c.File(item.GetFilePath(config.GlobalConfig.UploadsFolder))
 }

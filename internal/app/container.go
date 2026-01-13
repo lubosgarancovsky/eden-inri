@@ -263,5 +263,6 @@ func (c *Container) initHandlers() {
 	c.ContactPersonHandler = handler.NewContactPersonHandler(c.createContactPersonService, c.updateContactPersonService, c.deleteContactPersonService, c.findContactPersonByIDService, c.listContactPersonsService, c.parser)
 	c.StoryHandler = handler.NewStoryHandler(c.createStoryUC, c.updateStoryUC, c.deleteStoryUC, c.findStoryByIDUC, c.listStoriesUC, c.listAssignedStoriesUC, c.changeStoryAssigneeUC, c.parser)
 	c.StoryActivityHandler = handler.NewStoryActivityHandler(c.createStoryActivityUC, c.updateStoryActivityUC, c.deleteStoryActivityUC, c.listStoryActivitiesUC, c.parser)
+	c.AttachmentHandler = handler.NewAttachmentHandler(c.listAttachmentsUC, c.findAttachmentByIDUC, c.deleteAttachmentUC, c.uploadAttachmentUC, c.updateAttachmentUC, c.parser)
 	c.ProjectAttachmentHandler = handler.NewProjectAttachmentHandler(c.listProjectAttachmentsUC, c.findProjectAttachmentByIDUC, c.updateProjectAttachmentUC, c.deleteProjectAttachmentUC, c.parser)
 }

@@ -65,7 +65,8 @@ func (a *Attachment) GetFilePath(uploadFolder string) string {
 func (a *Attachment) GenerateServerName() string {
 	now := time.Now().Unix()
 	uid := uuid.New().String()
-	return fmt.Sprintf("%d_%s", now, strings.ReplaceAll(uid, "-", ""))
+	extension := filepath.Ext(a.OriginalName)
+	return fmt.Sprintf("%d_%s%s", now, strings.ReplaceAll(uid, "-", ""), extension)
 }
 
 func getMimeType(fileHeader *multipart.FileHeader) (string, error) {
