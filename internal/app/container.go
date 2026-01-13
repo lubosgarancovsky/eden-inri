@@ -10,6 +10,7 @@ import (
 	"github.com/lubosgarancovsky/eden-inri/internal/app/kanban_board"
 	"github.com/lubosgarancovsky/eden-inri/internal/app/kanban_column"
 	"github.com/lubosgarancovsky/eden-inri/internal/app/project"
+	"github.com/lubosgarancovsky/eden-inri/internal/app/project_attachment"
 	"github.com/lubosgarancovsky/eden-inri/internal/app/project_document"
 	"github.com/lubosgarancovsky/eden-inri/internal/app/project_label"
 	"github.com/lubosgarancovsky/eden-inri/internal/app/story"
@@ -109,24 +110,31 @@ type Container struct {
 	deleteStoryActivityUC *story_activity.DeleteStoryActivityService
 
 	// Attachment services
-	uploadAttachmentUC       *attachment.UploadAttachmentService
-	listAttachmentsUC        *attachment.ListAttachmentsService
-	findAttachmentByIDUC     *attachment.FindAttachmentByIDService
-	deleteAttachmentUC       *attachment.DeleteAttachmentService
-	findAttachmentsByModelUC *attachment.FindAttachmentsByModelService
+	uploadAttachmentUC   *attachment.UploadAttachmentService
+	listAttachmentsUC    *attachment.ListAttachmentsService
+	findAttachmentByIDUC *attachment.FindAttachmentByIDService
+	deleteAttachmentUC   *attachment.DeleteAttachmentService
+	updateAttachmentUC   *attachment.UpdateAttachmentService
+
+	// Project Attachment services
+	listProjectAttachmentsUC    *project_attachment.ListProjectAttachments
+	findProjectAttachmentByIDUC *project_attachment.FindProjectAttachmentByIDService
+	deleteProjectAttachmentUC   *project_attachment.DeleteProjectAttachmentService
+	updateProjectAttachmentUC   *project_attachment.UpdateProjectAttachmentService
 
 	// -- Handlers --
-	ClientHandler          *handler.ClientHandler
-	InvoiceHandler         *handler.InvoiceHandler
-	ProjectHandler         *handler.ProjectHandler
-	ProjectLabelHandler    *handler.ProjectLabelHandler
-	ProjectDocumentHandler *handler.ProjectDocumentHandler
-	KanbanBoardHandler     *handler.KanbanBoardHandler
-	KanbanColumnHandler    *handler.KanbanColumnHandler
-	ContactPersonHandler   *handler.ContactPersonHandler
-	StoryHandler           *handler.StoryHandler
-	StoryActivityHandler   *handler.StoryActivityHandler
-	AttachmentHandler      *handler.AttachmentHandler
+	ClientHandler            *handler.ClientHandler
+	InvoiceHandler           *handler.InvoiceHandler
+	ProjectHandler           *handler.ProjectHandler
+	ProjectLabelHandler      *handler.ProjectLabelHandler
+	ProjectDocumentHandler   *handler.ProjectDocumentHandler
+	KanbanBoardHandler       *handler.KanbanBoardHandler
+	KanbanColumnHandler      *handler.KanbanColumnHandler
+	ContactPersonHandler     *handler.ContactPersonHandler
+	StoryHandler             *handler.StoryHandler
+	StoryActivityHandler     *handler.StoryActivityHandler
+	AttachmentHandler        *handler.AttachmentHandler
+	ProjectAttachmentHandler *handler.ProjectAttachmentHandler
 }
 
 func NewContainer(db *gorm.DB, parser *go_kit.Parser) *Container {
@@ -234,8 +242,14 @@ func (c *Container) initServices() {
 	c.listAttachmentsUC = attachment.NewListAttachmentsService(c.attachmentRepository)
 	c.findAttachmentByIDUC = attachment.NewFindAttachmentByIDService(c.attachmentRepository)
 	c.deleteAttachmentUC = attachment.NewDeleteAttachmentService(c.attachmentRepository)
-	c.findAttachmentsByModelUC = attachment.NewFindAttachmentsByModelService(c.attachmentRepository)
+	c.updateAttachmentUC = attachment.NewUpdateAttachmentService(c.attachmentRepository)
 	c.uploadAttachmentUC = attachment.NewUploadAttachmentService(c.attachmentRepository, c.txManager)
+
+	// Project attachment services
+	c.listProjectAttachmentsUC = project_attachment.NewListProjectAttachments(c.attachmentRepository, c.projectUserRepository)
+	c.findProjectAttachmentByIDUC = project_attachment.NewFindProjectAttachmentByIDService(c.attachmentRepository, c.projectUserRepository)
+	c.updateProjectAttachmentUC = project_attachment.NewUpdateProjectAttachmentService(c.attachmentRepository, c.projectUserRepository)
+	c.deleteProjectAttachmentUC = project_attachment.NewDeleteProjectAttachmentService(c.attachmentRepository, c.projectUserRepository)
 }
 
 func (c *Container) initHandlers() {
@@ -249,5 +263,5 @@ func (c *Container) initHandlers() {
 	c.ContactPersonHandler = handler.NewContactPersonHandler(c.createContactPersonService, c.updateContactPersonService, c.deleteContactPersonService, c.findContactPersonByIDService, c.listContactPersonsService, c.parser)
 	c.StoryHandler = handler.NewStoryHandler(c.createStoryUC, c.updateStoryUC, c.deleteStoryUC, c.findStoryByIDUC, c.listStoriesUC, c.listAssignedStoriesUC, c.changeStoryAssigneeUC, c.parser)
 	c.StoryActivityHandler = handler.NewStoryActivityHandler(c.createStoryActivityUC, c.updateStoryActivityUC, c.deleteStoryActivityUC, c.listStoryActivitiesUC, c.parser)
-	c.AttachmentHandler = handler.NewAttachmentHandler(c.listAttachmentsUC, c.findAttachmentByIDUC, c.deleteAttachmentUC, c.uploadAttachmentUC, c.parser)
+	c.ProjectAttachmentHandler = handler.NewProjectAttachmentHandler(c.listProjectAttachmentsUC, c.findProjectAttachmentByIDUC, c.updateProjectAttachmentUC, c.deleteProjectAttachmentUC, c.parser)
 }

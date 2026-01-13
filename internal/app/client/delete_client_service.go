@@ -17,6 +17,6 @@ func NewDeleteClientService(repository ports.PersistClientPort) *DeleteClientSer
 	return &DeleteClientService{repository}
 }
 
-func (c *DeleteClientService) Execute(ctx context.Context, cmd *command.DeleteCommand) error {
+func (c *DeleteClientService) Execute(ctx context.Context, cmd *command.Command) error {
 	return c.repository.Delete(ctx, cmd.UserID, cmd.ID)
 }

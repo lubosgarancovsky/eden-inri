@@ -18,6 +18,6 @@ func NewDeleteInvoiceService(repo ports.PersistInvoicePort) *DeleteInvoiceServic
 	return &DeleteInvoiceService{repo: repo}
 }
 
-func (s *DeleteInvoiceService) Execute(ctx context.Context, cmd *command.DeleteCommand) error {
+func (s *DeleteInvoiceService) Execute(ctx context.Context, cmd *command.Command) error {
 	return s.repo.Delete(ctx, cmd.UserID, cmd.ID)
 }

@@ -17,7 +17,7 @@ type UpdateStoryActivityUseCase interface {
 }
 
 type DeleteStoryActivityUseCase interface {
-	Execute(ctx context.Context, cmd *command.DeleteCommand) error
+	Execute(ctx context.Context, cmd *command.Command) error
 }
 
 type ListStoryActivitiesUseCase interface {

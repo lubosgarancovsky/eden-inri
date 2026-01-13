@@ -17,11 +17,11 @@ type UpdateInvoiceUseCase interface {
 }
 
 type DeleteInvoiceUseCase interface {
-	Execute(ctx context.Context, cmd *command.DeleteCommand) error
+	Execute(ctx context.Context, cmd *command.Command) error
 }
 
 type FindInvoiceByIDUseCase interface {
-	Execute(ctx context.Context, query *query.FindByIDQuery) (*entity.Invoice, error)
+	Execute(ctx context.Context, query *query.Query) (*entity.Invoice, error)
 }
 
 type ListInvoicesUseCase interface {

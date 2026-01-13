@@ -16,7 +16,7 @@ func NewDeleteStoryActivityService(repo ports.PersistStoryActivityPort) *DeleteS
 	return &DeleteStoryActivityService{repo: repo}
 }
 
-func (s *DeleteStoryActivityService) Execute(ctx context.Context, cmd *command.DeleteCommand) error {
+func (s *DeleteStoryActivityService) Execute(ctx context.Context, cmd *command.Command) error {
 	activity, err := s.repo.FindByID(ctx, cmd.ID)
 	if err != nil {
 		return err
