@@ -13,6 +13,7 @@ import (
 	"github.com/lubosgarancovsky/eden-inri/internal/config"
 	"github.com/lubosgarancovsky/eden-inri/internal/domain/command"
 	"github.com/lubosgarancovsky/eden-inri/internal/domain/entity"
+	go_kit "github.com/lubosgarancovsky/go-kit"
 )
 
 type UploadAttachmentService struct {
@@ -71,7 +72,7 @@ func saveFileIntoTemp(tempDir string, attachment *entity.Attachment) error {
 	tempPath := filepath.Join(tempDir, attachment.ServerName)
 	attachment.TempFilePath = tempPath
 
-	if err := saveFileToDisk(attachment.File, tempPath); err != nil {
+	if err := saveAttachmentToDisk(attachment, tempDir); err != nil {
 		return err
 	}
 
@@ -119,7 +120,12 @@ func instantiateAttachments(model, modelID string, userID uuid.UUID, files []*mu
 	return attachments, nil
 }
 
-func saveFileToDisk(file *multipart.FileHeader, destDir string) error {
+func saveAttachmentToDisk(attachment *entity.Attachment, destDir string) error {
+	file := attachment.File
+	if file == nil {
+		return go_kit.ErrBadRequest.WithMessage("File is missing")
+	}
+
 	// Open the uploaded file
 	src, err := file.Open()
 	if err != nil {
@@ -132,10 +138,9 @@ func saveFileToDisk(file *multipart.FileHeader, destDir string) error {
 		return err
 	}
 
-	// Full path to save
-	destPath := filepath.Join(destDir, file.Filename)
+	destPath := filepath.Join(destDir, attachment.ServerName)
 
-	// Create destination file
+	// Create a destination file
 	dst, err := os.Create(destPath)
 	if err != nil {
 		return err
