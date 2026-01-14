@@ -23,7 +23,7 @@ func ProjectFromDomain(e *entity.Project) *model.Project {
 func ProjectUserFromDomain(e *entity.ProjectUser) *model.ProjectUser {
 	return &model.ProjectUser{
 		ProjectID: e.ProjectID,
-		UserID:    e.UserID,
+		UserID:    e.User.ID,
 		Role:      string(e.Role),
 		IsStarred: e.IsStarred,
 		JoinedAt:  e.JoinedAt,

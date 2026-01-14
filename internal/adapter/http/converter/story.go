@@ -140,14 +140,3 @@ func ToStoryResponse(e *entity.Story) *dto.StoryRes {
 
 	return res
 }
-
-func ToUserResponse(e *entity.User) *dto.UserRes {
-	return &dto.UserRes{
-		ID:        e.ID,
-		Username:  e.Username,
-		FirstName: e.FirstName,
-		LastName:  e.LastName,
-		Email:     e.Email,
-		Color:     e.Color,
-	}
-}

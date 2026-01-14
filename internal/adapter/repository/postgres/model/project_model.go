@@ -54,6 +54,9 @@ type ProjectUser struct {
 	Role      string    `gorm:"type:string;not null"`
 	IsStarred bool      `gorm:"type:boolean;default:false"`
 	JoinedAt  time.Time `gorm:"type:timestamptz;autoCreateTime"`
+
+	// Relations
+	User User `gorm:"->"`
 }
 
 func (ProjectUser) TableName() string {
@@ -63,9 +66,9 @@ func (ProjectUser) TableName() string {
 func (pu ProjectUser) ToDomain() *entity.ProjectUser {
 	return &entity.ProjectUser{
 		ProjectID: pu.ProjectID,
-		UserID:    pu.UserID,
 		Role:      entity.ProjectRole(pu.Role),
 		IsStarred: pu.IsStarred,
 		JoinedAt:  pu.JoinedAt,
+		User:      pu.User.ToDomain(),
 	}
 }

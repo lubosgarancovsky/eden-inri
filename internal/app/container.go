@@ -12,9 +12,12 @@ import (
 	"github.com/lubosgarancovsky/eden-inri/internal/app/project"
 	"github.com/lubosgarancovsky/eden-inri/internal/app/project_attachment"
 	"github.com/lubosgarancovsky/eden-inri/internal/app/project_document"
+	"github.com/lubosgarancovsky/eden-inri/internal/app/project_invitation"
 	"github.com/lubosgarancovsky/eden-inri/internal/app/project_label"
+	"github.com/lubosgarancovsky/eden-inri/internal/app/project_user"
 	"github.com/lubosgarancovsky/eden-inri/internal/app/story"
 	"github.com/lubosgarancovsky/eden-inri/internal/app/story_activity"
+	"github.com/lubosgarancovsky/eden-inri/internal/app/story_attachment"
 	"github.com/lubosgarancovsky/go-kit"
 	"gorm.io/gorm"
 )
@@ -24,19 +27,21 @@ type Container struct {
 	parser *go_kit.Parser
 
 	// -- Repositories --
-	txManager                 *postgres.TransactionManager
-	clientRepository          *postgres.ClientRepository
-	invoiceRepository         *postgres.InvoiceRepository
-	projectRepository         *postgres.ProjectRepository
-	projectUserRepository     *postgres.ProjectUserRepository
-	projectLabelRepository    *postgres.ProjectLabelRepository
-	projectDocumentRepository *postgres.ProjectDocumentRepository
-	kanbanBoardRepository     *postgres.KanbanBoardRepository
-	kanbanColumnRepository    *postgres.KanbanColumnRepository
-	contactPersonRepository   *postgres.ContactPersonRepository
-	storyRepository           *postgres.StoryRepository
-	storyActivityRepository   *postgres.StoryActivityRepository
-	attachmentRepository      *postgres.AttachmentRepository
+	txManager                   *postgres.TransactionManager
+	userRepository              *postgres.UserRepository
+	clientRepository            *postgres.ClientRepository
+	invoiceRepository           *postgres.InvoiceRepository
+	projectRepository           *postgres.ProjectRepository
+	projectUserRepository       *postgres.ProjectUserRepository
+	projectLabelRepository      *postgres.ProjectLabelRepository
+	projectDocumentRepository   *postgres.ProjectDocumentRepository
+	kanbanBoardRepository       *postgres.KanbanBoardRepository
+	kanbanColumnRepository      *postgres.KanbanColumnRepository
+	contactPersonRepository     *postgres.ContactPersonRepository
+	storyRepository             *postgres.StoryRepository
+	storyActivityRepository     *postgres.StoryActivityRepository
+	attachmentRepository        *postgres.AttachmentRepository
+	projectInvitationRepository *postgres.ProjectInvitationRepository
 
 	// -- Client services --
 	listClientsService    *client.ListClientsService
@@ -122,6 +127,20 @@ type Container struct {
 	deleteProjectAttachmentUC   *project_attachment.DeleteProjectAttachmentService
 	updateProjectAttachmentUC   *project_attachment.UpdateProjectAttachmentService
 
+	// Story Attachment services
+	listStoryAttachmentsUC    *story_attachment.ListStoryAttachmentsService
+	findStoryAttachmentByIDUC *story_attachment.FindStoryAttachmentByIDService
+	deleteStoryAttachmentUC   *story_attachment.DeleteStoryAttachmentService
+
+	// Project User services
+	listProjectUsersUC      *project_user.ListProjectUserService
+	deleteProjectUserUC     *project_user.DeleteProjectUserService
+	changeProjectUserRoleUC *project_user.ChangeProjectUserRoleService
+
+	// Project invitation services
+	inviteUserUC       *project_invitation.InviteUserToProjectService
+	acceptInvitationUC *project_invitation.AcceptProjectInvitationService
+
 	// -- Handlers --
 	ClientHandler            *handler.ClientHandler
 	InvoiceHandler           *handler.InvoiceHandler
@@ -135,6 +154,9 @@ type Container struct {
 	StoryActivityHandler     *handler.StoryActivityHandler
 	AttachmentHandler        *handler.AttachmentHandler
 	ProjectAttachmentHandler *handler.ProjectAttachmentHandler
+	ProjectUserHandler       *handler.ProjectUserHandler
+	StoryAttachmentHandler   *handler.StoryAttachmentHandler
+	ProjectInvitationHandler *handler.ProjectInvitationHandler
 }
 
 func NewContainer(db *gorm.DB, parser *go_kit.Parser) *Container {
@@ -152,6 +174,7 @@ func NewContainer(db *gorm.DB, parser *go_kit.Parser) *Container {
 
 func (c *Container) initRepositories() {
 	c.txManager = postgres.NewTransactionManager(c.db)
+	c.userRepository = postgres.NewUserRepository(c.db)
 	c.clientRepository = postgres.NewClientRepository(c.db)
 	c.invoiceRepository = postgres.NewInvoiceRepository(c.db)
 	c.projectRepository = postgres.NewProjectRepository(c.db)
@@ -164,6 +187,7 @@ func (c *Container) initRepositories() {
 	c.storyRepository = postgres.NewStoryRepository(c.db)
 	c.storyActivityRepository = postgres.NewStoryActivityRepository(c.db)
 	c.attachmentRepository = postgres.NewAttachmentRepository(c.db)
+	c.projectInvitationRepository = postgres.NewProjectInvitationRepository(c.db)
 }
 
 func (c *Container) initServices() {
@@ -250,6 +274,20 @@ func (c *Container) initServices() {
 	c.findProjectAttachmentByIDUC = project_attachment.NewFindProjectAttachmentByIDService(c.attachmentRepository, c.projectUserRepository)
 	c.updateProjectAttachmentUC = project_attachment.NewUpdateProjectAttachmentService(c.attachmentRepository, c.projectUserRepository)
 	c.deleteProjectAttachmentUC = project_attachment.NewDeleteProjectAttachmentService(c.attachmentRepository, c.projectUserRepository)
+
+	// Story attachment services
+	c.listStoryAttachmentsUC = story_attachment.NewListStoryAttachmentsService(c.attachmentRepository, c.projectUserRepository)
+	c.findStoryAttachmentByIDUC = story_attachment.NewFindStoryAttachmentByIDService(c.attachmentRepository, c.projectUserRepository)
+	c.deleteStoryAttachmentUC = story_attachment.NewDeleteStoryAttachmentService(c.attachmentRepository, c.projectUserRepository)
+
+	// Project User services
+	c.listProjectUsersUC = project_user.NewListProjectUserService(c.projectUserRepository, c.projectUserRepository)
+	c.deleteProjectUserUC = project_user.NewDeleteProjectUserService(c.projectUserRepository, c.projectUserRepository)
+	c.changeProjectUserRoleUC = project_user.NewChangeProjectUserRoleService(c.projectUserRepository, c.projectUserRepository)
+
+	// Project Invitation services
+	c.acceptInvitationUC = project_invitation.NewAcceptProjectInvitationService(c.projectInvitationRepository, c.projectUserRepository, c.txManager)
+	c.inviteUserUC = project_invitation.NewInviteUserToProjectService(c.projectInvitationRepository, c.userRepository, c.projectUserRepository)
 }
 
 func (c *Container) initHandlers() {
@@ -265,4 +303,7 @@ func (c *Container) initHandlers() {
 	c.StoryActivityHandler = handler.NewStoryActivityHandler(c.createStoryActivityUC, c.updateStoryActivityUC, c.deleteStoryActivityUC, c.listStoryActivitiesUC, c.parser)
 	c.AttachmentHandler = handler.NewAttachmentHandler(c.listAttachmentsUC, c.findAttachmentByIDUC, c.deleteAttachmentUC, c.uploadAttachmentUC, c.updateAttachmentUC, c.parser)
 	c.ProjectAttachmentHandler = handler.NewProjectAttachmentHandler(c.listProjectAttachmentsUC, c.findProjectAttachmentByIDUC, c.updateProjectAttachmentUC, c.deleteProjectAttachmentUC, c.parser)
+	c.ProjectUserHandler = handler.NewProjectUserHandler(c.listProjectUsersUC, c.deleteProjectUserUC, c.changeProjectUserRoleUC, c.parser)
+	c.StoryAttachmentHandler = handler.NewStoryAttachmentHandler(c.listStoryAttachmentsUC, c.findStoryAttachmentByIDUC, c.deleteStoryAttachmentUC, c.parser)
+	c.ProjectInvitationHandler = handler.NewProjectInvitationHandler(c.inviteUserUC, c.acceptInvitationUC)
 }
