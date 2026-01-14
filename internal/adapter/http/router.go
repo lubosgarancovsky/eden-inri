@@ -64,6 +64,9 @@ func NewServerRoute(c *app.Container) *gin.Engine {
 			projects.GET("", c.ProjectHandler.List)
 			projects.PUT("/:projectId/favourite", c.ProjectHandler.Favourite)
 
+			projects.POST("/:projectId/invite", c.ProjectInvitationHandler.Invite)
+			projects.POST("/accept-invitation", c.ProjectInvitationHandler.Accept)
+
 			projectAttachments := projects.Group("/:projectId/attachments")
 			{
 				projectAttachments.GET("/:attachmentId/download", c.ProjectAttachmentHandler.Download)
@@ -71,6 +74,13 @@ func NewServerRoute(c *app.Container) *gin.Engine {
 				projectAttachments.DELETE("/:attachmentId", c.ProjectAttachmentHandler.Delete)
 				projectAttachments.GET("/:attachmentId", c.ProjectAttachmentHandler.FindByID)
 				projectAttachments.GET("", c.ProjectAttachmentHandler.List)
+			}
+
+			projectUsers := projects.Group("/:projectId/members")
+			{
+				projectUsers.GET("", c.ProjectUserHandler.List)
+				projectUsers.PUT("/:memberId", c.ProjectUserHandler.ChangeRole)
+				projectUsers.DELETE("/:memberId", c.ProjectUserHandler.Delete)
 			}
 
 			labels := projects.Group("/:projectId/labels")
@@ -123,6 +133,13 @@ func NewServerRoute(c *app.Container) *gin.Engine {
 					activities.PUT("/:activityId", c.StoryActivityHandler.Update)
 					activities.DELETE("/:activityId", c.StoryActivityHandler.Delete)
 					activities.GET("", c.StoryActivityHandler.List)
+				}
+
+				storyAttachments := stories.Group("/:storyId/attachments")
+				{
+					storyAttachments.GET("", c.StoryAttachmentHandler.List)
+					storyAttachments.DELETE("/:attachmentId", c.StoryAttachmentHandler.Delete)
+					storyAttachments.GET("/:attachmentId/download", c.StoryAttachmentHandler.Download)
 				}
 			}
 		}

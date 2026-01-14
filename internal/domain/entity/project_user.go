@@ -8,7 +8,7 @@ import (
 
 type ProjectUser struct {
 	ProjectID uuid.UUID
-	UserID    uuid.UUID
+	User      *User
 	Role      ProjectRole
 	IsStarred bool
 	JoinedAt  time.Time
@@ -17,8 +17,18 @@ type ProjectUser struct {
 func NewProjectOwner(userID, projectID uuid.UUID) *ProjectUser {
 	return &ProjectUser{
 		ProjectID: projectID,
-		UserID:    userID,
+		User:      &User{ID: userID},
 		Role:      ProjectRoleOwner,
+		IsStarred: false,
+		JoinedAt:  time.Now(),
+	}
+}
+
+func NewProjectMember(userID, projectID uuid.UUID, role ProjectRole) *ProjectUser {
+	return &ProjectUser{
+		ProjectID: projectID,
+		User:      &User{ID: userID},
+		Role:      role,
 		IsStarred: false,
 		JoinedAt:  time.Now(),
 	}
