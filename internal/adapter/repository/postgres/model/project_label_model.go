@@ -10,7 +10,7 @@ import (
 
 type ProjectLabel struct {
 	ID          uuid.UUID      `gorm:"primary_key;type:uuid;default:uuid_generate_v4()"`
-	ProjectID   *uuid.UUID     `gorm:"type:uuid"`
+	ProjectID   uuid.UUID      `gorm:"type:uuid"`
 	Name        string         `gorm:"type:string;not null"`
 	Description string         `gorm:"type:string"`
 	Color       string         `gorm:"type:string;not null"`

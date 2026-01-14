@@ -141,6 +141,13 @@ func NewServerRoute(c *app.Container) *gin.Engine {
 					storyAttachments.DELETE("/:attachmentId", c.StoryAttachmentHandler.Delete)
 					storyAttachments.GET("/:attachmentId/download", c.StoryAttachmentHandler.Download)
 				}
+
+				storyLabels := stories.Group("/:storyId/labels")
+				{
+					storyLabels.GET("", c.StoryLabelHandler.List)
+					storyLabels.POST("", c.StoryLabelHandler.Assign)
+					storyLabels.GET("/:labelId", c.StoryLabelHandler.Unassign)
+				}
 			}
 		}
 

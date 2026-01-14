@@ -8,7 +8,7 @@ import (
 
 type ProjectLabel struct {
 	ID          uuid.UUID
-	ProjectID   *uuid.UUID
+	ProjectID   uuid.UUID
 	Name        string
 	Description string
 	Color       string

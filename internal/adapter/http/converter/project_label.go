@@ -55,13 +55,9 @@ func ToListProjectLabelsQuery(input *dto.ListProjectLabelsReq, lq *go_kit.Listin
 }
 
 func ToProjectLabelResponse(e *entity.ProjectLabel) *dto.ProjectLabelRes {
-	var projectID uuid.UUID
-	if e.ProjectID != nil {
-		projectID = *e.ProjectID
-	}
 	return &dto.ProjectLabelRes{
 		ID:          e.ID,
-		ProjectID:   projectID,
+		ProjectID:   e.ProjectID,
 		Name:        e.Name,
 		Description: e.Description,
 		Color:       e.Color,

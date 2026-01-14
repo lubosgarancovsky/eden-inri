@@ -18,6 +18,7 @@ import (
 	"github.com/lubosgarancovsky/eden-inri/internal/app/story"
 	"github.com/lubosgarancovsky/eden-inri/internal/app/story_activity"
 	"github.com/lubosgarancovsky/eden-inri/internal/app/story_attachment"
+	"github.com/lubosgarancovsky/eden-inri/internal/app/story_label"
 	"github.com/lubosgarancovsky/go-kit"
 	"gorm.io/gorm"
 )
@@ -42,6 +43,7 @@ type Container struct {
 	storyActivityRepository     *postgres.StoryActivityRepository
 	attachmentRepository        *postgres.AttachmentRepository
 	projectInvitationRepository *postgres.ProjectInvitationRepository
+	storyLabelRepository        *postgres.StoryLabelRepository
 
 	// -- Client services --
 	listClientsService    *client.ListClientsService
@@ -141,6 +143,11 @@ type Container struct {
 	inviteUserUC       *project_invitation.InviteUserToProjectService
 	acceptInvitationUC *project_invitation.AcceptProjectInvitationService
 
+	// Story label services
+	listStoryLabelsUC    *story_label.ListStoryLabelService
+	assignStoryLabelUC   *story_label.AssignStoryLabelService
+	unassignStoryLabelUC *story_label.UnAssignStoryLabelService
+
 	// -- Handlers --
 	ClientHandler            *handler.ClientHandler
 	InvoiceHandler           *handler.InvoiceHandler
@@ -157,6 +164,7 @@ type Container struct {
 	ProjectUserHandler       *handler.ProjectUserHandler
 	StoryAttachmentHandler   *handler.StoryAttachmentHandler
 	ProjectInvitationHandler *handler.ProjectInvitationHandler
+	StoryLabelHandler        *handler.StoryLabelHandler
 }
 
 func NewContainer(db *gorm.DB, parser *go_kit.Parser) *Container {
@@ -288,6 +296,11 @@ func (c *Container) initServices() {
 	// Project Invitation services
 	c.acceptInvitationUC = project_invitation.NewAcceptProjectInvitationService(c.projectInvitationRepository, c.projectUserRepository, c.txManager)
 	c.inviteUserUC = project_invitation.NewInviteUserToProjectService(c.projectInvitationRepository, c.userRepository, c.projectUserRepository)
+
+	// Story Label services
+	c.listStoryLabelsUC = story_label.NewListStoryLabelService(c.storyLabelRepository, c.projectUserRepository)
+	c.assignStoryLabelUC = story_label.NewAssignStoryLabelService(c.storyLabelRepository, c.projectUserRepository)
+	c.unassignStoryLabelUC = story_label.NewUnassignStoryLabelService(c.storyLabelRepository, c.projectUserRepository)
 }
 
 func (c *Container) initHandlers() {
@@ -306,4 +319,5 @@ func (c *Container) initHandlers() {
 	c.ProjectUserHandler = handler.NewProjectUserHandler(c.listProjectUsersUC, c.deleteProjectUserUC, c.changeProjectUserRoleUC, c.parser)
 	c.StoryAttachmentHandler = handler.NewStoryAttachmentHandler(c.listStoryAttachmentsUC, c.findStoryAttachmentByIDUC, c.deleteStoryAttachmentUC, c.parser)
 	c.ProjectInvitationHandler = handler.NewProjectInvitationHandler(c.inviteUserUC, c.acceptInvitationUC)
+	c.StoryLabelHandler = handler.NewStoryLabelHandler(c.listStoryLabelsUC, c.assignStoryLabelUC, c.unassignStoryLabelUC)
 }
