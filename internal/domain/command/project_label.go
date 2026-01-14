@@ -18,7 +18,7 @@ type CreateProjectLabelCommand struct {
 func (c *CreateProjectLabelCommand) ToDomain() *entity.ProjectLabel {
 	return &entity.ProjectLabel{
 		ID:          uuid.New(),
-		ProjectID:   &c.ProjectID,
+		ProjectID:   c.ProjectID,
 		Name:        c.Name,
 		Description: c.Description,
 		Color:       c.Color,
