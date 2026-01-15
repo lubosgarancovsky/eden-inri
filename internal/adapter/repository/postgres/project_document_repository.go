@@ -55,7 +55,7 @@ func (r *ProjectDocumentRepository) Delete(ctx context.Context, projectID, docum
 func (r *ProjectDocumentRepository) FindByID(ctx context.Context, projectID, documentID uuid.UUID) (*entity.ProjectDocument, error) {
 	db := GetDB(ctx, r.db)
 	var m model.ProjectDocument
-	if err := db.Where("id = ?", documentID).Where("project_id = ?", projectID).First(&m).Error; err != nil {
+	if err := db.Preload("User").Where("id = ?", documentID).Where("project_id = ?", projectID).First(&m).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, go_kit.ErrNotFound.WithMessage(fmt.Sprintf("document with id %s not found", documentID))
 		}
@@ -66,7 +66,7 @@ func (r *ProjectDocumentRepository) FindByID(ctx context.Context, projectID, doc
 
 func (r *ProjectDocumentRepository) List(ctx context.Context, projectID uuid.UUID, lq *go_kit.ListingQuery) (*[]entity.ProjectDocument, int64, error) {
 	db := GetDB(ctx, r.db)
-	query := db.Model(&model.ProjectDocument{}).Where("project_id = ?", projectID)
+	query := db.Preload("User").Model(&model.ProjectDocument{}).Where("project_id = ?", projectID)
 	if lq.Filter != nil {
 		query = query.Where(lq.Filter.Query, lq.Filter.Args...)
 	}

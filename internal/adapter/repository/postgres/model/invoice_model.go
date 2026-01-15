@@ -13,6 +13,7 @@ type Invoice struct {
 	UserID        uuid.UUID      `gorm:"type:uuid;not null"`
 	ClientID      uuid.UUID      `gorm:"type:uuid;not null"`
 	Name          string         `gorm:"type:text;not null"`
+	InternalID    string         `gorm:"type:text;not null;unique"`
 	Description   *string        `gorm:"type:text"`
 	ExternalID    *string        `gorm:"type:text"`
 	ExternalLink  *string        `gorm:"type:text"`
@@ -39,6 +40,7 @@ func (m Invoice) ToDomain() *entity.Invoice {
 		Name:          m.Name,
 		Description:   m.Description,
 		ExternalID:    m.ExternalID,
+		InternalID:    m.InternalID,
 		ExternalLink:  m.ExternalLink,
 		Total:         m.Total,
 		BillableHours: m.BillableHours,

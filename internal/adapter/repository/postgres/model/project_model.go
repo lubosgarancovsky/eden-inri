@@ -16,6 +16,7 @@ type Project struct {
 	Status         string         `gorm:"type:string"`
 	Tags           pq.StringArray `gorm:"type:text[]"`
 	Slug           string         `gorm:"type:string;unique"`
+	RepositoryURL  *string        `gorm:"type:string"`
 	CreatedAt      time.Time      `gorm:"type:timestamptz;autoCreateTime;not null"`
 	UpdatedAt      time.Time      `gorm:"type:timestamptz;autoUpdateTime;not null"`
 	LastActivityAt time.Time      `gorm:"type:timestamptz"`
@@ -39,6 +40,7 @@ func (p Project) ToDomain() *entity.Project {
 		Status:         p.Status,
 		Tags:           p.Tags,
 		Slug:           p.Slug,
+		RepositoryURL:  p.RepositoryURL,
 		CreatedAt:      p.CreatedAt,
 		UpdatedAt:      p.UpdatedAt,
 		LastActivityAt: p.LastActivityAt,

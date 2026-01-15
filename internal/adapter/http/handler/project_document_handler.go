@@ -43,6 +43,7 @@ type ProjectDocumentListingAttributes struct {
 	Name      string `rsql:"filter,sort"`
 	CreatedAt string `rsql:"filter,sort"`
 	UpdatedAt string `rsql:"filter,sort"`
+	CreatedBy string `rsql:"filter"`
 }
 
 func (h *ProjectDocumentHandler) List(c *gin.Context) {

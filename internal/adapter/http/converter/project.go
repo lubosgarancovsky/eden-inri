@@ -9,23 +9,25 @@ import (
 
 func ToCreateProjectCommand(input *dto.CreateProjectReq) *command.CreateProjectCommand {
 	return &command.CreateProjectCommand{
-		UserID:      uuid.MustParse(input.UserID),
-		Name:        input.Name,
-		Description: input.Description,
-		Status:      input.Status,
-		Tags:        input.Tags,
-		Slug:        input.Slug,
+		UserID:        uuid.MustParse(input.UserID),
+		Name:          input.Name,
+		Description:   input.Description,
+		Status:        input.Status,
+		Tags:          input.Tags,
+		Slug:          input.Slug,
+		RepositoryURL: input.RepositoryURL,
 	}
 }
 
 func ToUpdateProjectCommand(input *dto.UpdateProjectReq) *command.UpdateProjectCommand {
 	return &command.UpdateProjectCommand{
-		ID:          uuid.MustParse(input.ID),
-		UserID:      uuid.MustParse(input.UserID),
-		Name:        input.Name,
-		Description: input.Description,
-		Status:      input.Status,
-		Tags:        input.Tags,
+		ID:            uuid.MustParse(input.ID),
+		UserID:        uuid.MustParse(input.UserID),
+		Name:          input.Name,
+		Description:   input.Description,
+		Status:        input.Status,
+		Tags:          input.Tags,
+		RepositoryURL: input.RepositoryURL,
 	}
 }
 
@@ -37,6 +39,7 @@ func ToProjectResponse(e *entity.Project) *dto.ProjectRes {
 		Status:         e.Status,
 		Tags:           e.Tags,
 		Slug:           e.Slug,
+		RepositoryURL:  e.RepositoryURL,
 		CreatedAt:      e.CreatedAt,
 		UpdatedAt:      e.UpdatedAt,
 		LastActivityAt: e.LastActivityAt,

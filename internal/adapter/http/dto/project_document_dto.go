@@ -46,6 +46,7 @@ type ProjectDocumentRes struct {
 	Name      string    `json:"name"`
 	Content   string    `json:"content"`
 	Tags      []string  `json:"tags"`
+	CreatedBy *UserRes  `json:"createdBy"`
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
 }

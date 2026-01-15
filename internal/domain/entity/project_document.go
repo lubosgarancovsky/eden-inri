@@ -14,4 +14,5 @@ type ProjectDocument struct {
 	Tags      []string
 	CreatedAt time.Time
 	UpdatedAt time.Time
+	CreatedBy *User
 }

@@ -15,9 +15,11 @@ type ProjectDocument struct {
 	Name      string         `gorm:"type:string;not null"`
 	Content   string         `gorm:"type:text"`
 	Tags      pq.StringArray `gorm:"type:text[]"`
+	CreatedBy uuid.UUID      `gorm:"type:uuid;not null"`
 	CreatedAt time.Time      `gorm:"type:timestamptz;autoCreateTime;not null"`
 	UpdatedAt time.Time      `gorm:"type:timestamptz;autoUpdateTime;not null"`
 	DeletedAt gorm.DeletedAt `gorm:"type:timestamptz;index"`
+	User      *User          `gorm:"->"`
 }
 
 func (ProjectDocument) TableName() string {
@@ -33,5 +35,6 @@ func (m ProjectDocument) ToDomain() *entity.ProjectDocument {
 		Tags:      m.Tags,
 		CreatedAt: m.CreatedAt,
 		UpdatedAt: m.UpdatedAt,
+		CreatedBy: m.User.ToDomain(),
 	}
 }

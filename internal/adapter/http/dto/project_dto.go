@@ -7,21 +7,23 @@ import (
 )
 
 type CreateProjectReq struct {
-	UserID      string   `header:"X-User-ID"`
-	Name        string   `json:"name"`
-	Description *string  `json:"description"`
-	Status      string   `json:"status"`
-	Tags        []string `json:"tags"`
-	Slug        string   `json:"slug"`
+	UserID        string   `header:"X-User-ID"`
+	Name          string   `json:"name"`
+	Description   *string  `json:"description"`
+	Status        string   `json:"status"`
+	Tags          []string `json:"tags"`
+	Slug          string   `json:"slug"`
+	RepositoryURL *string  `json:"repositoryUrl"`
 }
 
 type UpdateProjectReq struct {
-	UserID      string   `header:"X-User-ID"`
-	ID          string   `uri:"projectId"`
-	Name        string   `json:"name"`
-	Description *string  `json:"description"`
-	Status      string   `json:"status"`
-	Tags        []string `json:"tags"`
+	UserID        string   `header:"X-User-ID"`
+	ID            string   `uri:"projectId"`
+	Name          string   `json:"name"`
+	Description   *string  `json:"description"`
+	Status        string   `json:"status"`
+	Tags          []string `json:"tags"`
+	RepositoryURL *string  `json:"repositoryUrl"`
 }
 
 type FavouriteProjectReq struct {
@@ -50,6 +52,7 @@ type ProjectRes struct {
 	Status         string    `json:"status"`
 	Tags           []string  `json:"tags"`
 	Slug           string    `json:"slug"`
+	RepositoryURL  *string   `json:"repositoryUrl"`
 	CreatedAt      time.Time `json:"createdAt"`
 	UpdatedAt      time.Time `json:"updatedAt"`
 	LastActivityAt time.Time `json:"lastActivityAt"`

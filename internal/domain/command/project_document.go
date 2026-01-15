@@ -23,6 +23,7 @@ func (c *CreateProjectDocumentCommand) ToDomain() *entity.ProjectDocument {
 		Name:      c.Name,
 		Content:   c.Content,
 		Tags:      c.Tags,
+		CreatedBy: nil,
 		CreatedAt: now,
 		UpdatedAt: now,
 	}
