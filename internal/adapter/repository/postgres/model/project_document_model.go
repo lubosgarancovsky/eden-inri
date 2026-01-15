@@ -19,7 +19,7 @@ type ProjectDocument struct {
 	CreatedAt time.Time      `gorm:"type:timestamptz;autoCreateTime;not null"`
 	UpdatedAt time.Time      `gorm:"type:timestamptz;autoUpdateTime;not null"`
 	DeletedAt gorm.DeletedAt `gorm:"type:timestamptz;index"`
-	User      *User          `gorm:"->"`
+	User      *User          `gorm:"foreignKey:CreatedBy;references:ID"`
 }
 
 func (ProjectDocument) TableName() string {
