@@ -8,12 +8,13 @@ import (
 )
 
 type CreateProjectCommand struct {
-	UserID      uuid.UUID
-	Name        string
-	Description *string
-	Status      string
-	Tags        []string
-	Slug        string
+	UserID        uuid.UUID
+	Name          string
+	Description   *string
+	Status        string
+	Tags          []string
+	Slug          string
+	RepositoryURL *string
 }
 
 func (c *CreateProjectCommand) ToDomain() *entity.Project {
@@ -24,6 +25,7 @@ func (c *CreateProjectCommand) ToDomain() *entity.Project {
 		Status:         c.Status,
 		Tags:           c.Tags,
 		Slug:           c.Slug,
+		RepositoryURL:  c.RepositoryURL,
 		Role:           entity.ProjectRoleOwner,
 		IsStarred:      false,
 		CreatedAt:      time.Now(),
@@ -33,12 +35,13 @@ func (c *CreateProjectCommand) ToDomain() *entity.Project {
 }
 
 type UpdateProjectCommand struct {
-	ID          uuid.UUID
-	UserID      uuid.UUID
-	Name        string
-	Description *string
-	Status      string
-	Tags        []string
+	ID            uuid.UUID
+	UserID        uuid.UUID
+	Name          string
+	Description   *string
+	Status        string
+	Tags          []string
+	RepositoryURL *string
 }
 
 func (c *UpdateProjectCommand) Apply(e *entity.Project) {
@@ -46,6 +49,7 @@ func (c *UpdateProjectCommand) Apply(e *entity.Project) {
 	e.Description = c.Description
 	e.Status = c.Status
 	e.Tags = c.Tags
+	e.RepositoryURL = c.RepositoryURL
 	e.UpdatedAt = time.Now()
 }
 

@@ -12,6 +12,7 @@ func ProjectDocumentFromDomain(e *entity.ProjectDocument) *model.ProjectDocument
 		Name:      e.Name,
 		Content:   e.Content,
 		Tags:      e.Tags,
+		CreatedBy: e.CreatedBy.ID,
 		CreatedAt: e.CreatedAt,
 		UpdatedAt: e.UpdatedAt,
 	}

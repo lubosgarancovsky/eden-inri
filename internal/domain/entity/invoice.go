@@ -11,6 +11,7 @@ type Invoice struct {
 	UserID        uuid.UUID
 	ClientID      uuid.UUID
 	Name          string
+	InternalID    string
 	Description   *string
 	ExternalID    *string
 	ExternalLink  *string

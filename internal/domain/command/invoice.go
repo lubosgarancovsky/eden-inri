@@ -11,6 +11,7 @@ type CreateInvoiceCommand struct {
 	UserID        uuid.UUID
 	ClientID      uuid.UUID
 	Name          string
+	InternalID    string
 	Description   *string
 	ExternalID    *string
 	ExternalLink  *string
@@ -30,6 +31,7 @@ func (c *CreateInvoiceCommand) ToDomain() *entity.Invoice {
 		UserID:        c.UserID,
 		ClientID:      c.ClientID,
 		Name:          c.Name,
+		InternalID:    c.InternalID,
 		Description:   c.Description,
 		ExternalID:    c.ExternalID,
 		ExternalLink:  c.ExternalLink,
@@ -55,6 +57,7 @@ func (c *UpdateInvoiceCommand) Apply(inv *entity.Invoice) {
 	inv.Name = c.Name
 	inv.ClientID = c.ClientID
 	inv.Description = c.Description
+	inv.InternalID = c.InternalID
 	inv.ExternalID = c.ExternalID
 	inv.ExternalLink = c.ExternalLink
 	inv.Total = c.Total

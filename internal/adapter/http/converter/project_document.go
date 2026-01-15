@@ -61,6 +61,7 @@ func ToProjectDocumentResponse(e *entity.ProjectDocument) *dto.ProjectDocumentRe
 		Name:      e.Name,
 		Content:   e.Content,
 		Tags:      e.Tags,
+		CreatedBy: ToUserResponse(e.CreatedBy),
 		CreatedAt: e.CreatedAt,
 		UpdatedAt: e.UpdatedAt,
 	}

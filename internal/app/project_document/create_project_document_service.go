@@ -29,8 +29,10 @@ func (s *CreateProjectDocumentService) Execute(ctx context.Context, cmd *command
 	}
 
 	doc := cmd.ToDomain()
+	doc.CreatedBy = &entity.User{ID: cmd.UserID}
 	if err := s.repo.Create(ctx, doc); err != nil {
 		return nil, err
 	}
-	return doc, nil
+
+	return s.repo.FindByID(ctx, cmd.ProjectID, doc.ID)
 }
