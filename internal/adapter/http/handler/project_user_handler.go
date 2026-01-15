@@ -37,9 +37,9 @@ type ProjectUserListingAttributes struct {
 	IsStarred bool   `rsql:"filter"`
 	Role      string `rsql:"filter,sort"`
 	JoinedAt  string `rsql:"filter,sort"`
-	FirstName string `rsql:"field:User.first_name,filter,sort"`
-	LastName  string `rsql:"field:User.last_name,filter,sort"`
-	Username  string `rsql:"field:User.username,filter,sort"`
+	FirstName string `rsql:"field:users.first_name,filter,sort"`
+	LastName  string `rsql:"field:users.last_name,filter,sort"`
+	Username  string `rsql:"field:users.username,filter,sort"`
 }
 
 func (h *ProjectUserHandler) List(c *gin.Context) {

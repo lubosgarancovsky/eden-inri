@@ -27,7 +27,11 @@ func NewProjectUserRepository(db *gorm.DB) *ProjectUserRepository {
 func (r *ProjectUserRepository) List(ctx context.Context, projectID uuid.UUID, lq *go_kit.ListingQuery) (*[]entity.ProjectUser, int64, error) {
 	db := GetDB(ctx, r.db)
 
-	query := db.Model(&model.ProjectUser{}).Preload("User").Where("project_id = ?", projectID)
+	query := db.Model(&model.ProjectUser{}).
+		Joins("JOIN iam_users users ON users.id = inri_project_users.user_id").
+		Where("project_id = ?", projectID).
+		Preload("User")
+
 	if lq.Filter != nil {
 		query = query.Where(lq.Filter.Query, lq.Filter.Args...)
 	}
