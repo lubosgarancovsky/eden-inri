@@ -11,6 +11,7 @@ import (
 
 func ToCreateKanbanBoardCommand(input *dto.CreateKanbanBoardReq) *command.CreateKanbanBoardCommand {
 	return &command.CreateKanbanBoardCommand{
+		UserID:    uuid.MustParse(input.UserID),
 		ProjectID: uuid.MustParse(input.ProjectID),
 		Name:      input.Name,
 		Status:    input.Status,
@@ -20,6 +21,7 @@ func ToCreateKanbanBoardCommand(input *dto.CreateKanbanBoardReq) *command.Create
 func ToUpdateKanbanBoardCommand(input *dto.UpdateKanbanBoardReq) *command.UpdateKanbanBoardCommand {
 	return &command.UpdateKanbanBoardCommand{
 		ID:        uuid.MustParse(input.BoardID),
+		UserID:    uuid.MustParse(input.UserID),
 		ProjectID: uuid.MustParse(input.ProjectID),
 		Name:      input.Name,
 		Status:    input.Status,

@@ -28,5 +28,5 @@ func (s *ListStoryLabelService) Execute(ctx context.Context, query *query.ListSt
 		return nil, app_error.ErrNotAMember
 	}
 
-	return s.repo.List(ctx, query.ProjectID)
+	return s.repo.List(ctx, query.StoryID)
 }

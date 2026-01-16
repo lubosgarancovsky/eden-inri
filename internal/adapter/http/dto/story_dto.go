@@ -10,6 +10,7 @@ type CreateStoryReq struct {
 	UserID      string     `header:"X-User-ID"`
 	ProjectID   string     `uri:"projectId"`
 	ColumnID    string     `json:"columnId"`
+	BoardID     string     `json:"boardId"`
 	Title       string     `json:"title"`
 	Description string     `json:"description"`
 	Kind        string     `json:"kind"`

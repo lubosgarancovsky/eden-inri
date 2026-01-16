@@ -7,6 +7,7 @@ import (
 	"github.com/lubosgarancovsky/eden-inri/internal/app/ports"
 	"github.com/lubosgarancovsky/eden-inri/internal/domain/command"
 	"github.com/lubosgarancovsky/eden-inri/internal/domain/entity"
+	app_error "github.com/lubosgarancovsky/eden-inri/internal/domain/error"
 )
 
 type CreateStoryService struct {
@@ -37,25 +38,25 @@ func (s *CreateStoryService) Execute(ctx context.Context, cmd *command.CreateSto
 		return nil, err
 	}
 	if !hasRole {
-		return nil, fmt.Errorf("user is not a member of project")
+		return nil, app_error.ErrInsufficientProjectRole
 	}
 
 	story := cmd.ToDomain()
 
-	err = s.txManager.WithTransaction(ctx, func(ctx context.Context) error {
-		project, err := s.projectRepo.FindByID(ctx, cmd.UserID, cmd.ProjectID)
+	err = s.txManager.WithTransaction(ctx, func(tx context.Context) error {
+		project, err := s.projectRepo.FindByID(tx, cmd.UserID, cmd.ProjectID)
 		if err != nil {
 			return err
 		}
 
 		project.StorySequence++
-		if err := s.projectRepo.Update(ctx, project); err != nil {
+		if err := s.projectRepo.Update(tx, project); err != nil {
 			return err
 		}
 
 		story.Slug = fmt.Sprintf("%s-%d", project.Slug, project.StorySequence)
 
-		return s.storyRepo.Create(ctx, story)
+		return s.storyRepo.Create(tx, story)
 	})
 
 	if err != nil {

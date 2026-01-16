@@ -4,7 +4,7 @@ type StoryLabelReq struct {
 	UserID    string `header:"X-User-ID"`
 	ProjectID string `uri:"projectId"`
 	StoryID   string `uri:"storyId"`
-	LabelID   string `json:"labelId"`
+	LabelID   string `uri:"labelId"`
 }
 
 type ListStoryLabelReq struct {

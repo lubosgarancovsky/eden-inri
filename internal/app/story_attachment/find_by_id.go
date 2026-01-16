@@ -18,8 +18,8 @@ func NewFindStoryAttachmentByIDService(repo ports.PersistAttachmentPort, isMembe
 	return &FindStoryAttachmentByIDService{repo: repo, isMemberRepo: isMemberRepo}
 }
 
-func (s *FindStoryAttachmentByIDService) Execute(ctx context.Context, query *query.ScopedQuery) (*entity.Attachment, error) {
-	isMember, err := s.isMemberRepo.IsMember(ctx, query.UserID, query.ScopeID)
+func (s *FindStoryAttachmentByIDService) Execute(ctx context.Context, query *query.FindStoryAttachmentByIDQuery) (*entity.Attachment, error) {
+	isMember, err := s.isMemberRepo.IsMember(ctx, query.UserID, query.ProjectID)
 	if err != nil {
 		return nil, err
 	}
@@ -28,5 +28,5 @@ func (s *FindStoryAttachmentByIDService) Execute(ctx context.Context, query *que
 		return nil, app_error.ErrNotAMember
 	}
 
-	return s.repo.FindByID(ctx, query.ID)
+	return s.repo.FindByID(ctx, query.AttachmentID)
 }

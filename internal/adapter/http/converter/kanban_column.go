@@ -10,24 +10,28 @@ import (
 
 func ToCreateKanbanColumnCommand(input *dto.CreateKanbanColumnReq) *command.CreateKanbanColumnCommand {
 	return &command.CreateKanbanColumnCommand{
-		BoardID:  uuid.MustParse(input.BoardID),
-		Key:      input.Key,
-		Name:     input.Name,
-		Type:     input.Type,
-		Color:    input.Color,
-		Position: input.Position,
+		UserID:    uuid.MustParse(input.UserID),
+		BoardID:   uuid.MustParse(input.BoardID),
+		ProjectID: uuid.MustParse(input.ProjectID),
+		Key:       input.Key,
+		Name:      input.Name,
+		Type:      input.Type,
+		Color:     input.Color,
+		Position:  input.Position,
 	}
 }
 
 func ToUpdateKanbanColumnCommand(input *dto.UpdateKanbanColumnReq) *command.UpdateKanbanColumnCommand {
 	return &command.UpdateKanbanColumnCommand{
-		ID:       uuid.MustParse(input.ColumnID),
-		BoardID:  uuid.MustParse(input.BoardID),
-		Key:      input.Key,
-		Name:     input.Name,
-		Type:     input.Type,
-		Color:    input.Color,
-		Position: input.Position,
+		UserID:    uuid.MustParse(input.UserID),
+		ID:        uuid.MustParse(input.ColumnID),
+		BoardID:   uuid.MustParse(input.BoardID),
+		ProjectID: uuid.MustParse(input.ProjectID),
+		Key:       input.Key,
+		Name:      input.Name,
+		Type:      input.Type,
+		Color:     input.Color,
+		Position:  input.Position,
 	}
 }
 

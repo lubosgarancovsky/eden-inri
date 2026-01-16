@@ -20,6 +20,7 @@ func ToCreateStoryCommand(input *dto.CreateStoryReq) *command.CreateStoryCommand
 		UserID:      uuid.MustParse(input.UserID),
 		ProjectID:   uuid.MustParse(input.ProjectID),
 		ColumnID:    uuid.MustParse(input.ColumnID),
+		BoardID:     uuid.MustParse(input.BoardID),
 		Title:       input.Title,
 		Description: input.Description,
 		Kind:        input.Kind,

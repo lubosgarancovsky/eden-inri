@@ -11,6 +11,7 @@ type CreateStoryCommand struct {
 	UserID      uuid.UUID
 	ProjectID   uuid.UUID
 	ColumnID    uuid.UUID
+	BoardID     uuid.UUID
 	Title       string
 	Description string
 	Kind        string
@@ -28,6 +29,7 @@ func (c *CreateStoryCommand) ToDomain() *entity.Story {
 		ID:          uuid.New(),
 		ProjectID:   c.ProjectID,
 		ColumnID:    c.ColumnID,
+		BoardID:     c.BoardID,
 		Title:       c.Title,
 		Description: c.Description,
 		Kind:        entity.StoryKind(c.Kind),

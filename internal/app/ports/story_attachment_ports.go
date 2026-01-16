@@ -9,13 +9,13 @@ import (
 )
 
 type ListStoryAttachmentsUserCase interface {
-	Execute(ctx context.Context, query *query.ScopedListQuery) (*[]entity.Attachment, int64, error)
+	Execute(ctx context.Context, query *query.ListStoryAttachmentsQuery) (*[]entity.Attachment, int64, error)
 }
 
 type FindStoryAttachmentByIDUseCase interface {
-	Execute(ctx context.Context, query *query.ScopedQuery) (*entity.Attachment, error)
+	Execute(ctx context.Context, query *query.FindStoryAttachmentByIDQuery) (*entity.Attachment, error)
 }
 
 type DeleteStoryAttachmentUseCase interface {
-	Execute(ctx context.Context, cmd *command.ScopedCommand) error
+	Execute(ctx context.Context, cmd *command.DeleteStoryAttachmentCommand) error
 }

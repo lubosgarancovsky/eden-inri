@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -46,6 +47,7 @@ func NewStoryHandler(
 }
 
 type StoryListingAttributes struct {
+	ColumnID  string `rsql:"filter"`
 	Title     string `rsql:"filter,sort"`
 	Kind      string `rsql:"filter"`
 	CreatedAt string `rsql:"filter,sort"`
@@ -115,6 +117,7 @@ func (h *StoryHandler) FindByID(c *gin.Context) {
 
 func (h *StoryHandler) Create(c *gin.Context) {
 	req := &dto.CreateStoryReq{}
+	fmt.Println(c.Request.Header)
 
 	if err := validator.BindAndValidate(c, req); err != nil {
 		handle.Error(c, err)

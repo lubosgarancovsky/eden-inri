@@ -21,7 +21,7 @@ func (r *StoryLabelRepository) List(ctx context.Context, storyID uuid.UUID) (*[]
 	db := GetDB(ctx, r.db)
 
 	var labels []model.StoryLabel
-	if err := db.Where("story_id = ?", storyID).Find(&labels).Error; err != nil {
+	if err := db.Preload("Label").Where("story_id = ?", storyID).Find(&labels).Error; err != nil {
 		return nil, err
 	}
 

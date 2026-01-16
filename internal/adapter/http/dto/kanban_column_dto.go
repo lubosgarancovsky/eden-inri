@@ -7,22 +7,26 @@ import (
 )
 
 type CreateKanbanColumnReq struct {
-	BoardID  string `uri:"boardId"`
-	Key      string `json:"key"`
-	Name     string `json:"name"`
-	Type     string `json:"type"`
-	Color    string `json:"color"`
-	Position int    `json:"position"`
+	UserID    string `header:"X-User-ID"`
+	BoardID   string `uri:"boardId"`
+	ProjectID string `uri:"projectId"`
+	Key       string `json:"key"`
+	Name      string `json:"name"`
+	Type      string `json:"type"`
+	Color     string `json:"color"`
+	Position  int    `json:"position"`
 }
 
 type UpdateKanbanColumnReq struct {
-	BoardID  string `uri:"boardId"`
-	ColumnID string `uri:"columnId"`
-	Key      string `json:"key"`
-	Name     string `json:"name"`
-	Type     string `json:"type"`
-	Color    string `json:"color"`
-	Position int    `json:"position"`
+	UserID    string `header:"X-User-ID"`
+	BoardID   string `uri:"boardId"`
+	ColumnID  string `uri:"columnId"`
+	ProjectID string `uri:"projectId"`
+	Key       string `json:"key"`
+	Name      string `json:"name"`
+	Type      string `json:"type"`
+	Color     string `json:"color"`
+	Position  int    `json:"position"`
 }
 
 type DeleteKanbanColumnReq struct {
@@ -33,8 +37,10 @@ type DeleteKanbanColumnReq struct {
 }
 
 type FindKanbanColumnByIDReq struct {
-	BoardID  string `uri:"boardId"`
-	ColumnID string `uri:"columnId"`
+	UserID    string `header:"X-User-ID"`
+	BoardID   string `uri:"boardId"`
+	ColumnID  string `uri:"columnId"`
+	ProjectID string `uri:"projectId"`
 }
 
 type ListKanbanColumnsReq struct {

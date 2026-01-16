@@ -7,6 +7,7 @@ import (
 	"github.com/lubosgarancovsky/eden-inri/internal/app/client"
 	"github.com/lubosgarancovsky/eden-inri/internal/app/contact_person"
 	"github.com/lubosgarancovsky/eden-inri/internal/app/invoice"
+	"github.com/lubosgarancovsky/eden-inri/internal/app/invoice_stats"
 	"github.com/lubosgarancovsky/eden-inri/internal/app/kanban_board"
 	"github.com/lubosgarancovsky/eden-inri/internal/app/kanban_column"
 	"github.com/lubosgarancovsky/eden-inri/internal/app/project"
@@ -44,6 +45,7 @@ type Container struct {
 	attachmentRepository        *postgres.AttachmentRepository
 	projectInvitationRepository *postgres.ProjectInvitationRepository
 	storyLabelRepository        *postgres.StoryLabelRepository
+	invoiceStatsRepository      *postgres.InvoiceStatsRepository
 
 	// -- Client services --
 	listClientsService    *client.ListClientsService
@@ -58,6 +60,9 @@ type Container struct {
 	createInvoiceService   *invoice.CreateInvoiceService
 	updateInvoiceService   *invoice.UpdateInvoiceService
 	deleteInvoiceService   *invoice.DeleteInvoiceService
+
+	// Invoice stats services
+	getInvoiceStatsService *invoice_stats.GetInvoiceStatsService
 
 	// Project services
 	listProjectsService     *project.ListProjectsService
@@ -165,6 +170,7 @@ type Container struct {
 	StoryAttachmentHandler   *handler.StoryAttachmentHandler
 	ProjectInvitationHandler *handler.ProjectInvitationHandler
 	StoryLabelHandler        *handler.StoryLabelHandler
+	InvoiceStatsHandler      *handler.InvoiceStatsHandler
 }
 
 func NewContainer(db *gorm.DB, parser *go_kit.Parser) *Container {
@@ -193,9 +199,11 @@ func (c *Container) initRepositories() {
 	c.kanbanColumnRepository = postgres.NewKanbanColumnRepository(c.db)
 	c.contactPersonRepository = postgres.NewContactPersonRepository(c.db)
 	c.storyRepository = postgres.NewStoryRepository(c.db)
+	c.storyLabelRepository = postgres.NewStoryLabelRepository(c.db)
 	c.storyActivityRepository = postgres.NewStoryActivityRepository(c.db)
 	c.attachmentRepository = postgres.NewAttachmentRepository(c.db)
 	c.projectInvitationRepository = postgres.NewProjectInvitationRepository(c.db)
+	c.invoiceStatsRepository = postgres.NewInvoiceStatsRepository(c.db)
 }
 
 func (c *Container) initServices() {
@@ -212,6 +220,9 @@ func (c *Container) initServices() {
 	c.deleteInvoiceService = invoice.NewDeleteInvoiceService(c.invoiceRepository)
 	c.findInvoiceByIDService = invoice.NewFindInvoiceService(c.invoiceRepository)
 	c.listInvoicesService = invoice.NewListInvoicesService(c.invoiceRepository)
+
+	// Invoice stats services
+	c.getInvoiceStatsService = invoice_stats.NewGetInvoiceStatsService(c.invoiceStatsRepository)
 
 	// Project services
 	c.createProjectService = project.NewCreateProjectService(c.projectRepository, c.projectUserRepository, c.txManager)
@@ -264,6 +275,11 @@ func (c *Container) initServices() {
 	c.listAssignedStoriesUC = story.NewListAssignedStoriesService(c.storyRepository)
 	c.changeStoryAssigneeUC = story.NewChangeStoryAssigneeService(c.storyRepository, c.projectUserRepository)
 
+	// Story label services
+	c.listStoryLabelsUC = story_label.NewListStoryLabelService(c.storyLabelRepository, c.projectUserRepository)
+	c.assignStoryLabelUC = story_label.NewAssignStoryLabelService(c.storyLabelRepository, c.projectUserRepository)
+	c.unassignStoryLabelUC = story_label.NewUnassignStoryLabelService(c.storyLabelRepository, c.projectUserRepository)
+
 	// Story Activity services
 	c.createStoryActivityUC = story_activity.NewCreateStoryActivityService(c.storyActivityRepository)
 	c.updateStoryActivityUC = story_activity.NewUpdateStoryActivityService(c.storyActivityRepository)
@@ -313,6 +329,7 @@ func (c *Container) initHandlers() {
 	c.KanbanColumnHandler = handler.NewKanbanColumnHandler(c.createKanbanColumnService, c.updateKanbanColumnService, c.deleteKanbanColumnService, c.listKanbanColumnsService)
 	c.ContactPersonHandler = handler.NewContactPersonHandler(c.createContactPersonService, c.updateContactPersonService, c.deleteContactPersonService, c.findContactPersonByIDService, c.listContactPersonsService, c.parser)
 	c.StoryHandler = handler.NewStoryHandler(c.createStoryUC, c.updateStoryUC, c.deleteStoryUC, c.findStoryByIDUC, c.listStoriesUC, c.listAssignedStoriesUC, c.changeStoryAssigneeUC, c.parser)
+	c.StoryLabelHandler = handler.NewStoryLabelHandler(c.listStoryLabelsUC, c.assignStoryLabelUC, c.unassignStoryLabelUC)
 	c.StoryActivityHandler = handler.NewStoryActivityHandler(c.createStoryActivityUC, c.updateStoryActivityUC, c.deleteStoryActivityUC, c.listStoryActivitiesUC, c.parser)
 	c.AttachmentHandler = handler.NewAttachmentHandler(c.listAttachmentsUC, c.findAttachmentByIDUC, c.deleteAttachmentUC, c.uploadAttachmentUC, c.updateAttachmentUC, c.parser)
 	c.ProjectAttachmentHandler = handler.NewProjectAttachmentHandler(c.listProjectAttachmentsUC, c.findProjectAttachmentByIDUC, c.updateProjectAttachmentUC, c.deleteProjectAttachmentUC, c.parser)
@@ -320,4 +337,5 @@ func (c *Container) initHandlers() {
 	c.StoryAttachmentHandler = handler.NewStoryAttachmentHandler(c.listStoryAttachmentsUC, c.findStoryAttachmentByIDUC, c.deleteStoryAttachmentUC, c.parser)
 	c.ProjectInvitationHandler = handler.NewProjectInvitationHandler(c.inviteUserUC, c.acceptInvitationUC)
 	c.StoryLabelHandler = handler.NewStoryLabelHandler(c.listStoryLabelsUC, c.assignStoryLabelUC, c.unassignStoryLabelUC)
+	c.InvoiceStatsHandler = handler.NewInvoiceStatsHandler(c.getInvoiceStatsService, c.parser)
 }
