@@ -53,6 +53,11 @@ func NewServerRoute(c *app.Container) *gin.Engine {
 			invoices.DELETE("/:invoiceId", c.InvoiceHandler.Delete)
 			invoices.GET("/:invoiceId", c.InvoiceHandler.FindByID)
 			invoices.GET("", c.InvoiceHandler.List)
+
+			invoiceStats := invoices.Group("/stats")
+			{
+				invoiceStats.GET("", c.InvoiceStatsHandler.GetStats)
+			}
 		}
 
 		projects := protected.Group("/projects")
@@ -146,7 +151,7 @@ func NewServerRoute(c *app.Container) *gin.Engine {
 				{
 					storyLabels.GET("", c.StoryLabelHandler.List)
 					storyLabels.POST("", c.StoryLabelHandler.Assign)
-					storyLabels.GET("/:labelId", c.StoryLabelHandler.Unassign)
+					storyLabels.DELETE("/:labelId", c.StoryLabelHandler.Unassign)
 				}
 			}
 		}

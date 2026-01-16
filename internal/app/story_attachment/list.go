@@ -18,8 +18,8 @@ func NewListStoryAttachmentsService(repo ports.PersistAttachmentPort, isMemberRe
 	return &ListStoryAttachmentsService{repo: repo, isMemberRepo: isMemberRepo}
 }
 
-func (s *ListStoryAttachmentsService) Execute(ctx context.Context, query *query.ScopedListQuery) (*[]entity.Attachment, int64, error) {
-	isMember, err := s.isMemberRepo.IsMember(ctx, query.UserID, query.ScopeID)
+func (s *ListStoryAttachmentsService) Execute(ctx context.Context, query *query.ListStoryAttachmentsQuery) (*[]entity.Attachment, int64, error) {
+	isMember, err := s.isMemberRepo.IsMember(ctx, query.UserID, query.ProjectID)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -28,5 +28,5 @@ func (s *ListStoryAttachmentsService) Execute(ctx context.Context, query *query.
 		return nil, 0, app_error.ErrNotAMember
 	}
 
-	return s.repo.ListByModelID(ctx, query.ScopeID, query.ListingQuery)
+	return s.repo.ListByModelID(ctx, query.StoryID, query.ListingQuery)
 }

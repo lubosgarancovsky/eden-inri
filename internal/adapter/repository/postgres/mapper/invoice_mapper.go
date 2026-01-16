@@ -18,6 +18,7 @@ func InvoiceFromDomain(entity *entity.Invoice) *model.Invoice {
 		ClientID:      entity.ClientID,
 		Name:          entity.Name,
 		Description:   entity.Description,
+		InternalID:    entity.InternalID,
 		ExternalID:    entity.ExternalID,
 		ExternalLink:  entity.ExternalLink,
 		Total:         entity.Total,

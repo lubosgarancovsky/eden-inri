@@ -43,7 +43,7 @@ func (h *StoryAttachmentHandler) List(c *gin.Context) {
 		return
 	}
 
-	query, err := converter.ToScopedListQuery(req, listingQuery)
+	query, err := converter.ToListStoryAttachmentsQuery(req, listingQuery)
 	if err != nil {
 		handle.Error(c, err)
 		return
@@ -66,7 +66,7 @@ func (h *StoryAttachmentHandler) Delete(c *gin.Context) {
 		return
 	}
 
-	cmd, err := converter.ToScopedCommand(req)
+	cmd, err := converter.ToDeleteStoryAttachmentCommand(req)
 	if err != nil {
 		handle.Error(c, err)
 		return
@@ -87,7 +87,7 @@ func (h *StoryAttachmentHandler) Download(c *gin.Context) {
 		return
 	}
 
-	query, err := converter.ToScopedQuery(req)
+	query, err := converter.ToFindStoryAttachmentByIDQuery(req)
 	if err != nil {
 		handle.Error(c, err)
 		return

@@ -27,3 +27,5 @@ ALTER TABLE inri_project_documents ADD COLUMN deleted_at TIMESTAMPTZ;
 ALTER TABLE inri_project_documents ADD COLUMN created_by uuid references iam_users(id) ON DELETE SET NULL;
 ALTER TABLE inri_projects ADD COLUMN repository_url TEXT;
 ALTER TABLE inri_invoice ADD COLUMN internal_id TEXT unique NOT NULL DEFAULT gen_random_uuid();
+
+ALTER TABLE inri_kanban_columns ADD COLUMN updated_At TIMESTAMPTZ NOT NULL DEFAULT NOW();

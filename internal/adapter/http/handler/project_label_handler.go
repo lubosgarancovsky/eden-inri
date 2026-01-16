@@ -40,6 +40,7 @@ func NewProjectLabelHandler(
 }
 
 type ProjectLabelListingAttributes struct {
+	ID        string `rsql:"filter"`
 	Name      string `rsql:"filter,sort"`
 	CreatedAt string `rsql:"filter,sort"`
 }

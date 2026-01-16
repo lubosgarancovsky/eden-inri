@@ -47,7 +47,7 @@ type InvoiceRes struct {
 	ID            uuid.UUID  `json:"id"`
 	Name          string     `json:"name"`
 	InternalID    string     `json:"internalId"`
-	Description   *string    `json:"note"`
+	Description   *string    `json:"description"`
 	ExternalID    *string    `json:"externalId"`
 	Total         float64    `json:"total"`
 	BillableHours float64    `json:"billableHours"`

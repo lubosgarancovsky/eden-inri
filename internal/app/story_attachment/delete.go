@@ -17,8 +17,8 @@ func NewDeleteStoryAttachmentService(repo ports.PersistAttachmentPort, isMemberR
 	return &DeleteStoryAttachmentService{repo: repo, isMemberRepo: isMemberRepo}
 }
 
-func (s *DeleteStoryAttachmentService) Execute(ctx context.Context, cmd *command.ScopedCommand) error {
-	isMember, err := s.isMemberRepo.IsMember(ctx, cmd.UserID, cmd.ScopeID)
+func (s *DeleteStoryAttachmentService) Execute(ctx context.Context, cmd *command.DeleteStoryAttachmentCommand) error {
+	isMember, err := s.isMemberRepo.IsMember(ctx, cmd.UserID, cmd.ProjectID)
 	if err != nil {
 		return err
 	}
@@ -27,5 +27,5 @@ func (s *DeleteStoryAttachmentService) Execute(ctx context.Context, cmd *command
 		return go_kit.ErrForbidden
 	}
 
-	return s.repo.Delete(ctx, cmd.ID)
+	return s.repo.Delete(ctx, cmd.AttachmentID)
 }
