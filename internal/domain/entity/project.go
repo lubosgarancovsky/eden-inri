@@ -22,7 +22,7 @@ type Project struct {
 	Status         string
 	Tags           []string
 	Slug           string
-	RepositoryURL  *string
+	RepositoryUrl  *string
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
 	LastActivityAt time.Time
