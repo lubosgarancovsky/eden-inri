@@ -73,9 +73,11 @@ func (r *ProjectRepository) Create(ctx context.Context, project *entity.Project)
 
 func (r *ProjectRepository) Update(ctx context.Context, project *entity.Project) error {
 	db := GetDB(ctx, r.db)
+	md := mapper.ProjectFromDomain(project)
+
 	result := db.
 		Where("id", project.ID).
-		Updates(mapper.ProjectFromDomain(project))
+		Updates(md)
 
 	if result.Error != nil {
 		return go_kit.Wrap(go_kit.ErrInternalServer, result.Error)

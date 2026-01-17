@@ -131,6 +131,7 @@ func NewServerRoute(c *app.Container) *gin.Engine {
 				stories.GET("/:storyId", c.StoryHandler.FindByID)
 				stories.GET("", c.StoryHandler.List)
 				stories.PUT("/:storyId/assignee", c.StoryHandler.ChangeAssignee)
+				//stories.GET("/:storyId/slug/:slug", c.StoryHandler.FindBySlug)
 
 				activities := stories.Group("/:storyId/activities")
 				{

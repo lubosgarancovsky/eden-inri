@@ -13,6 +13,7 @@ func ProjectFromDomain(e *entity.Project) *model.Project {
 		Status:         e.Status,
 		Tags:           e.Tags,
 		Slug:           e.Slug,
+		RepositoryUrl:  e.RepositoryUrl,
 		CreatedAt:      e.CreatedAt,
 		UpdatedAt:      e.UpdatedAt,
 		LastActivityAt: e.LastActivityAt,

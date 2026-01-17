@@ -39,7 +39,7 @@ func ToProjectResponse(e *entity.Project) *dto.ProjectRes {
 		Status:         e.Status,
 		Tags:           e.Tags,
 		Slug:           e.Slug,
-		RepositoryURL:  e.RepositoryURL,
+		RepositoryURL:  e.RepositoryUrl,
 		CreatedAt:      e.CreatedAt,
 		UpdatedAt:      e.UpdatedAt,
 		LastActivityAt: e.LastActivityAt,

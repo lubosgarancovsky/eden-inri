@@ -25,7 +25,7 @@ func (c *CreateProjectCommand) ToDomain() *entity.Project {
 		Status:         c.Status,
 		Tags:           c.Tags,
 		Slug:           c.Slug,
-		RepositoryURL:  c.RepositoryURL,
+		RepositoryUrl:  c.RepositoryURL,
 		Role:           entity.ProjectRoleOwner,
 		IsStarred:      false,
 		CreatedAt:      time.Now(),
@@ -49,7 +49,7 @@ func (c *UpdateProjectCommand) Apply(e *entity.Project) {
 	e.Description = c.Description
 	e.Status = c.Status
 	e.Tags = c.Tags
-	e.RepositoryURL = c.RepositoryURL
+	e.RepositoryUrl = c.RepositoryURL
 	e.UpdatedAt = time.Now()
 }
 
