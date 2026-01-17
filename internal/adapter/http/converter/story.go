@@ -94,6 +94,14 @@ func ToFindStoryByIDQuery(input *dto.FindStoryByIDReq) *query.FindStoryByIDQuery
 	}
 }
 
+func ToFindStoryBySlugQuery(input *dto.FindStoryBySlugReq) *query.FindStoryBySlugQuery {
+	return &query.FindStoryBySlugQuery{
+		Slug:      input.Slug,
+		UserID:    uuid.MustParse(input.UserID),
+		ProjectID: uuid.MustParse(input.ProjectID),
+	}
+}
+
 func ToListStoriesQuery(input *dto.ListStoriesReq, lq *go_kit.ListingQuery) *query.ListStoriesQuery {
 	return &query.ListStoriesQuery{
 		UserID:       uuid.MustParse(input.UserID),

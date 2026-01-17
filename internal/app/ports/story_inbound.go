@@ -35,3 +35,7 @@ type ListAssignedStoriesUseCase interface {
 type ChangeStoryAssigneeUseCase interface {
 	Execute(ctx context.Context, cmd *command.ChangeStoryAssigneeCommand) error
 }
+
+type FindStoryBySlugUseCase interface {
+	Execute(ctx context.Context, query *query.FindStoryBySlugQuery) (*entity.Story, error)
+}

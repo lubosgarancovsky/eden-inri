@@ -109,6 +109,7 @@ type Container struct {
 	// Story services
 	listStoriesUC         *story.ListStoriesService
 	findStoryByIDUC       *story.FindStoryByIDService
+	findStoryBySlugUC     *story.FindStoryBySlugService
 	createStoryUC         *story.CreateStoryService
 	updateStoryUC         *story.UpdateStoryService
 	deleteStoryUC         *story.DeleteStoryService
@@ -271,6 +272,7 @@ func (c *Container) initServices() {
 	c.updateStoryUC = story.NewUpdateStoryService(c.storyRepository, c.projectUserRepository)
 	c.deleteStoryUC = story.NewDeleteStoryService(c.storyRepository, c.projectUserRepository)
 	c.findStoryByIDUC = story.NewFindStoryByIDService(c.storyRepository, c.projectUserRepository)
+	c.findStoryBySlugUC = story.NewFindStoryBySlugService(c.storyRepository, c.projectUserRepository)
 	c.listStoriesUC = story.NewListStoriesService(c.storyRepository, c.projectUserRepository)
 	c.listAssignedStoriesUC = story.NewListAssignedStoriesService(c.storyRepository)
 	c.changeStoryAssigneeUC = story.NewChangeStoryAssigneeService(c.storyRepository, c.projectUserRepository)
@@ -328,7 +330,7 @@ func (c *Container) initHandlers() {
 	c.KanbanBoardHandler = handler.NewKanbanBoardHandler(c.createKanbanBoardService, c.updateKanbanBoardService, c.deleteKanbanBoardService, c.findKanbanBoardByIDService, c.listKanbanBoardsService, c.parser)
 	c.KanbanColumnHandler = handler.NewKanbanColumnHandler(c.createKanbanColumnService, c.updateKanbanColumnService, c.deleteKanbanColumnService, c.listKanbanColumnsService)
 	c.ContactPersonHandler = handler.NewContactPersonHandler(c.createContactPersonService, c.updateContactPersonService, c.deleteContactPersonService, c.findContactPersonByIDService, c.listContactPersonsService, c.parser)
-	c.StoryHandler = handler.NewStoryHandler(c.createStoryUC, c.updateStoryUC, c.deleteStoryUC, c.findStoryByIDUC, c.listStoriesUC, c.listAssignedStoriesUC, c.changeStoryAssigneeUC, c.parser)
+	c.StoryHandler = handler.NewStoryHandler(c.createStoryUC, c.updateStoryUC, c.deleteStoryUC, c.findStoryByIDUC, c.findStoryBySlugUC, c.listStoriesUC, c.listAssignedStoriesUC, c.changeStoryAssigneeUC, c.parser)
 	c.StoryLabelHandler = handler.NewStoryLabelHandler(c.listStoryLabelsUC, c.assignStoryLabelUC, c.unassignStoryLabelUC)
 	c.StoryActivityHandler = handler.NewStoryActivityHandler(c.createStoryActivityUC, c.updateStoryActivityUC, c.deleteStoryActivityUC, c.listStoryActivitiesUC, c.parser)
 	c.AttachmentHandler = handler.NewAttachmentHandler(c.listAttachmentsUC, c.findAttachmentByIDUC, c.deleteAttachmentUC, c.uploadAttachmentUC, c.updateAttachmentUC, c.parser)

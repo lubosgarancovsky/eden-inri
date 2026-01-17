@@ -18,6 +18,7 @@ type StoryHandler struct {
 	updateStoryUC         ports.UpdateStoryUseCase
 	deleteStoryUC         ports.DeleteStoryUseCase
 	findStoryByIDUC       ports.FindStoryByIDUseCase
+	findStoryBySlugUC     ports.FindStoryBySlugUseCase
 	listStoriesUC         ports.ListStoriesUseCase
 	listAssignedStoriesUC ports.ListAssignedStoriesUseCase
 	changeAssigneeUC      ports.ChangeStoryAssigneeUseCase
@@ -29,6 +30,7 @@ func NewStoryHandler(
 	updateStoryUC ports.UpdateStoryUseCase,
 	deleteStoryUC ports.DeleteStoryUseCase,
 	findStoryByIDUC ports.FindStoryByIDUseCase,
+	findStoryBySlugUC ports.FindStoryBySlugUseCase,
 	listStoriesUC ports.ListStoriesUseCase,
 	listAssignedStoriesUC ports.ListAssignedStoriesUseCase,
 	changeAssigneeUC ports.ChangeStoryAssigneeUseCase,
@@ -39,6 +41,7 @@ func NewStoryHandler(
 		updateStoryUC,
 		deleteStoryUC,
 		findStoryByIDUC,
+		findStoryBySlugUC,
 		listStoriesUC,
 		listAssignedStoriesUC,
 		changeAssigneeUC,
@@ -110,6 +113,23 @@ func (h *StoryHandler) FindByID(c *gin.Context) {
 	if err != nil {
 		handle.Error(c, err)
 		return
+	}
+
+	c.JSON(http.StatusOK, converter.ToStoryResponse(story))
+}
+
+func (h *StoryHandler) FindBySlug(c *gin.Context) {
+	req := &dto.FindStoryBySlugReq{}
+	if err := validator.BindAndValidate(c, req); err != nil {
+		handle.Error(c, err)
+		return
+	}
+
+	query := converter.ToFindStoryBySlugQuery(req)
+
+	story, err := h.findStoryBySlugUC.Execute(c.Request.Context(), query)
+	if err != nil {
+		handle.Error(c, err)
 	}
 
 	c.JSON(http.StatusOK, converter.ToStoryResponse(story))
