@@ -37,6 +37,7 @@ type ProjectUserListingAttributes struct {
 	IsStarred bool   `rsql:"filter"`
 	Role      string `rsql:"filter,sort"`
 	JoinedAt  string `rsql:"filter,sort"`
+	UserID    string `rsql:"field:users.id,filter"`
 	FirstName string `rsql:"field:users.first_name,filter,sort"`
 	LastName  string `rsql:"field:users.last_name,filter,sort"`
 	Username  string `rsql:"field:users.username,filter,sort"`
