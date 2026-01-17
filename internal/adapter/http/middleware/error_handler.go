@@ -13,6 +13,10 @@ func ErrorHandlerMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Next()
 
+		if c.Writer.Written() {
+			return
+		}
+
 		// Check for errors in context
 		if len(c.Errors) > 0 {
 			debug.PrintStack()

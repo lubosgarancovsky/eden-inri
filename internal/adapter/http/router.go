@@ -125,13 +125,13 @@ func NewServerRoute(c *app.Container) *gin.Engine {
 
 			stories := projects.Group("/:projectId/stories")
 			{
-				stories.POST("", c.StoryHandler.Create)
-				stories.PUT("/:storyId", c.StoryHandler.Update)
-				stories.DELETE("/:storyId", c.StoryHandler.Delete)
+				stories.GET("/slug/:slug", c.StoryHandler.FindBySlug)
 				stories.GET("/:storyId", c.StoryHandler.FindByID)
 				stories.GET("", c.StoryHandler.List)
 				stories.PUT("/:storyId/assignee", c.StoryHandler.ChangeAssignee)
-				//stories.GET("/:storyId/slug/:slug", c.StoryHandler.FindBySlug)
+				stories.PUT("/:storyId", c.StoryHandler.Update)
+				stories.DELETE("/:storyId", c.StoryHandler.Delete)
+				stories.POST("", c.StoryHandler.Create)
 
 				activities := stories.Group("/:storyId/activities")
 				{

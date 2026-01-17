@@ -42,6 +42,12 @@ type FindStoryByIDReq struct {
 	ID        string `uri:"storyId"`
 }
 
+type FindStoryBySlugReq struct {
+	UserID    string `header:"X-User-ID"`
+	ProjectID string `uri:"projectId"`
+	Slug      string `uri:"slug"`
+}
+
 type ListStoriesReq struct {
 	UserID    string `header:"X-User-ID"`
 	ProjectID string `uri:"projectId"`
