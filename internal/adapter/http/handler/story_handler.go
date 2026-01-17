@@ -50,11 +50,13 @@ func NewStoryHandler(
 }
 
 type StoryListingAttributes struct {
-	ColumnID  string `rsql:"filter"`
-	Title     string `rsql:"filter,sort"`
-	Kind      string `rsql:"filter"`
-	CreatedAt string `rsql:"filter,sort"`
-	Priority  string `rsql:"filter,sort"`
+	ColumnID       string `rsql:"filter"`
+	Title          string `rsql:"filter,sort"`
+	Kind           string `rsql:"filter"`
+	CreatedAt      string `rsql:"filter,sort"`
+	Priority       string `rsql:"filter,sort"`
+	AssigneeID     string `rsql:"filter"`
+	LastActivityAt string `rsql:"sort"`
 }
 
 func (h *StoryHandler) List(c *gin.Context) {
