@@ -41,6 +41,7 @@ type ProjectUserListingAttributes struct {
 	FirstName string `rsql:"field:users.first_name,filter,sort"`
 	LastName  string `rsql:"field:users.last_name,filter,sort"`
 	Username  string `rsql:"field:users.username,filter,sort"`
+	Name      string `rsql:"field:LOWER(users.first_name || ' ' || users.last_name),filter,sort"`
 }
 
 func (h *ProjectUserHandler) List(c *gin.Context) {

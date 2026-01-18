@@ -29,3 +29,6 @@ ALTER TABLE inri_projects ADD COLUMN repository_url TEXT;
 ALTER TABLE inri_invoice ADD COLUMN internal_id TEXT unique NOT NULL DEFAULT gen_random_uuid();
 
 ALTER TABLE inri_kanban_columns ADD COLUMN updated_At TIMESTAMPTZ NOT NULL DEFAULT NOW();
+
+CREATE INDEX idx_users_fullname_lower
+    ON iam_users ((LOWER(first_name || ' ' || last_name)));
