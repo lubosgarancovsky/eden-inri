@@ -8,12 +8,15 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/gin-gonic/gin"
-	_ "github.com/lubosgarancovsky/eden-inri/docs"
+	//_ "github.com/lubosgarancovsky/eden-inri/docs"
+	"github.com/lubosgarancovsky/eden-inri/internal/adapter/http"
+	"github.com/lubosgarancovsky/eden-inri/internal/adapter/repository/postgres"
+	"github.com/lubosgarancovsky/eden-inri/internal/app"
 	"github.com/lubosgarancovsky/eden-inri/internal/config"
-	"github.com/lubosgarancovsky/eden-inri/internal/db"
-	"github.com/lubosgarancovsky/eden-inri/internal/router"
+	go_kit "github.com/lubosgarancovsky/go-kit"
 )
+
+var ServiceName = "inri-service"
 
 // @securityDefinitions.apikey GatewayAuth
 // @description Injected by API Gateway. Do not use in production.
@@ -22,20 +25,22 @@ import (
 func main() {
 	fmt.Println("███████╗██████╗ ███████╗███╗   ██╗      ██╗███╗   ██╗██████╗ ██╗\n██╔════╝██╔══██╗██╔════╝████╗  ██║      ██║████╗  ██║██╔══██╗██║\n█████╗  ██║  ██║█████╗  ██╔██╗ ██║█████╗██║██╔██╗ ██║██████╔╝██║\n██╔══╝  ██║  ██║██╔══╝  ██║╚██╗██║╚════╝██║██║╚██╗██║██╔══██╗██║\n███████╗██████╔╝███████╗██║ ╚████║      ██║██║ ╚████║██║  ██║██║\n╚══════╝╚═════╝ ╚══════╝╚═╝  ╚═══╝      ╚═╝╚═╝  ╚═══╝╚═╝  ╚═╝╚═╝\n                                                                ")
 
-	r := gin.Default()
-	cfg := config.LoadConfig()
-	dbconn, err := db.ConnectDB(cfg.DBUrl)
+	config.Init(ServiceName)
+
+	dbconn, err := postgres.ConnectDB(config.GlobalConfig.DBUrl)
 	if err != nil {
 		log.Println("DB unavailable, starting without DB:", err)
 	}
 
-	router.SetupRouter(r, cfg, dbconn)
+	rsqlParser := go_kit.NewRSQLParser()
+	container := app.NewContainer(dbconn, rsqlParser)
+	r := http.NewServerRoute(container)
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
 	go func() {
-		if err = r.Run(fmt.Sprintf(":%d", cfg.Port)); err != nil {
+		if err = r.Run(fmt.Sprintf(":%d", config.GlobalConfig.Port)); err != nil {
 			log.Println(err)
 			stop()
 		}
