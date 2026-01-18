@@ -57,6 +57,7 @@ func NewServerRoute(c *app.Container) *gin.Engine {
 			invoiceStats := invoices.Group("/stats")
 			{
 				invoiceStats.GET("", c.InvoiceStatsHandler.GetStats)
+				invoiceStats.GET("/revenue", c.InvoiceStatsHandler.GetMonthlyRevenue)
 			}
 		}
 
