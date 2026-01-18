@@ -11,8 +11,13 @@ import (
 
 type PersistInvoiceStatsPort interface {
 	Stats(ctx context.Context, userID uuid.UUID, lq *go_kit.ListingQuery) (*entity.InvoiceStats, error)
+	MonthlyRevenue(ctx context.Context, userID uuid.UUID) (*[]entity.InvoiceMonthlyRevenue, error)
 }
 
 type GetInvoiceStatsUseCase interface {
 	Execute(ctx context.Context, query *query.ListQuery) (*entity.InvoiceStats, error)
+}
+
+type GetMonthlyRevenueUseCase interface {
+	Execute(ctx context.Context, userID uuid.UUID) (*[]entity.InvoiceMonthlyRevenue, error)
 }

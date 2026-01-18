@@ -62,7 +62,8 @@ type Container struct {
 	deleteInvoiceService   *invoice.DeleteInvoiceService
 
 	// Invoice stats services
-	getInvoiceStatsService *invoice_stats.GetInvoiceStatsService
+	getInvoiceStatsService   *invoice_stats.GetInvoiceStatsService
+	getInvoiceMonthlyRevenue *invoice_stats.GetInvoiceMonthlyRevenueService
 
 	// Project services
 	listProjectsService     *project.ListProjectsService
@@ -224,6 +225,7 @@ func (c *Container) initServices() {
 
 	// Invoice stats services
 	c.getInvoiceStatsService = invoice_stats.NewGetInvoiceStatsService(c.invoiceStatsRepository)
+	c.getInvoiceMonthlyRevenue = invoice_stats.NewGetInvoiceMonthlyRevenueService(c.invoiceStatsRepository)
 
 	// Project services
 	c.createProjectService = project.NewCreateProjectService(c.projectRepository, c.projectUserRepository, c.txManager)
@@ -339,5 +341,5 @@ func (c *Container) initHandlers() {
 	c.StoryAttachmentHandler = handler.NewStoryAttachmentHandler(c.listStoryAttachmentsUC, c.findStoryAttachmentByIDUC, c.deleteStoryAttachmentUC, c.parser)
 	c.ProjectInvitationHandler = handler.NewProjectInvitationHandler(c.inviteUserUC, c.acceptInvitationUC)
 	c.StoryLabelHandler = handler.NewStoryLabelHandler(c.listStoryLabelsUC, c.assignStoryLabelUC, c.unassignStoryLabelUC)
-	c.InvoiceStatsHandler = handler.NewInvoiceStatsHandler(c.getInvoiceStatsService, c.parser)
+	c.InvoiceStatsHandler = handler.NewInvoiceStatsHandler(c.getInvoiceStatsService, c.getInvoiceMonthlyRevenue, c.parser)
 }

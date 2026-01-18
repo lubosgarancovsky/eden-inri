@@ -12,3 +12,16 @@ func ToInvoiceStatsResponse(input *entity.InvoiceStats) *dto.InvoiceStatsRes {
 		BillableHours: input.BillableHours,
 	}
 }
+
+func ToMonthlyRevenueResponse(input *[]entity.InvoiceMonthlyRevenue) []dto.MonthlyRevenueRes {
+	if input == nil {
+		return []dto.MonthlyRevenueRes{}
+	}
+
+	results := make([]dto.MonthlyRevenueRes, len(*input))
+	for i, domain := range *input {
+		results[i] = dto.MonthlyRevenueRes{Month: domain.Month, Revenue: domain.Revenue}
+	}
+
+	return results
+}

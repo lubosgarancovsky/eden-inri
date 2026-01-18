@@ -13,12 +13,17 @@ import (
 )
 
 type InvoiceStatsHandler struct {
-	getStatsUC ports.GetInvoiceStatsUseCase
-	parser     *go_kit.Parser
+	getStatsUC          ports.GetInvoiceStatsUseCase
+	getMonthlyRevenueUC ports.GetMonthlyRevenueUseCase
+	parser              *go_kit.Parser
 }
 
-func NewInvoiceStatsHandler(getStatsUC ports.GetInvoiceStatsUseCase, parser *go_kit.Parser) *InvoiceStatsHandler {
-	return &InvoiceStatsHandler{getStatsUC, parser}
+func NewInvoiceStatsHandler(
+	getStatsUC ports.GetInvoiceStatsUseCase,
+	getMonthlyRevenueUC ports.GetMonthlyRevenueUseCase,
+	parser *go_kit.Parser,
+) *InvoiceStatsHandler {
+	return &InvoiceStatsHandler{getStatsUC, getMonthlyRevenueUC, parser}
 }
 
 type invoiceStatsAttributes struct {
@@ -29,6 +34,7 @@ type invoiceStatsAttributes struct {
 	IssuedAt      string `rsql:"filter"`
 	Total         string `rsql:"filter"`
 	BillableHours string `rsql:"filter"`
+	IsCanceled    string `rsql:"filter"`
 }
 
 func (h *InvoiceStatsHandler) GetStats(c *gin.Context) {
@@ -53,4 +59,16 @@ func (h *InvoiceStatsHandler) GetStats(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, converter.ToInvoiceStatsResponse(stats))
+}
+
+func (h *InvoiceStatsHandler) GetMonthlyRevenue(ctx *gin.Context) {
+	userID := handle.UserID(ctx)
+
+	items, err := h.getMonthlyRevenueUC.Execute(ctx, userID)
+	if err != nil {
+		handle.Error(ctx, err)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, converter.ToMonthlyRevenueResponse(items))
 }
