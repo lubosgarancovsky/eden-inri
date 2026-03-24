@@ -14,7 +14,7 @@ run:
 	go run cmd/app/main.go
 
 deploy:
-	./deploy.sh
+	./bin/deploy.sh
 
 # Run migrations
 migrate-up:

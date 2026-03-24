@@ -14,6 +14,10 @@ func NewServerRoute(c *app.Container) *gin.Engine {
 	router.Use(middleware.RequestIDMiddleware())
 	router.Use(middleware.ErrorHandlerMiddleware())
 
+	router.GET("/health", func(c *gin.Context) {
+		c.JSON(200, gin.H{"status": "ok"})
+	})
+
 	v1 := router.Group("/v1/inri")
 	protected := v1.Group("", middleware.AuthMiddleware())
 
