@@ -5,30 +5,43 @@ import (
 	"github.com/lubosgarancovsky/eden-inri/internal/adapter/http/dto"
 	"github.com/lubosgarancovsky/eden-inri/internal/domain/command"
 	"github.com/lubosgarancovsky/eden-inri/internal/domain/entity"
+	"github.com/lubosgarancovsky/go-kit"
 )
 
-func ToCreateProjectCommand(input *dto.CreateProjectReq) *command.CreateProjectCommand {
+func ToCreateProjectCommand(input *dto.CreateProjectReq) (*command.CreateProjectCommand, error) {
+	userID, err := uuid.Parse(input.UserID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
 	return &command.CreateProjectCommand{
-		UserID:        uuid.MustParse(input.UserID),
+		UserID:        userID,
 		Name:          input.Name,
 		Description:   input.Description,
 		Status:        input.Status,
 		Tags:          input.Tags,
 		Slug:          input.Slug,
 		RepositoryURL: input.RepositoryURL,
-	}
+	}, nil
 }
 
-func ToUpdateProjectCommand(input *dto.UpdateProjectReq) *command.UpdateProjectCommand {
+func ToUpdateProjectCommand(input *dto.UpdateProjectReq) (*command.UpdateProjectCommand, error) {
+	id, err := uuid.Parse(input.ID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
+	userID, err := uuid.Parse(input.UserID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
 	return &command.UpdateProjectCommand{
-		ID:            uuid.MustParse(input.ID),
-		UserID:        uuid.MustParse(input.UserID),
+		ID:            id,
+		UserID:        userID,
 		Name:          input.Name,
 		Description:   input.Description,
 		Status:        input.Status,
 		Tags:          input.Tags,
 		RepositoryURL: input.RepositoryURL,
-	}
+	}, nil
 }
 
 func ToProjectResponse(e *entity.Project) *dto.ProjectRes {

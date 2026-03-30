@@ -9,49 +9,101 @@ import (
 	go_kit "github.com/lubosgarancovsky/go-kit"
 )
 
-func ToCreateProjectDocumentCommand(input *dto.CreateProjectDocumentReq) *command.CreateProjectDocumentCommand {
+func ToCreateProjectDocumentCommand(input *dto.CreateProjectDocumentReq) (*command.CreateProjectDocumentCommand, error) {
+	userID, err := uuid.Parse(input.UserID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
+	projectID, err := uuid.Parse(input.ProjectID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
 	return &command.CreateProjectDocumentCommand{
-		UserID:    uuid.MustParse(input.UserID),
-		ProjectID: uuid.MustParse(input.ProjectID),
+		UserID:    userID,
+		ProjectID: projectID,
 		Name:      input.Name,
 		Content:   input.Content,
 		Tags:      input.Tags,
-	}
+	}, nil
 }
 
-func ToUpdateProjectDocumentCommand(input *dto.UpdateProjectDocumentReq) *command.UpdateProjectDocumentCommand {
+func ToUpdateProjectDocumentCommand(input *dto.UpdateProjectDocumentReq) (*command.UpdateProjectDocumentCommand, error) {
+	userID, err := uuid.Parse(input.UserID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
+	projectID, err := uuid.Parse(input.ProjectID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
+	id, err := uuid.Parse(input.DocumentID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
 	return &command.UpdateProjectDocumentCommand{
-		UserID:    uuid.MustParse(input.UserID),
-		ProjectID: uuid.MustParse(input.ProjectID),
-		ID:        uuid.MustParse(input.DocumentID),
+		UserID:    userID,
+		ProjectID: projectID,
+		ID:        id,
 		Name:      input.Name,
 		Content:   input.Content,
 		Tags:      input.Tags,
-	}
+	}, nil
 }
 
-func ToDeleteProjectDocumentCommand(input *dto.DeleteProjectDocumentReq) *command.DeleteProjectDocumentCommand {
+func ToDeleteProjectDocumentCommand(input *dto.DeleteProjectDocumentReq) (*command.DeleteProjectDocumentCommand, error) {
+	userID, err := uuid.Parse(input.UserID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
+	id, err := uuid.Parse(input.DocumentID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
+	projectID, err := uuid.Parse(input.ProjectID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
 	return &command.DeleteProjectDocumentCommand{
-		UserID:    uuid.MustParse(input.UserID),
-		ID:        uuid.MustParse(input.DocumentID),
-		ProjectID: uuid.MustParse(input.ProjectID),
-	}
+		UserID:    userID,
+		ID:        id,
+		ProjectID: projectID,
+	}, nil
 }
 
-func ToFindProjectDocumentByIDQuery(input *dto.FindProjectDocumentByIDReq) *query.FindProjectDocumentByIDQuery {
+func ToFindProjectDocumentByIDQuery(input *dto.FindProjectDocumentByIDReq) (*query.FindProjectDocumentByIDQuery, error) {
+	userID, err := uuid.Parse(input.UserID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
+	projectID, err := uuid.Parse(input.ProjectID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
+	documentID, err := uuid.Parse(input.ID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
 	return &query.FindProjectDocumentByIDQuery{
-		UserID:     uuid.MustParse(input.UserID),
-		ProjectID:  uuid.MustParse(input.ProjectID),
-		DocumentID: uuid.MustParse(input.ID),
-	}
+		UserID:     userID,
+		ProjectID:  projectID,
+		DocumentID: documentID,
+	}, nil
 }
 
-func ToListProjectDocumentsQuery(input *dto.ListProjectDocumentsReq, lq *go_kit.ListingQuery) *query.ListProjectDocumentsQuery {
-	return &query.ListProjectDocumentsQuery{
-		UserID:       uuid.MustParse(input.UserID),
-		ProjectID:    uuid.MustParse(input.ProjectID),
-		ListingQuery: lq,
+func ToListProjectDocumentsQuery(input *dto.ListProjectDocumentsReq, lq *go_kit.ListingQuery) (*query.ListProjectDocumentsQuery, error) {
+	userID, err := uuid.Parse(input.UserID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
 	}
+	projectID, err := uuid.Parse(input.ProjectID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
+	return &query.ListProjectDocumentsQuery{
+		UserID:       userID,
+		ProjectID:    projectID,
+		ListingQuery: lq,
+	}, nil
 }
 
 func ToProjectDocumentResponse(e *entity.ProjectDocument) *dto.ProjectDocumentRes {

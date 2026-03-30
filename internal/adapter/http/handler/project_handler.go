@@ -109,7 +109,13 @@ func (h *ProjectHandler) Create(c *gin.Context) {
 		return
 	}
 
-	created, err := h.createProjectUC.Execute(c.Request.Context(), converter.ToCreateProjectCommand(req))
+	cmd, err := converter.ToCreateProjectCommand(req)
+	if err != nil {
+		handle.Error(c, err)
+		return
+	}
+
+	created, err := h.createProjectUC.Execute(c.Request.Context(), cmd)
 	if err != nil {
 		handle.Error(c, err)
 		return
@@ -126,7 +132,13 @@ func (h *ProjectHandler) Update(c *gin.Context) {
 		return
 	}
 
-	updated, err := h.updateProjectUC.Execute(c.Request.Context(), converter.ToUpdateProjectCommand(req))
+	cmd, err := converter.ToUpdateProjectCommand(req)
+	if err != nil {
+		handle.Error(c, err)
+		return
+	}
+
+	updated, err := h.updateProjectUC.Execute(c.Request.Context(), cmd)
 	if err != nil {
 		handle.Error(c, err)
 		return

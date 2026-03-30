@@ -39,7 +39,13 @@ func (h *KanbanColumnHandler) List(c *gin.Context) {
 		return
 	}
 
-	items, err := h.listUC.Execute(c.Request.Context(), converter.ToListKanbanColumnQuery(req))
+	query, err := converter.ToListKanbanColumnQuery(req)
+	if err != nil {
+		handle.Error(c, err)
+		return
+	}
+
+	items, err := h.listUC.Execute(c.Request.Context(), query)
 	if err != nil {
 		handle.Error(c, err)
 		return
@@ -60,7 +66,13 @@ func (h *KanbanColumnHandler) Create(c *gin.Context) {
 		return
 	}
 
-	created, err := h.createUC.Execute(c.Request.Context(), converter.ToCreateKanbanColumnCommand(req))
+	cmd, err := converter.ToCreateKanbanColumnCommand(req)
+	if err != nil {
+		handle.Error(c, err)
+		return
+	}
+
+	created, err := h.createUC.Execute(c.Request.Context(), cmd)
 	if err != nil {
 		handle.Error(c, err)
 		return
@@ -76,7 +88,13 @@ func (h *KanbanColumnHandler) Update(c *gin.Context) {
 		return
 	}
 
-	updated, err := h.updateUC.Execute(c.Request.Context(), converter.ToUpdateKanbanColumnCommand(req))
+	cmd, err := converter.ToUpdateKanbanColumnCommand(req)
+	if err != nil {
+		handle.Error(c, err)
+		return
+	}
+
+	updated, err := h.updateUC.Execute(c.Request.Context(), cmd)
 	if err != nil {
 		handle.Error(c, err)
 		return
@@ -92,7 +110,13 @@ func (h *KanbanColumnHandler) Delete(c *gin.Context) {
 		return
 	}
 
-	if err := h.deleteUC.Execute(c.Request.Context(), converter.ToDeleteKanbanColumnCommand(req)); err != nil {
+	cmd, err := converter.ToDeleteKanbanColumnCommand(req)
+	if err != nil {
+		handle.Error(c, err)
+		return
+	}
+
+	if err := h.deleteUC.Execute(c.Request.Context(), cmd); err != nil {
 		handle.Error(c, err)
 		return
 	}

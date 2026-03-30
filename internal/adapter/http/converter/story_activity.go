@@ -9,36 +9,68 @@ import (
 	"github.com/lubosgarancovsky/go-kit"
 )
 
-func ToCreateStoryActivityCommand(input *dto.CreateStoryActivityReq) *command.CreateStoryActivityCommand {
+func ToCreateStoryActivityCommand(input *dto.CreateStoryActivityReq) (*command.CreateStoryActivityCommand, error) {
+	storyID, err := uuid.Parse(input.StoryID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
+	actorID, err := uuid.Parse(input.UserID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
 	return &command.CreateStoryActivityCommand{
-		StoryID: uuid.MustParse(input.StoryID),
-		ActorID: uuid.MustParse(input.UserID),
+		StoryID: storyID,
+		ActorID: actorID,
 		Type:    input.Type,
 		Payload: input.Payload,
-	}
+	}, nil
 }
 
-func ToUpdateStoryActivityCommand(input *dto.UpdateStoryActivityReq) *command.UpdateStoryActivityCommand {
+func ToUpdateStoryActivityCommand(input *dto.UpdateStoryActivityReq) (*command.UpdateStoryActivityCommand, error) {
+	id, err := uuid.Parse(input.ActivityID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
+	actorID, err := uuid.Parse(input.UserID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
 	return &command.UpdateStoryActivityCommand{
-		ID:      uuid.MustParse(input.ActivityID),
-		ActorID: uuid.MustParse(input.UserID),
+		ID:      id,
+		ActorID: actorID,
 		Payload: input.Payload,
-	}
+	}, nil
 }
 
-func ToDeleteStoryActivityCommand(input *dto.DeleteStoryActivityReq) *command.Command {
+func ToDeleteStoryActivityCommand(input *dto.DeleteStoryActivityReq) (*command.Command, error) {
+	id, err := uuid.Parse(input.ActivityID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
+	userID, err := uuid.Parse(input.UserID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
 	return &command.Command{
-		ID:     uuid.MustParse(input.ActivityID),
-		UserID: uuid.MustParse(input.UserID),
-	}
+		ID:     id,
+		UserID: userID,
+	}, nil
 }
 
-func ToListStoryActivitiesQuery(input *dto.ListStoryActivitiesReq, lq *go_kit.ListingQuery) *query.ListStoryActivitiesQuery {
-	return &query.ListStoryActivitiesQuery{
-		StoryID:      uuid.MustParse(input.StoryID),
-		UserID:       uuid.MustParse(input.UserID),
-		ListingQuery: lq,
+func ToListStoryActivitiesQuery(input *dto.ListStoryActivitiesReq, lq *go_kit.ListingQuery) (*query.ListStoryActivitiesQuery, error) {
+	storyID, err := uuid.Parse(input.StoryID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
 	}
+	userID, err := uuid.Parse(input.UserID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
+	return &query.ListStoryActivitiesQuery{
+		StoryID:      storyID,
+		UserID:       userID,
+		ListingQuery: lq,
+	}, nil
 }
 
 func ToStoryActivityResponse(e *entity.StoryActivity) *dto.StoryActivityRes {

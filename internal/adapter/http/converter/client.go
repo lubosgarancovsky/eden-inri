@@ -5,11 +5,16 @@ import (
 	"github.com/lubosgarancovsky/eden-inri/internal/adapter/http/dto"
 	"github.com/lubosgarancovsky/eden-inri/internal/domain/command"
 	"github.com/lubosgarancovsky/eden-inri/internal/domain/entity"
+	"github.com/lubosgarancovsky/go-kit"
 )
 
-func ToCreateClientCommand(input *dto.CreateClientReq) *command.CreateClientCommand {
+func ToCreateClientCommand(input *dto.CreateClientReq) (*command.CreateClientCommand, error) {
+	userID, err := uuid.Parse(input.UserID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
 	return &command.CreateClientCommand{
-		UserID:       uuid.MustParse(input.UserID),
+		UserID:       userID,
 		ClientType:   input.ClientType,
 		ContractType: input.ContractType,
 		Name:         input.Name,
@@ -20,14 +25,22 @@ func ToCreateClientCommand(input *dto.CreateClientReq) *command.CreateClientComm
 		HourRate:     input.HourRate,
 		StartedAt:    input.StartedAt,
 		FinishedAt:   input.FinishedAt,
-	}
+	}, nil
 }
 
-func ToUpdateClientCommand(input *dto.UpdateClientReq) *command.UpdateClientCommand {
+func ToUpdateClientCommand(input *dto.UpdateClientReq) (*command.UpdateClientCommand, error) {
+	id, err := uuid.Parse(input.ClientID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
+	userID, err := uuid.Parse(input.UserID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
 	return &command.UpdateClientCommand{
-		ID: uuid.MustParse(input.ClientID),
+		ID: id,
 		CreateClientCommand: command.CreateClientCommand{
-			UserID:       uuid.MustParse(input.UserID),
+			UserID:       userID,
 			ClientType:   input.ClientType,
 			ContractType: input.ContractType,
 			Name:         input.Name,
@@ -39,7 +52,7 @@ func ToUpdateClientCommand(input *dto.UpdateClientReq) *command.UpdateClientComm
 			StartedAt:    input.StartedAt,
 			FinishedAt:   input.FinishedAt,
 		},
-	}
+	}, nil
 }
 
 func ToClientResponse(client *entity.Client) *dto.ClientRes {

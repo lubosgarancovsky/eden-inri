@@ -55,7 +55,13 @@ func (h *ProjectDocumentHandler) List(c *gin.Context) {
 		return
 	}
 
-	items, total, err := h.listUC.Execute(c.Request.Context(), converter.ToListProjectDocumentsQuery(req, listingQuery))
+	query, err := converter.ToListProjectDocumentsQuery(req, listingQuery)
+	if err != nil {
+		handle.Error(c, err)
+		return
+	}
+
+	items, total, err := h.listUC.Execute(c.Request.Context(), query)
 	if err != nil {
 		handle.Error(c, err)
 		return
@@ -72,7 +78,13 @@ func (h *ProjectDocumentHandler) FindByID(c *gin.Context) {
 		return
 	}
 
-	item, err := h.findByIDUC.Execute(c.Request.Context(), converter.ToFindProjectDocumentByIDQuery(req))
+	query, err := converter.ToFindProjectDocumentByIDQuery(req)
+	if err != nil {
+		handle.Error(c, err)
+		return
+	}
+
+	item, err := h.findByIDUC.Execute(c.Request.Context(), query)
 	if err != nil {
 		handle.Error(c, err)
 		return
@@ -88,7 +100,13 @@ func (h *ProjectDocumentHandler) Create(c *gin.Context) {
 		return
 	}
 
-	created, err := h.createUC.Execute(c.Request.Context(), converter.ToCreateProjectDocumentCommand(req))
+	cmd, err := converter.ToCreateProjectDocumentCommand(req)
+	if err != nil {
+		handle.Error(c, err)
+		return
+	}
+
+	created, err := h.createUC.Execute(c.Request.Context(), cmd)
 	if err != nil {
 		handle.Error(c, err)
 		return
@@ -104,7 +122,13 @@ func (h *ProjectDocumentHandler) Update(c *gin.Context) {
 		return
 	}
 
-	updated, err := h.updateUC.Execute(c.Request.Context(), converter.ToUpdateProjectDocumentCommand(req))
+	cmd, err := converter.ToUpdateProjectDocumentCommand(req)
+	if err != nil {
+		handle.Error(c, err)
+		return
+	}
+
+	updated, err := h.updateUC.Execute(c.Request.Context(), cmd)
 	if err != nil {
 		handle.Error(c, err)
 		return
@@ -120,7 +144,13 @@ func (h *ProjectDocumentHandler) Delete(c *gin.Context) {
 		return
 	}
 
-	if err := h.deleteUC.Execute(c.Request.Context(), converter.ToDeleteProjectDocumentCommand(req)); err != nil {
+	cmd, err := converter.ToDeleteProjectDocumentCommand(req)
+	if err != nil {
+		handle.Error(c, err)
+		return
+	}
+
+	if err := h.deleteUC.Execute(c.Request.Context(), cmd); err != nil {
 		handle.Error(c, err)
 		return
 	}

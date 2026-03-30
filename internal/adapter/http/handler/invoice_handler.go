@@ -96,7 +96,13 @@ func (h *InvoiceHandler) Create(c *gin.Context) {
 		return
 	}
 
-	created, err := h.createUC.Execute(c.Request.Context(), converter.ToCreateInvoiceCommand(req))
+	cmd, err := converter.ToCreateInvoiceCommand(req)
+	if err != nil {
+		handle.Error(c, err)
+		return
+	}
+
+	created, err := h.createUC.Execute(c.Request.Context(), cmd)
 	if err != nil {
 		handle.Error(c, err)
 		return
@@ -110,7 +116,13 @@ func (h *InvoiceHandler) Update(c *gin.Context) {
 		handle.Error(c, err)
 		return
 	}
-	updated, err := h.updateUC.Execute(c.Request.Context(), converter.ToUpdateInvoiceCommand(req))
+	cmd, err := converter.ToUpdateInvoiceCommand(req)
+	if err != nil {
+		handle.Error(c, err)
+		return
+	}
+
+	updated, err := h.updateUC.Execute(c.Request.Context(), cmd)
 	if err != nil {
 		handle.Error(c, err)
 		return

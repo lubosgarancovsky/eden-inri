@@ -9,49 +9,101 @@ import (
 	go_kit "github.com/lubosgarancovsky/go-kit"
 )
 
-func ToCreateProjectLabelCommand(input *dto.CreateProjectLabelReq) *command.CreateProjectLabelCommand {
+func ToCreateProjectLabelCommand(input *dto.CreateProjectLabelReq) (*command.CreateProjectLabelCommand, error) {
+	userID, err := uuid.Parse(input.UserID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
+	projectID, err := uuid.Parse(input.ProjectID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
 	return &command.CreateProjectLabelCommand{
-		UserID:      uuid.MustParse(input.UserID),
-		ProjectID:   uuid.MustParse(input.ProjectID),
+		UserID:      userID,
+		ProjectID:   projectID,
 		Name:        input.Name,
 		Description: input.Description,
 		Color:       input.Color,
-	}
+	}, nil
 }
 
-func ToUpdateProjectLabelCommand(input *dto.UpdateProjectLabelReq) *command.UpdateProjectLabelCommand {
+func ToUpdateProjectLabelCommand(input *dto.UpdateProjectLabelReq) (*command.UpdateProjectLabelCommand, error) {
+	userID, err := uuid.Parse(input.UserID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
+	projectID, err := uuid.Parse(input.ProjectID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
+	id, err := uuid.Parse(input.LabelID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
 	return &command.UpdateProjectLabelCommand{
-		UserID:      uuid.MustParse(input.UserID),
-		ProjectID:   uuid.MustParse(input.ProjectID),
-		ID:          uuid.MustParse(input.LabelID),
+		UserID:      userID,
+		ProjectID:   projectID,
+		ID:          id,
 		Name:        input.Name,
 		Description: input.Description,
 		Color:       input.Color,
-	}
+	}, nil
 }
 
-func ToDeleteProjectLabelCommand(input *dto.DeleteProjectLabelReq) *command.DeleteProjectLabelCommand {
+func ToDeleteProjectLabelCommand(input *dto.DeleteProjectLabelReq) (*command.DeleteProjectLabelCommand, error) {
+	userID, err := uuid.Parse(input.UserID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
+	projectID, err := uuid.Parse(input.ProjectID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
+	id, err := uuid.Parse(input.LabelID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
 	return &command.DeleteProjectLabelCommand{
-		UserID:    uuid.MustParse(input.UserID),
-		ProjectID: uuid.MustParse(input.ProjectID),
-		ID:        uuid.MustParse(input.LabelID),
-	}
+		UserID:    userID,
+		ProjectID: projectID,
+		ID:        id,
+	}, nil
 }
 
-func ToFindProjectLabelByIDQuery(input *dto.FindProjectLabelByIDReq) *query.FindProjectLabelByIDQuery {
+func ToFindProjectLabelByIDQuery(input *dto.FindProjectLabelByIDReq) (*query.FindProjectLabelByIDQuery, error) {
+	id, err := uuid.Parse(input.LabelID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
+	projectID, err := uuid.Parse(input.ProjectID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
+	userID, err := uuid.Parse(input.UserID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
 	return &query.FindProjectLabelByIDQuery{
-		ID:        uuid.MustParse(input.LabelID),
-		ProjectID: uuid.MustParse(input.ProjectID),
-		UserID:    uuid.MustParse(input.UserID),
-	}
+		ID:        id,
+		ProjectID: projectID,
+		UserID:    userID,
+	}, nil
 }
 
-func ToListProjectLabelsQuery(input *dto.ListProjectLabelsReq, lq *go_kit.ListingQuery) *query.ListProjectLabelsQuery {
-	return &query.ListProjectLabelsQuery{
-		UserID:       uuid.MustParse(input.UserID),
-		ProjectID:    uuid.MustParse(input.ProjectID),
-		ListingQuery: lq,
+func ToListProjectLabelsQuery(input *dto.ListProjectLabelsReq, lq *go_kit.ListingQuery) (*query.ListProjectLabelsQuery, error) {
+	userID, err := uuid.Parse(input.UserID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
 	}
+	projectID, err := uuid.Parse(input.ProjectID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
+	return &query.ListProjectLabelsQuery{
+		UserID:       userID,
+		ProjectID:    projectID,
+		ListingQuery: lq,
+	}, nil
 }
 
 func ToProjectLabelResponse(e *entity.ProjectLabel) *dto.ProjectLabelRes {

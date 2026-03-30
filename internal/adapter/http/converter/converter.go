@@ -163,7 +163,12 @@ func extractUserID(v interface{}) uuid.UUID {
 		return uuid.Nil
 	}
 
-	return uuid.MustParse(field.String())
+	id, err := uuid.Parse(field.String())
+	if err != nil {
+		return uuid.Nil
+	}
+
+	return id
 }
 
 func extractID(v interface{}, name string) uuid.UUID {
@@ -186,5 +191,10 @@ func extractID(v interface{}, name string) uuid.UUID {
 		return uuid.Nil
 	}
 
-	return uuid.MustParse(field.String())
+	id, err := uuid.Parse(field.String())
+	if err != nil {
+		return uuid.Nil
+	}
+
+	return id
 }

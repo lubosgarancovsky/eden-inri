@@ -9,47 +9,99 @@ import (
 	go_kit "github.com/lubosgarancovsky/go-kit"
 )
 
-func ToCreateKanbanBoardCommand(input *dto.CreateKanbanBoardReq) *command.CreateKanbanBoardCommand {
+func ToCreateKanbanBoardCommand(input *dto.CreateKanbanBoardReq) (*command.CreateKanbanBoardCommand, error) {
+	userID, err := uuid.Parse(input.UserID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
+	projectID, err := uuid.Parse(input.ProjectID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
 	return &command.CreateKanbanBoardCommand{
-		UserID:    uuid.MustParse(input.UserID),
-		ProjectID: uuid.MustParse(input.ProjectID),
+		UserID:    userID,
+		ProjectID: projectID,
 		Name:      input.Name,
 		Status:    input.Status,
-	}
+	}, nil
 }
 
-func ToUpdateKanbanBoardCommand(input *dto.UpdateKanbanBoardReq) *command.UpdateKanbanBoardCommand {
+func ToUpdateKanbanBoardCommand(input *dto.UpdateKanbanBoardReq) (*command.UpdateKanbanBoardCommand, error) {
+	id, err := uuid.Parse(input.BoardID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
+	userID, err := uuid.Parse(input.UserID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
+	projectID, err := uuid.Parse(input.ProjectID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
 	return &command.UpdateKanbanBoardCommand{
-		ID:        uuid.MustParse(input.BoardID),
-		UserID:    uuid.MustParse(input.UserID),
-		ProjectID: uuid.MustParse(input.ProjectID),
+		ID:        id,
+		UserID:    userID,
+		ProjectID: projectID,
 		Name:      input.Name,
 		Status:    input.Status,
-	}
+	}, nil
 }
 
-func ToDeleteKanbanBoardCommand(input *dto.DeleteKanbanBoardReq) *command.DeleteKanbanBoardCommand {
+func ToDeleteKanbanBoardCommand(input *dto.DeleteKanbanBoardReq) (*command.DeleteKanbanBoardCommand, error) {
+	id, err := uuid.Parse(input.BoardID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
+	projectID, err := uuid.Parse(input.ProjectID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
+	userID, err := uuid.Parse(input.UserID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
 	return &command.DeleteKanbanBoardCommand{
-		ID:        uuid.MustParse(input.BoardID),
-		ProjectID: uuid.MustParse(input.ProjectID),
-		UserID:    uuid.MustParse(input.UserID),
-	}
+		ID:        id,
+		ProjectID: projectID,
+		UserID:    userID,
+	}, nil
 }
 
-func ToListKanbanBoardQuery(input *dto.ListKanbanBoardsReq, lq *go_kit.ListingQuery) *query.ListKanbanBoardQuery {
+func ToListKanbanBoardQuery(input *dto.ListKanbanBoardsReq, lq *go_kit.ListingQuery) (*query.ListKanbanBoardQuery, error) {
+	userID, err := uuid.Parse(input.UserID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
+	projectID, err := uuid.Parse(input.ProjectID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
 	return &query.ListKanbanBoardQuery{
-		UserID:       uuid.MustParse(input.UserID),
-		ProjectID:    uuid.MustParse(input.ProjectID),
+		UserID:       userID,
+		ProjectID:    projectID,
 		ListingQuery: lq,
-	}
+	}, nil
 }
 
-func ToFindKanbanBoardByIDQuery(input *dto.FindKanbanBoardByIDReq) *query.FindByIDKanbanBoardQuery {
-	return &query.FindByIDKanbanBoardQuery{
-		ID:        uuid.MustParse(input.BoardID),
-		ProjectID: uuid.MustParse(input.ProjectID),
-		UserID:    uuid.MustParse(input.UserID),
+func ToFindKanbanBoardByIDQuery(input *dto.FindKanbanBoardByIDReq) (*query.FindByIDKanbanBoardQuery, error) {
+	id, err := uuid.Parse(input.BoardID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
 	}
+	projectID, err := uuid.Parse(input.ProjectID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
+	userID, err := uuid.Parse(input.UserID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
+	return &query.FindByIDKanbanBoardQuery{
+		ID:        id,
+		ProjectID: projectID,
+		UserID:    userID,
+	}, nil
 }
 
 func ToKanbanBoardResponse(e *entity.KanbanBoard) *dto.KanbanBoardRes {

@@ -66,6 +66,24 @@ func NewServerRoute(c *app.Container) *gin.Engine {
 			}
 		}
 
+		taxes := protected.Group("/taxes")
+		{
+			taxes.POST("", c.TaxHandler.Create)
+			taxes.PUT("/:taxId", c.TaxHandler.Update)
+			taxes.DELETE("/:taxId", c.TaxHandler.Delete)
+			taxes.GET("/:taxId", c.TaxHandler.FindByID)
+			taxes.GET("", c.TaxHandler.List)
+		}
+
+		businessEntities := protected.Group("/business-entities")
+		{
+			businessEntities.POST("", c.BusinessEntityHandler.Create)
+			businessEntities.PUT("/:businessEntityId", c.BusinessEntityHandler.Update)
+			businessEntities.DELETE("/:businessEntityId", c.BusinessEntityHandler.Delete)
+			businessEntities.GET("/:businessEntityId", c.BusinessEntityHandler.FindByID)
+			businessEntities.GET("", c.BusinessEntityHandler.List)
+		}
+
 		projects := protected.Group("/projects")
 		{
 			projects.POST("", c.ProjectHandler.Create)

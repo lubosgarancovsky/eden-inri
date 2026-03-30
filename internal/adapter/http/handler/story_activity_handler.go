@@ -50,7 +50,11 @@ func (h *StoryActivityHandler) List(c *gin.Context) {
 		return
 	}
 
-	query := converter.ToListStoryActivitiesQuery(req, listingQuery)
+	query, err := converter.ToListStoryActivitiesQuery(req, listingQuery)
+	if err != nil {
+		handle.Error(c, err)
+		return
+	}
 
 	activities, total, err := h.listStoryActivitiesUC.Execute(c.Request.Context(), query)
 	if err != nil {
@@ -70,7 +74,13 @@ func (h *StoryActivityHandler) Create(c *gin.Context) {
 		return
 	}
 
-	created, err := h.createStoryActivityUC.Execute(c.Request.Context(), converter.ToCreateStoryActivityCommand(req))
+	cmd, err := converter.ToCreateStoryActivityCommand(req)
+	if err != nil {
+		handle.Error(c, err)
+		return
+	}
+
+	created, err := h.createStoryActivityUC.Execute(c.Request.Context(), cmd)
 	if err != nil {
 		handle.Error(c, err)
 		return
@@ -87,7 +97,13 @@ func (h *StoryActivityHandler) Update(c *gin.Context) {
 		return
 	}
 
-	updated, err := h.updateStoryActivityUC.Execute(c.Request.Context(), converter.ToUpdateStoryActivityCommand(req))
+	cmd, err := converter.ToUpdateStoryActivityCommand(req)
+	if err != nil {
+		handle.Error(c, err)
+		return
+	}
+
+	updated, err := h.updateStoryActivityUC.Execute(c.Request.Context(), cmd)
 	if err != nil {
 		handle.Error(c, err)
 		return
@@ -104,7 +120,11 @@ func (h *StoryActivityHandler) Delete(c *gin.Context) {
 		return
 	}
 
-	cmd := converter.ToDeleteStoryActivityCommand(req)
+	cmd, err := converter.ToDeleteStoryActivityCommand(req)
+	if err != nil {
+		handle.Error(c, err)
+		return
+	}
 
 	if err := h.deleteStoryActivityUC.Execute(c.Request.Context(), cmd); err != nil {
 		handle.Error(c, err)

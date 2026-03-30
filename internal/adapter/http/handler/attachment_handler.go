@@ -105,7 +105,11 @@ func (h *AttachmentHandler) Update(c *gin.Context) {
 		return
 	}
 
-	cmd := converter.ToUpdateAttachmentCommand(req)
+	cmd, err := converter.ToUpdateAttachmentCommand(req)
+	if err != nil {
+		handle.Error(c, err)
+		return
+	}
 	attachment, err := h.updateUC.Execute(c.Request.Context(), cmd)
 	if err != nil {
 		handle.Error(c, err)
@@ -159,7 +163,13 @@ func (h *AttachmentHandler) Upload(c *gin.Context) {
 		return
 	}
 
-	if err = h.uploadUC.Execute(c.Request.Context(), converter.ToUploadAttachmentCommand(req, files)); err != nil {
+	cmd, err := converter.ToUploadAttachmentCommand(req, files)
+	if err != nil {
+		handle.Error(c, err)
+		return
+	}
+
+	if err = h.uploadUC.Execute(c.Request.Context(), cmd); err != nil {
 		handle.Error(c, err)
 		return
 	}

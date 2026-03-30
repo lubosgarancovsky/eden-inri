@@ -54,7 +54,13 @@ func (h *KanbanBoardHandler) List(c *gin.Context) {
 		return
 	}
 
-	items, total, err := h.listUC.Execute(c.Request.Context(), converter.ToListKanbanBoardQuery(req, listingQuery))
+	query, err := converter.ToListKanbanBoardQuery(req, listingQuery)
+	if err != nil {
+		handle.Error(c, err)
+		return
+	}
+
+	items, total, err := h.listUC.Execute(c.Request.Context(), query)
 	if err != nil {
 		handle.Error(c, err)
 		return
@@ -71,7 +77,13 @@ func (h *KanbanBoardHandler) FindByID(c *gin.Context) {
 		return
 	}
 
-	item, err := h.findByIDUC.Execute(c.Request.Context(), converter.ToFindKanbanBoardByIDQuery(req))
+	query, err := converter.ToFindKanbanBoardByIDQuery(req)
+	if err != nil {
+		handle.Error(c, err)
+		return
+	}
+
+	item, err := h.findByIDUC.Execute(c.Request.Context(), query)
 	if err != nil {
 		handle.Error(c, err)
 		return
@@ -87,7 +99,13 @@ func (h *KanbanBoardHandler) Create(c *gin.Context) {
 		return
 	}
 
-	created, err := h.createUC.Execute(c.Request.Context(), converter.ToCreateKanbanBoardCommand(req))
+	cmd, err := converter.ToCreateKanbanBoardCommand(req)
+	if err != nil {
+		handle.Error(c, err)
+		return
+	}
+
+	created, err := h.createUC.Execute(c.Request.Context(), cmd)
 	if err != nil {
 		handle.Error(c, err)
 		return
@@ -103,7 +121,13 @@ func (h *KanbanBoardHandler) Update(c *gin.Context) {
 		return
 	}
 
-	updated, err := h.updateUC.Execute(c.Request.Context(), converter.ToUpdateKanbanBoardCommand(req))
+	cmd, err := converter.ToUpdateKanbanBoardCommand(req)
+	if err != nil {
+		handle.Error(c, err)
+		return
+	}
+
+	updated, err := h.updateUC.Execute(c.Request.Context(), cmd)
 	if err != nil {
 		handle.Error(c, err)
 		return
@@ -119,7 +143,13 @@ func (h *KanbanBoardHandler) Delete(c *gin.Context) {
 		return
 	}
 
-	if err := h.deleteUC.Execute(c.Request.Context(), converter.ToDeleteKanbanBoardCommand(req)); err != nil {
+	cmd, err := converter.ToDeleteKanbanBoardCommand(req)
+	if err != nil {
+		handle.Error(c, err)
+		return
+	}
+
+	if err := h.deleteUC.Execute(c.Request.Context(), cmd); err != nil {
 		handle.Error(c, err)
 		return
 	}

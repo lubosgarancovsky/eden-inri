@@ -68,7 +68,11 @@ func (h *StoryHandler) List(c *gin.Context) {
 		return
 	}
 
-	query := converter.ToListStoriesQuery(req, listingQuery)
+	query, err := converter.ToListStoriesQuery(req, listingQuery)
+	if err != nil {
+		handle.Error(c, err)
+		return
+	}
 
 	stories, total, err := h.listStoriesUC.Execute(c.Request.Context(), query)
 	if err != nil {
@@ -89,7 +93,11 @@ func (h *StoryHandler) ListAssigned(c *gin.Context) {
 		return
 	}
 
-	query := converter.ToListAssignedStoriesQuery(req, listingQuery)
+	query, err := converter.ToListAssignedStoriesQuery(req, listingQuery)
+	if err != nil {
+		handle.Error(c, err)
+		return
+	}
 
 	stories, total, err := h.listAssignedStoriesUC.Execute(c.Request.Context(), query)
 	if err != nil {
@@ -109,7 +117,11 @@ func (h *StoryHandler) FindByID(c *gin.Context) {
 		return
 	}
 
-	query := converter.ToFindStoryByIDQuery(req)
+	query, err := converter.ToFindStoryByIDQuery(req)
+	if err != nil {
+		handle.Error(c, err)
+		return
+	}
 
 	story, err := h.findStoryByIDUC.Execute(c.Request.Context(), query)
 	if err != nil {
@@ -127,7 +139,11 @@ func (h *StoryHandler) FindBySlug(c *gin.Context) {
 		return
 	}
 
-	query := converter.ToFindStoryBySlugQuery(req)
+	query, err := converter.ToFindStoryBySlugQuery(req)
+	if err != nil {
+		handle.Error(c, err)
+		return
+	}
 
 	story, err := h.findStoryBySlugUC.Execute(c.Request.Context(), query)
 	if err != nil {
@@ -146,7 +162,13 @@ func (h *StoryHandler) Create(c *gin.Context) {
 		return
 	}
 
-	created, err := h.createStoryUC.Execute(c.Request.Context(), converter.ToCreateStoryCommand(req))
+	cmd, err := converter.ToCreateStoryCommand(req)
+	if err != nil {
+		handle.Error(c, err)
+		return
+	}
+
+	created, err := h.createStoryUC.Execute(c.Request.Context(), cmd)
 	if err != nil {
 		handle.Error(c, err)
 		return
@@ -163,7 +185,13 @@ func (h *StoryHandler) Update(c *gin.Context) {
 		return
 	}
 
-	updated, err := h.updateStoryUC.Execute(c.Request.Context(), converter.ToUpdateStoryCommand(req))
+	cmd, err := converter.ToUpdateStoryCommand(req)
+	if err != nil {
+		handle.Error(c, err)
+		return
+	}
+
+	updated, err := h.updateStoryUC.Execute(c.Request.Context(), cmd)
 	if err != nil {
 		handle.Error(c, err)
 		return
@@ -180,7 +208,11 @@ func (h *StoryHandler) Delete(c *gin.Context) {
 		return
 	}
 
-	cmd := converter.ToDeleteStoryCommand(req)
+	cmd, err := converter.ToDeleteStoryCommand(req)
+	if err != nil {
+		handle.Error(c, err)
+		return
+	}
 
 	if err := h.deleteStoryUC.Execute(c.Request.Context(), cmd); err != nil {
 		handle.Error(c, err)
@@ -198,7 +230,11 @@ func (h *StoryHandler) ChangeAssignee(c *gin.Context) {
 		return
 	}
 
-	cmd := converter.ToChangeStoryAssigneeCommand(req)
+	cmd, err := converter.ToChangeStoryAssigneeCommand(req)
+	if err != nil {
+		handle.Error(c, err)
+		return
+	}
 
 	if err := h.changeAssigneeUC.Execute(c.Request.Context(), cmd); err != nil {
 		handle.Error(c, err)

@@ -4,6 +4,7 @@ import (
 	"github.com/lubosgarancovsky/eden-inri/internal/adapter/http/handler"
 	"github.com/lubosgarancovsky/eden-inri/internal/adapter/repository/postgres"
 	"github.com/lubosgarancovsky/eden-inri/internal/app/attachment"
+	"github.com/lubosgarancovsky/eden-inri/internal/app/business_entity"
 	"github.com/lubosgarancovsky/eden-inri/internal/app/client"
 	"github.com/lubosgarancovsky/eden-inri/internal/app/contact_person"
 	"github.com/lubosgarancovsky/eden-inri/internal/app/invoice"
@@ -20,6 +21,7 @@ import (
 	"github.com/lubosgarancovsky/eden-inri/internal/app/story_activity"
 	"github.com/lubosgarancovsky/eden-inri/internal/app/story_attachment"
 	"github.com/lubosgarancovsky/eden-inri/internal/app/story_label"
+	"github.com/lubosgarancovsky/eden-inri/internal/app/tax"
 	"github.com/lubosgarancovsky/go-kit"
 	"gorm.io/gorm"
 )
@@ -46,6 +48,8 @@ type Container struct {
 	projectInvitationRepository *postgres.ProjectInvitationRepository
 	storyLabelRepository        *postgres.StoryLabelRepository
 	invoiceStatsRepository      *postgres.InvoiceStatsRepository
+	taxRepository               *postgres.TaxRepository
+	businessEntityRepository    *postgres.BusinessEntityRepository
 
 	// -- Client services --
 	listClientsService    *client.ListClientsService
@@ -64,6 +68,20 @@ type Container struct {
 	// Invoice stats services
 	getInvoiceStatsService   *invoice_stats.GetInvoiceStatsService
 	getInvoiceMonthlyRevenue *invoice_stats.GetInvoiceMonthlyRevenueService
+
+	// Tax services
+	listTaxesService   *tax.ListTaxesService
+	findTaxByIDService *tax.FindTaxByIDService
+	createTaxService   *tax.CreateTaxService
+	updateTaxService   *tax.UpdateTaxService
+	deleteTaxService   *tax.DeleteTaxService
+
+	// Business entity services
+	listBusinessEntitiesService   *business_entity.ListBusinessEntitiesService
+	findBusinessEntityByIDService *business_entity.FindBusinessEntityByIDService
+	createBusinessEntityService   *business_entity.CreateBusinessEntityService
+	updateBusinessEntityService   *business_entity.UpdateBusinessEntityService
+	deleteBusinessEntityService   *business_entity.DeleteBusinessEntityService
 
 	// Project services
 	listProjectsService     *project.ListProjectsService
@@ -173,6 +191,8 @@ type Container struct {
 	ProjectInvitationHandler *handler.ProjectInvitationHandler
 	StoryLabelHandler        *handler.StoryLabelHandler
 	InvoiceStatsHandler      *handler.InvoiceStatsHandler
+	TaxHandler               *handler.TaxHandler
+	BusinessEntityHandler    *handler.BusinessEntityHandler
 }
 
 func NewContainer(db *gorm.DB, parser *go_kit.Parser) *Container {
@@ -206,6 +226,8 @@ func (c *Container) initRepositories() {
 	c.attachmentRepository = postgres.NewAttachmentRepository(c.db)
 	c.projectInvitationRepository = postgres.NewProjectInvitationRepository(c.db)
 	c.invoiceStatsRepository = postgres.NewInvoiceStatsRepository(c.db)
+	c.taxRepository = postgres.NewTaxRepository(c.db)
+	c.businessEntityRepository = postgres.NewBusinessEntityRepository(c.db)
 }
 
 func (c *Container) initServices() {
@@ -226,6 +248,20 @@ func (c *Container) initServices() {
 	// Invoice stats services
 	c.getInvoiceStatsService = invoice_stats.NewGetInvoiceStatsService(c.invoiceStatsRepository)
 	c.getInvoiceMonthlyRevenue = invoice_stats.NewGetInvoiceMonthlyRevenueService(c.invoiceStatsRepository)
+
+	// Tax services
+	c.createTaxService = tax.NewCreateTaxService(c.taxRepository)
+	c.updateTaxService = tax.NewUpdateTaxService(c.taxRepository)
+	c.deleteTaxService = tax.NewDeleteTaxService(c.taxRepository)
+	c.findTaxByIDService = tax.NewFindTaxByIDService(c.taxRepository)
+	c.listTaxesService = tax.NewListTaxesService(c.taxRepository)
+
+	// Business entity services
+	c.createBusinessEntityService = business_entity.NewCreateBusinessEntityService(c.businessEntityRepository)
+	c.updateBusinessEntityService = business_entity.NewUpdateBusinessEntityService(c.businessEntityRepository)
+	c.deleteBusinessEntityService = business_entity.NewDeleteBusinessEntityService(c.businessEntityRepository)
+	c.findBusinessEntityByIDService = business_entity.NewFindBusinessEntityByIDService(c.businessEntityRepository)
+	c.listBusinessEntitiesService = business_entity.NewListBusinessEntitiesService(c.businessEntityRepository)
 
 	// Project services
 	c.createProjectService = project.NewCreateProjectService(c.projectRepository, c.projectUserRepository, c.txManager)
@@ -342,4 +378,6 @@ func (c *Container) initHandlers() {
 	c.ProjectInvitationHandler = handler.NewProjectInvitationHandler(c.inviteUserUC, c.acceptInvitationUC)
 	c.StoryLabelHandler = handler.NewStoryLabelHandler(c.listStoryLabelsUC, c.assignStoryLabelUC, c.unassignStoryLabelUC)
 	c.InvoiceStatsHandler = handler.NewInvoiceStatsHandler(c.getInvoiceStatsService, c.getInvoiceMonthlyRevenue, c.parser)
+	c.TaxHandler = handler.NewTaxHandler(c.createTaxService, c.updateTaxService, c.deleteTaxService, c.findTaxByIDService, c.listTaxesService, c.parser)
+	c.BusinessEntityHandler = handler.NewBusinessEntityHandler(c.createBusinessEntityService, c.updateBusinessEntityService, c.deleteBusinessEntityService, c.findBusinessEntityByIDService, c.listBusinessEntitiesService, c.parser)
 }

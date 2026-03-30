@@ -9,51 +9,103 @@ import (
 	"github.com/lubosgarancovsky/go-kit"
 )
 
-func ToCreateContactPersonCommand(input *dto.CreateContactPersonReq) *command.CreateContactPersonCommand {
+func ToCreateContactPersonCommand(input *dto.CreateContactPersonReq) (*command.CreateContactPersonCommand, error) {
+	userID, err := uuid.Parse(input.UserID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
+	clientID, err := uuid.Parse(input.ClientID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
 	return &command.CreateContactPersonCommand{
-		UserID:   uuid.MustParse(input.UserID),
-		ClientID: uuid.MustParse(input.ClientID),
+		UserID:   userID,
+		ClientID: clientID,
 		Name:     input.Name,
 		Email:    input.Email,
 		Phone:    input.Phone,
-	}
+	}, nil
 }
 
-func ToUpdateContactPersonCommand(input *dto.UpdateContactPersonReq) *command.UpdateContactPersonCommand {
+func ToUpdateContactPersonCommand(input *dto.UpdateContactPersonReq) (*command.UpdateContactPersonCommand, error) {
+	id, err := uuid.Parse(input.ContactPersonID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
+	userID, err := uuid.Parse(input.UserID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
+	clientID, err := uuid.Parse(input.ClientID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
 	return &command.UpdateContactPersonCommand{
-		ID: uuid.MustParse(input.ContactPersonID),
+		ID: id,
 		CreateContactPersonCommand: command.CreateContactPersonCommand{
-			UserID:   uuid.MustParse(input.UserID),
-			ClientID: uuid.MustParse(input.ClientID),
+			UserID:   userID,
+			ClientID: clientID,
 			Name:     input.Name,
 			Email:    input.Email,
 			Phone:    input.Phone,
 		},
-	}
+	}, nil
 }
 
-func ToDeleteContactPersonCommand(input *dto.DeleteContactPersonReq) *command.DeleteContactPersonCommand {
+func ToDeleteContactPersonCommand(input *dto.DeleteContactPersonReq) (*command.DeleteContactPersonCommand, error) {
+	id, err := uuid.Parse(input.ContactPersonID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
+	userID, err := uuid.Parse(input.UserID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
+	clientID, err := uuid.Parse(input.ClientID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
 	return &command.DeleteContactPersonCommand{
-		ID:       uuid.MustParse(input.ContactPersonID),
-		UserID:   uuid.MustParse(input.UserID),
-		ClientID: uuid.MustParse(input.ClientID),
-	}
+		ID:       id,
+		UserID:   userID,
+		ClientID: clientID,
+	}, nil
 }
 
-func ToFindContactPersonByIDQuery(input *dto.FindContactPersonByIDReq) *query.FindContactPersonByIDQuery {
+func ToFindContactPersonByIDQuery(input *dto.FindContactPersonByIDReq) (*query.FindContactPersonByIDQuery, error) {
+	id, err := uuid.Parse(input.ContactPersonID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
+	userID, err := uuid.Parse(input.UserID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
+	clientID, err := uuid.Parse(input.ClientID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
 	return &query.FindContactPersonByIDQuery{
-		ID:       uuid.MustParse(input.ContactPersonID),
-		UserID:   uuid.MustParse(input.UserID),
-		ClientID: uuid.MustParse(input.ClientID),
-	}
+		ID:       id,
+		UserID:   userID,
+		ClientID: clientID,
+	}, nil
 }
 
-func ToListContactPersonsQuery(input *dto.ListContactPersonsReq, lq *go_kit.ListingQuery) *query.ListContactPersonsQuery {
-	return &query.ListContactPersonsQuery{
-		UserID:       uuid.MustParse(input.UserID),
-		ClientID:     uuid.MustParse(input.ClientID),
-		ListingQuery: lq,
+func ToListContactPersonsQuery(input *dto.ListContactPersonsReq, lq *go_kit.ListingQuery) (*query.ListContactPersonsQuery, error) {
+	userID, err := uuid.Parse(input.UserID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
 	}
+	clientID, err := uuid.Parse(input.ClientID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
+	return &query.ListContactPersonsQuery{
+		UserID:       userID,
+		ClientID:     clientID,
+		ListingQuery: lq,
+	}, nil
 }
 
 func ToContactPersonResponse(cp *entity.ContactPerson) *dto.ContactPersonRes {

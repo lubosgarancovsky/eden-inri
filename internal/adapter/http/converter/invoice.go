@@ -5,11 +5,16 @@ import (
 	"github.com/lubosgarancovsky/eden-inri/internal/adapter/http/dto"
 	"github.com/lubosgarancovsky/eden-inri/internal/domain/command"
 	"github.com/lubosgarancovsky/eden-inri/internal/domain/entity"
+	"github.com/lubosgarancovsky/go-kit"
 )
 
-func ToCreateInvoiceCommand(input *dto.CreateInvoiceReq) *command.CreateInvoiceCommand {
+func ToCreateInvoiceCommand(input *dto.CreateInvoiceReq) (*command.CreateInvoiceCommand, error) {
+	userID, err := uuid.Parse(input.UserID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
 	return &command.CreateInvoiceCommand{
-		UserID:        uuid.MustParse(input.UserID),
+		UserID:        userID,
 		ClientID:      input.ClientID,
 		Name:          input.Name,
 		Description:   input.Description,
@@ -23,14 +28,22 @@ func ToCreateInvoiceCommand(input *dto.CreateInvoiceReq) *command.CreateInvoiceC
 		DeliveredAt:   input.DeliveredAt,
 		PaidAt:        input.PaidAt,
 		IsCanceled:    input.IsCanceled,
-	}
+	}, nil
 }
 
-func ToUpdateInvoiceCommand(input *dto.UpdateInvoiceReq) *command.UpdateInvoiceCommand {
+func ToUpdateInvoiceCommand(input *dto.UpdateInvoiceReq) (*command.UpdateInvoiceCommand, error) {
+	id, err := uuid.Parse(input.InvoiceID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
+	userID, err := uuid.Parse(input.UserID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
 	return &command.UpdateInvoiceCommand{
-		ID: uuid.MustParse(input.InvoiceID),
+		ID: id,
 		CreateInvoiceCommand: command.CreateInvoiceCommand{
-			UserID:        uuid.MustParse(input.UserID),
+			UserID:        userID,
 			ClientID:      input.ClientID,
 			Name:          input.Name,
 			Description:   input.Description,
@@ -45,7 +58,7 @@ func ToUpdateInvoiceCommand(input *dto.UpdateInvoiceReq) *command.UpdateInvoiceC
 			PaidAt:        input.PaidAt,
 			IsCanceled:    input.IsCanceled,
 		},
-	}
+	}, nil
 }
 
 func ToInvoiceResponse(invoice *entity.Invoice) *dto.InvoiceRes {

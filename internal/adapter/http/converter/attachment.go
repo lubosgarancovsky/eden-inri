@@ -7,15 +7,20 @@ import (
 	"github.com/lubosgarancovsky/eden-inri/internal/adapter/http/dto"
 	"github.com/lubosgarancovsky/eden-inri/internal/domain/command"
 	"github.com/lubosgarancovsky/eden-inri/internal/domain/entity"
+	"github.com/lubosgarancovsky/go-kit"
 )
 
-func ToUploadAttachmentCommand(req *dto.UploadAttachmentReq, files []*multipart.FileHeader) *command.UploadAttachmentCommand {
+func ToUploadAttachmentCommand(req *dto.UploadAttachmentReq, files []*multipart.FileHeader) (*command.UploadAttachmentCommand, error) {
+	userID, err := uuid.Parse(req.UserID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
 	return &command.UploadAttachmentCommand{
-		UserID:  uuid.MustParse(req.UserID),
+		UserID:  userID,
 		ModelID: req.ModelID,
 		Model:   req.Model,
 		Files:   files,
-	}
+	}, nil
 }
 
 func ToAttachmentResponse(e *entity.Attachment) *dto.AttachmentRes {
@@ -31,10 +36,18 @@ func ToAttachmentResponse(e *entity.Attachment) *dto.AttachmentRes {
 	}
 }
 
-func ToUpdateAttachmentCommand(req *dto.UpdateAttachmentReq) *command.UpdateAttachmentCommand {
-	return &command.UpdateAttachmentCommand{
-		ID:           uuid.MustParse(req.ID),
-		UserID:       uuid.MustParse(req.UserID),
-		OriginalName: req.Name,
+func ToUpdateAttachmentCommand(req *dto.UpdateAttachmentReq) (*command.UpdateAttachmentCommand, error) {
+	id, err := uuid.Parse(req.ID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
 	}
+	userID, err := uuid.Parse(req.UserID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
+	return &command.UpdateAttachmentCommand{
+		ID:           id,
+		UserID:       userID,
+		OriginalName: req.Name,
+	}, nil
 }

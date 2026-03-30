@@ -9,18 +9,41 @@ import (
 	"github.com/lubosgarancovsky/go-kit"
 )
 
-func ToCreateStoryCommand(input *dto.CreateStoryReq) *command.CreateStoryCommand {
+func ToCreateStoryCommand(input *dto.CreateStoryReq) (*command.CreateStoryCommand, error) {
 	var assigneeID *uuid.UUID
 	if input.AssigneeID != nil {
-		id := uuid.MustParse(*input.AssigneeID)
+		id, err := uuid.Parse(*input.AssigneeID)
+		if err != nil {
+			return nil, go_kit.ErrInvalidUUID
+		}
 		assigneeID = &id
 	}
 
+	userID, err := uuid.Parse(input.UserID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
+
+	projectID, err := uuid.Parse(input.ProjectID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
+
+	columnID, err := uuid.Parse(input.ColumnID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
+
+	boardID, err := uuid.Parse(input.BoardID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
+
 	return &command.CreateStoryCommand{
-		UserID:      uuid.MustParse(input.UserID),
-		ProjectID:   uuid.MustParse(input.ProjectID),
-		ColumnID:    uuid.MustParse(input.ColumnID),
-		BoardID:     uuid.MustParse(input.BoardID),
+		UserID:      userID,
+		ProjectID:   projectID,
+		ColumnID:    columnID,
+		BoardID:     boardID,
 		Title:       input.Title,
 		Description: input.Description,
 		Kind:        input.Kind,
@@ -31,24 +54,47 @@ func ToCreateStoryCommand(input *dto.CreateStoryReq) *command.CreateStoryCommand
 		StartDate:   input.StartDate,
 		EndDate:     input.EndDate,
 		Position:    input.Position,
-	}
+	}, nil
 }
 
-func ToUpdateStoryCommand(input *dto.UpdateStoryReq) *command.UpdateStoryCommand {
+func ToUpdateStoryCommand(input *dto.UpdateStoryReq) (*command.UpdateStoryCommand, error) {
 	var assigneeID *uuid.UUID
 	if input.AssigneeID != nil {
-		id := uuid.MustParse(*input.AssigneeID)
+		id, err := uuid.Parse(*input.AssigneeID)
+		if err != nil {
+			return nil, go_kit.ErrInvalidUUID
+		}
 		assigneeID = &id
 	}
 
+	id, err := uuid.Parse(input.ID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
+
+	userID, err := uuid.Parse(input.UserID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
+
+	projectID, err := uuid.Parse(input.ProjectID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
+
+	columnID, err := uuid.Parse(input.ColumnID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
+
 	return &command.UpdateStoryCommand{
-		ID:        uuid.MustParse(input.ID),
-		UserID:    uuid.MustParse(input.UserID),
-		ProjectID: uuid.MustParse(input.ProjectID),
+		ID:        id,
+		UserID:    userID,
+		ProjectID: projectID,
 		CreateStoryCommand: command.CreateStoryCommand{
-			UserID:      uuid.MustParse(input.UserID),
-			ProjectID:   uuid.MustParse(input.ProjectID),
-			ColumnID:    uuid.MustParse(input.ColumnID),
+			UserID:      userID,
+			ProjectID:   projectID,
+			ColumnID:    columnID,
 			Title:       input.Title,
 			Description: input.Description,
 			Kind:        input.Kind,
@@ -60,61 +106,134 @@ func ToUpdateStoryCommand(input *dto.UpdateStoryReq) *command.UpdateStoryCommand
 			EndDate:     input.EndDate,
 			Position:    input.Position,
 		},
-	}
+	}, nil
 }
 
-func ToDeleteStoryCommand(input *dto.DeleteStoryReq) *command.DeleteStoryCommand {
+func ToDeleteStoryCommand(input *dto.DeleteStoryReq) (*command.DeleteStoryCommand, error) {
+	id, err := uuid.Parse(input.ID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
+
+	userID, err := uuid.Parse(input.UserID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
+
+	projectID, err := uuid.Parse(input.ProjectID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
+
 	return &command.DeleteStoryCommand{
-		ID:        uuid.MustParse(input.ID),
-		UserID:    uuid.MustParse(input.UserID),
-		ProjectID: uuid.MustParse(input.ProjectID),
-	}
+		ID:        id,
+		UserID:    userID,
+		ProjectID: projectID,
+	}, nil
 }
 
-func ToChangeStoryAssigneeCommand(input *dto.ChangeStoryAssigneeReq) *command.ChangeStoryAssigneeCommand {
+func ToChangeStoryAssigneeCommand(input *dto.ChangeStoryAssigneeReq) (*command.ChangeStoryAssigneeCommand, error) {
 	var assigneeID *uuid.UUID
 	if input.AssigneeID != nil {
-		id := uuid.MustParse(*input.AssigneeID)
+		id, err := uuid.Parse(*input.AssigneeID)
+		if err != nil {
+			return nil, go_kit.ErrInvalidUUID
+		}
 		assigneeID = &id
 	}
 
+	id, err := uuid.Parse(input.ID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
+
+	userID, err := uuid.Parse(input.UserID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
+
+	projectID, err := uuid.Parse(input.ProjectID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
+
 	return &command.ChangeStoryAssigneeCommand{
-		ID:         uuid.MustParse(input.ID),
-		UserID:     uuid.MustParse(input.UserID),
-		ProjectID:  uuid.MustParse(input.ProjectID),
+		ID:         id,
+		UserID:     userID,
+		ProjectID:  projectID,
 		AssigneeID: assigneeID,
-	}
+	}, nil
 }
 
-func ToFindStoryByIDQuery(input *dto.FindStoryByIDReq) *query.FindStoryByIDQuery {
+func ToFindStoryByIDQuery(input *dto.FindStoryByIDReq) (*query.FindStoryByIDQuery, error) {
+	id, err := uuid.Parse(input.ID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
+
+	userID, err := uuid.Parse(input.UserID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
+
+	projectID, err := uuid.Parse(input.ProjectID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
+
 	return &query.FindStoryByIDQuery{
-		ID:        uuid.MustParse(input.ID),
-		UserID:    uuid.MustParse(input.UserID),
-		ProjectID: uuid.MustParse(input.ProjectID),
-	}
+		ID:        id,
+		UserID:    userID,
+		ProjectID: projectID,
+	}, nil
 }
 
-func ToFindStoryBySlugQuery(input *dto.FindStoryBySlugReq) *query.FindStoryBySlugQuery {
+func ToFindStoryBySlugQuery(input *dto.FindStoryBySlugReq) (*query.FindStoryBySlugQuery, error) {
+	userID, err := uuid.Parse(input.UserID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
+
+	projectID, err := uuid.Parse(input.ProjectID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
+
 	return &query.FindStoryBySlugQuery{
 		Slug:      input.Slug,
-		UserID:    uuid.MustParse(input.UserID),
-		ProjectID: uuid.MustParse(input.ProjectID),
-	}
+		UserID:    userID,
+		ProjectID: projectID,
+	}, nil
 }
 
-func ToListStoriesQuery(input *dto.ListStoriesReq, lq *go_kit.ListingQuery) *query.ListStoriesQuery {
+func ToListStoriesQuery(input *dto.ListStoriesReq, lq *go_kit.ListingQuery) (*query.ListStoriesQuery, error) {
+	userID, err := uuid.Parse(input.UserID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
+
+	projectID, err := uuid.Parse(input.ProjectID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
+	}
+
 	return &query.ListStoriesQuery{
-		UserID:       uuid.MustParse(input.UserID),
-		ProjectID:    uuid.MustParse(input.ProjectID),
+		UserID:       userID,
+		ProjectID:    projectID,
 		ListingQuery: lq,
-	}
+	}, nil
 }
 
-func ToListAssignedStoriesQuery(input *dto.ListAssignedStoriesReq, lq *go_kit.ListingQuery) *query.ListAssignedStoriesQuery {
-	return &query.ListAssignedStoriesQuery{
-		UserID:       uuid.MustParse(input.UserID),
-		ListingQuery: lq,
+func ToListAssignedStoriesQuery(input *dto.ListAssignedStoriesReq, lq *go_kit.ListingQuery) (*query.ListAssignedStoriesQuery, error) {
+	userID, err := uuid.Parse(input.UserID)
+	if err != nil {
+		return nil, go_kit.ErrInvalidUUID
 	}
+
+	return &query.ListAssignedStoriesQuery{
+		UserID:       userID,
+		ListingQuery: lq,
+	}, nil
 }
 
 func ToStoryResponse(e *entity.Story) *dto.StoryRes {

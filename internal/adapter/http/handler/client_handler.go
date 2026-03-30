@@ -104,7 +104,13 @@ func (h *ClientHandler) Create(c *gin.Context) {
 		return
 	}
 
-	created, err := h.createClientUC.Execute(c.Request.Context(), converter.ToCreateClientCommand(req))
+	cmd, err := converter.ToCreateClientCommand(req)
+	if err != nil {
+		handle.Error(c, err)
+		return
+	}
+
+	created, err := h.createClientUC.Execute(c.Request.Context(), cmd)
 	if err != nil {
 		handle.Error(c, err)
 		return
@@ -121,7 +127,13 @@ func (h *ClientHandler) Update(c *gin.Context) {
 		return
 	}
 
-	updated, err := h.updateClientUC.Execute(c.Request.Context(), converter.ToUpdateClientCommand(req))
+	cmd, err := converter.ToUpdateClientCommand(req)
+	if err != nil {
+		handle.Error(c, err)
+		return
+	}
+
+	updated, err := h.updateClientUC.Execute(c.Request.Context(), cmd)
 	if err != nil {
 		handle.Error(c, err)
 		return
