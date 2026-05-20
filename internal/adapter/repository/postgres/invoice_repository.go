@@ -60,6 +60,7 @@ func (r *InvoiceRepository) Update(ctx context.Context, inv *entity.Invoice) err
 		Model(&model.Invoice{}).
 		Where("id = ?", inv.ID).
 		Where("user_id = ?", inv.UserID).
+		Select("*").
 		Updates(mapper.InvoiceFromDomain(inv))
 
 	if res.Error != nil {

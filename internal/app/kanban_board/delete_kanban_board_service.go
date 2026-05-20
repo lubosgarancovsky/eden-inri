@@ -15,7 +15,7 @@ type DeleteKanbanBoardService struct {
 }
 
 func NewDeleteKanbanBoardService(repo ports.PersistKanbanBoardPort, hasRoleRepo ports.MemberHasRolePort) *DeleteKanbanBoardService {
-	return &DeleteKanbanBoardService{repo: repo}
+	return &DeleteKanbanBoardService{repo: repo, hasRoleRepo: hasRoleRepo}
 }
 
 func (s *DeleteKanbanBoardService) Execute(ctx context.Context, cmd *command.DeleteKanbanBoardCommand) error {

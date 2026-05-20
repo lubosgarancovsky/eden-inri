@@ -24,12 +24,7 @@ func (s *UpdateInvoiceService) Execute(ctx context.Context, cmd *command.UpdateI
 		return nil, err
 	}
 
-	prevClient := invoice.ClientID
-
 	cmd.Apply(invoice)
-	if prevClient != invoice.ClientID {
-
-	}
 
 	if err = s.repository.Update(ctx, invoice); err != nil {
 		return nil, err
