@@ -22,6 +22,7 @@ import (
 	"github.com/lubosgarancovsky/eden-inri/internal/app/story_attachment"
 	"github.com/lubosgarancovsky/eden-inri/internal/app/story_label"
 	"github.com/lubosgarancovsky/eden-inri/internal/app/tax"
+	"github.com/lubosgarancovsky/eden-inri/internal/app/tax_stats"
 	"github.com/lubosgarancovsky/go-kit"
 	"gorm.io/gorm"
 )
@@ -48,6 +49,7 @@ type Container struct {
 	projectInvitationRepository *postgres.ProjectInvitationRepository
 	storyLabelRepository        *postgres.StoryLabelRepository
 	invoiceStatsRepository      *postgres.InvoiceStatsRepository
+	taxStatsRepository          *postgres.TaxStatsRepository
 	taxRepository               *postgres.TaxRepository
 	businessEntityRepository    *postgres.BusinessEntityRepository
 
@@ -70,6 +72,7 @@ type Container struct {
 	getInvoiceMonthlyRevenue *invoice_stats.GetInvoiceMonthlyRevenueService
 
 	// Tax services
+	getTaxStatsService *tax_stats.GetTaxStatsService
 	listTaxesService   *tax.ListTaxesService
 	findTaxByIDService *tax.FindTaxByIDService
 	createTaxService   *tax.CreateTaxService
@@ -191,6 +194,7 @@ type Container struct {
 	ProjectInvitationHandler *handler.ProjectInvitationHandler
 	StoryLabelHandler        *handler.StoryLabelHandler
 	InvoiceStatsHandler      *handler.InvoiceStatsHandler
+	TaxStatsHandler          *handler.TaxStatsHandler
 	TaxHandler               *handler.TaxHandler
 	BusinessEntityHandler    *handler.BusinessEntityHandler
 }
@@ -226,6 +230,7 @@ func (c *Container) initRepositories() {
 	c.attachmentRepository = postgres.NewAttachmentRepository(c.db)
 	c.projectInvitationRepository = postgres.NewProjectInvitationRepository(c.db)
 	c.invoiceStatsRepository = postgres.NewInvoiceStatsRepository(c.db)
+	c.taxStatsRepository = postgres.NewTaxStatsRepository(c.db)
 	c.taxRepository = postgres.NewTaxRepository(c.db)
 	c.businessEntityRepository = postgres.NewBusinessEntityRepository(c.db)
 }
@@ -250,6 +255,7 @@ func (c *Container) initServices() {
 	c.getInvoiceMonthlyRevenue = invoice_stats.NewGetInvoiceMonthlyRevenueService(c.invoiceStatsRepository)
 
 	// Tax services
+	c.getTaxStatsService = tax_stats.NewGetTaxStatsService(c.taxStatsRepository)
 	c.createTaxService = tax.NewCreateTaxService(c.taxRepository)
 	c.updateTaxService = tax.NewUpdateTaxService(c.taxRepository)
 	c.deleteTaxService = tax.NewDeleteTaxService(c.taxRepository)
@@ -378,6 +384,7 @@ func (c *Container) initHandlers() {
 	c.ProjectInvitationHandler = handler.NewProjectInvitationHandler(c.inviteUserUC, c.acceptInvitationUC)
 	c.StoryLabelHandler = handler.NewStoryLabelHandler(c.listStoryLabelsUC, c.assignStoryLabelUC, c.unassignStoryLabelUC)
 	c.InvoiceStatsHandler = handler.NewInvoiceStatsHandler(c.getInvoiceStatsService, c.getInvoiceMonthlyRevenue, c.parser)
+	c.TaxStatsHandler = handler.NewTaxStatsHandler(c.getTaxStatsService, c.parser)
 	c.TaxHandler = handler.NewTaxHandler(c.createTaxService, c.updateTaxService, c.deleteTaxService, c.findTaxByIDService, c.listTaxesService, c.parser)
 	c.BusinessEntityHandler = handler.NewBusinessEntityHandler(c.createBusinessEntityService, c.updateBusinessEntityService, c.deleteBusinessEntityService, c.findBusinessEntityByIDService, c.listBusinessEntitiesService, c.parser)
 }

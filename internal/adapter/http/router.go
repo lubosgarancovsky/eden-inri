@@ -73,6 +73,7 @@ func NewServerRoute(c *app.Container) *gin.Engine {
 			taxes.DELETE("/:taxId", c.TaxHandler.Delete)
 			taxes.GET("/:taxId", c.TaxHandler.FindByID)
 			taxes.GET("", c.TaxHandler.List)
+			taxes.GET("/stats", c.TaxStatsHandler.GetStats)
 		}
 
 		businessEntities := protected.Group("/business-entities")
