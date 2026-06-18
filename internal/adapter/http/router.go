@@ -58,6 +58,7 @@ func NewServerRoute(c *app.Container) *gin.Engine {
 			invoices.DELETE("/:invoiceId", c.InvoiceHandler.Delete)
 			invoices.GET("/:invoiceId", c.InvoiceHandler.FindByID)
 			invoices.GET("", c.InvoiceHandler.List)
+			invoices.POST("/read-pdf", c.InvoiceHandler.ExtractPDF)
 
 			invoiceStats := invoices.Group("/stats")
 			{

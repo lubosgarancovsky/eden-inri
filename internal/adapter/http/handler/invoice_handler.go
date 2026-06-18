@@ -9,16 +9,19 @@ import (
 	"github.com/lubosgarancovsky/eden-inri/internal/adapter/http/handle"
 	"github.com/lubosgarancovsky/eden-inri/internal/adapter/http/validator"
 	"github.com/lubosgarancovsky/eden-inri/internal/app/ports"
+	"github.com/lubosgarancovsky/eden-inri/internal/domain/command"
+	"github.com/lubosgarancovsky/eden-inri/internal/domain/entity"
 	go_kit "github.com/lubosgarancovsky/go-kit"
 )
 
 type InvoiceHandler struct {
-	createUC ports.CreateInvoiceUseCase
-	updateUC ports.UpdateInvoiceUseCase
-	deleteUC ports.DeleteInvoiceUseCase
-	findUC   ports.FindInvoiceByIDUseCase
-	listUC   ports.ListInvoicesUseCase
-	parser   *go_kit.Parser
+	createUC  ports.CreateInvoiceUseCase
+	updateUC  ports.UpdateInvoiceUseCase
+	deleteUC  ports.DeleteInvoiceUseCase
+	findUC    ports.FindInvoiceByIDUseCase
+	listUC    ports.ListInvoicesUseCase
+	analyzeUC ports.AnalyzePdfUseCase
+	parser    *go_kit.Parser
 }
 
 func NewInvoiceHandler(
@@ -27,9 +30,10 @@ func NewInvoiceHandler(
 	deleteUC ports.DeleteInvoiceUseCase,
 	findUC ports.FindInvoiceByIDUseCase,
 	listUC ports.ListInvoicesUseCase,
+	analyzeUC ports.AnalyzePdfUseCase,
 	parser *go_kit.Parser,
 ) *InvoiceHandler {
-	return &InvoiceHandler{createUC, updateUC, deleteUC, findUC, listUC, parser}
+	return &InvoiceHandler{createUC, updateUC, deleteUC, findUC, listUC, analyzeUC, parser}
 }
 
 type InvoiceListingAttributes struct {
@@ -148,4 +152,44 @@ func (h *InvoiceHandler) Delete(c *gin.Context) {
 		return
 	}
 	c.Status(http.StatusNoContent)
+}
+
+func (h *InvoiceHandler) ExtractPDF(c *gin.Context) {
+	form, err := c.MultipartForm()
+	if err != nil {
+		handle.Error(c, go_kit.Wrap(go_kit.ErrBadRequest.WithMessage("invalid multipart form"), err))
+		return
+	}
+
+	file := form.File["file"]
+
+	if len(file) == 0 {
+		handle.Error(c, go_kit.ErrBadRequest.WithMessage("no files provided"))
+		return
+	}
+
+	pdfFile, err := file[0].Open()
+	if err != nil {
+		handle.Error(c, err)
+		return
+	}
+
+	defer pdfFile.Close()
+
+	analysisCmd := &command.FilesCommand{Sources: []*entity.FileSource{
+		{
+			Name:     file[0].Filename,
+			MimeType: file[0].Header.Get("Content-Type"),
+			Reader:   pdfFile,
+			Size:     file[0].Size,
+		},
+	}}
+
+	invoice, err := h.analyzeUC.Execute(c.Request.Context(), analysisCmd)
+	if err != nil {
+		handle.Error(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, invoice)
 }

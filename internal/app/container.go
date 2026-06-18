@@ -2,6 +2,7 @@ package app
 
 import (
 	"github.com/lubosgarancovsky/eden-inri/internal/adapter/http/handler"
+	ollama "github.com/lubosgarancovsky/eden-inri/internal/adapter/ollama/handler"
 	"github.com/lubosgarancovsky/eden-inri/internal/adapter/repository/postgres"
 	"github.com/lubosgarancovsky/eden-inri/internal/app/attachment"
 	"github.com/lubosgarancovsky/eden-inri/internal/app/business_entity"
@@ -66,6 +67,7 @@ type Container struct {
 	createInvoiceService   *invoice.CreateInvoiceService
 	updateInvoiceService   *invoice.UpdateInvoiceService
 	deleteInvoiceService   *invoice.DeleteInvoiceService
+	analyzeService         *invoice.AnalyzeInvoicePdfService
 
 	// Invoice stats services
 	getInvoiceStatsService   *invoice_stats.GetInvoiceStatsService
@@ -176,6 +178,9 @@ type Container struct {
 	assignStoryLabelUC   *story_label.AssignStoryLabelService
 	unassignStoryLabelUC *story_label.UnAssignStoryLabelService
 
+	// -- Rest Adapters
+	ollamaAdapter *ollama.ImageAnalyzerHandler
+
 	// -- Handlers --
 	ClientHandler            *handler.ClientHandler
 	InvoiceHandler           *handler.InvoiceHandler
@@ -249,6 +254,7 @@ func (c *Container) initServices() {
 	c.deleteInvoiceService = invoice.NewDeleteInvoiceService(c.invoiceRepository)
 	c.findInvoiceByIDService = invoice.NewFindInvoiceService(c.invoiceRepository)
 	c.listInvoicesService = invoice.NewListInvoicesService(c.invoiceRepository)
+	c.analyzeService = invoice.NewAnalyzeInvoicePdfService(c.ollamaAdapter)
 
 	// Invoice stats services
 	c.getInvoiceStatsService = invoice_stats.NewGetInvoiceStatsService(c.invoiceStatsRepository)
@@ -363,11 +369,12 @@ func (c *Container) initServices() {
 	c.listStoryLabelsUC = story_label.NewListStoryLabelService(c.storyLabelRepository, c.projectUserRepository)
 	c.assignStoryLabelUC = story_label.NewAssignStoryLabelService(c.storyLabelRepository, c.projectUserRepository)
 	c.unassignStoryLabelUC = story_label.NewUnassignStoryLabelService(c.storyLabelRepository, c.projectUserRepository)
+
 }
 
 func (c *Container) initHandlers() {
 	c.ClientHandler = handler.NewClientHandler(c.createClientService, c.updateClientService, c.deleteClientService, c.findClientByIDService, c.listClientsService, c.parser)
-	c.InvoiceHandler = handler.NewInvoiceHandler(c.createInvoiceService, c.updateInvoiceService, c.deleteInvoiceService, c.findInvoiceByIDService, c.listInvoicesService, c.parser)
+	c.InvoiceHandler = handler.NewInvoiceHandler(c.createInvoiceService, c.updateInvoiceService, c.deleteInvoiceService, c.findInvoiceByIDService, c.listInvoicesService, c.analyzeService, c.parser)
 	c.ProjectHandler = handler.NewProjectHandler(c.createProjectService, c.updateProjectService, c.deleteProjectService, c.findProjectByIDService, c.listProjectsService, c.favouriteProjectService, c.parser)
 	c.ProjectLabelHandler = handler.NewProjectLabelHandler(c.createProjectLabelService, c.updateProjectLabelService, c.deleteProjectLabelService, c.findProjectLabelByIDService, c.listProjectLabelsService, c.parser)
 	c.ProjectDocumentHandler = handler.NewProjectDocumentHandler(c.createProjectDocumentService, c.updateProjectDocumentService, c.deleteProjectDocumentService, c.findProjectDocumentByIDService, c.listProjectDocumentsService, c.parser)

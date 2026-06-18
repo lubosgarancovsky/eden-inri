@@ -19,6 +19,8 @@ type Config struct {
 	SMTPFrom           string `field:"SMTP_FROM"`
 	InvitationTokenExp int    `field:"INVITATION_TOKEN_EXP" default:"3600"`
 	InvitationUrl      string `field:"INVITATION_URL"`
+	OllamaVisionModel  string `field:"OLLAMA_VISION_MODEL"`
+	OllamaUrl          string `field:"OLLAMA_URL"`
 }
 
 func Init(serviceName string) {

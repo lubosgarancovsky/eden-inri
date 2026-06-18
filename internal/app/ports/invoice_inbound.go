@@ -27,3 +27,7 @@ type FindInvoiceByIDUseCase interface {
 type ListInvoicesUseCase interface {
 	Execute(ctx context.Context, query *query.ListQuery) (*[]entity.Invoice, int64, error)
 }
+
+type AnalyzePdfUseCase interface {
+	Execute(ctx context.Context, cmd *command.FilesCommand) (*entity.InvoiceAnalysis, error)
+}
